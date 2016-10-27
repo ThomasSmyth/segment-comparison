@@ -1,7 +1,9 @@
 
-accessToken:@[{first read0 x};`:settings/token.txt;{"null token"}];
+homedir:getenv[`HOME],"/git/segment_comparison";
 
-system"l settings/sampleIds.q";
+accessToken:@[{first read0 x};hsym `$homedir,"/settings/token.txt";{"null token"}];
+
+system"l ",homedir,"/settings/sampleIds.q";
 
 actId:@[value;`actId;""];
 athId:@[value;`athId;""];
@@ -42,6 +44,7 @@ last30segs:{[id]
 
 / compare segments to followed athletes
 .segComp.follow:{[]
+  if[count folRes:@[value;`folRes; ()]; :folRes];
   bb:@[.returnSegments.all[];`id;`long$];
   cc:.leaderboard.followers each string bb`id;
   dd:{([] segment:enlist x) cross y}'[bb`name;cc];
@@ -64,6 +67,7 @@ last30segs:{[id]
 
 / compare segments across all clubs
 .segComp.allClubs:{[]
+  if[count allClubRes:@[value;`allClubRes; ()]; :allClubRes];
   allClubs:string `long$connect["athlete"][`clubs;`id];
   bb:@[.returnSegments.all[];`id;string `long$];
   ii:(flip bb`name`id) cross (enlist each allClubs);
@@ -77,7 +81,9 @@ last30segs:{[id]
 
 / return segments from last 30 activities
 .returnSegments.all:{[]
-  act:@[connect "athlete/activities";`id;`long$];
+  if[count segs:@[value;`segs;()]; :segs];
+  aa:aa where {not x`manual} each aa:connect "athlete/activities";
+  act:@[aa;`id;`long$];
   segs:connect each "activities/",/:string act`id;
   `segs set segs:distinct select id, name from raze[segs`segment_efforts]`segment where not private;
   :segs;
@@ -85,19 +91,24 @@ last30segs:{[id]
 
 / return starred segments
 .returnSegments.starred:{[] 
+  if[count star:@[value;`starredSegments;()]; :star];
   `starredSegments set star:`id`name#@[connect "segments/starred";`id;`long$];
   :star;
  };
 
 / return follower leaderboard for a segment
 .leaderboard.followers:{[token;urlBase;segId]
+//  if[count leadFol:@[value;`leadFol;()]; :leadFol];
   message:-29!first system"curl -G ",urlBase,"segments/",segId,"/leaderboard -d access_token=",token," -d following=true";
-  :select athlete_name, moving_time from message`entries;
+  `leadFol set leadFol:select athlete_name, moving_time from message`entries;
+  :leadFol;
  }[accessToken;urlBase];
 
 / return club leaderboard for a segment
 .leaderboard.club:{[token;urlBase;segId;clubId]
+//  if[count leadClub:@[value;`leadClub;()]; :leadClub];
   message:-29!first system"curl -G ",urlBase,"segments/",segId,"/leaderboard -d access_token=",token," -d club_id=",clubId;
-  :select athlete_name, moving_time from message`entries;
+  `leadClub set leadClub:select athlete_name, moving_time from message`entries;
+   :leadClub;
  }[accessToken;urlBase];
 

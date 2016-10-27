@@ -2,3 +2,11 @@
 * Add flag to segment comparison to only use starred segments
 * create compare function to accept dictionary of parmeters
 * move functions to separate namespaces
+* cache retrieved leaderboards in table 
+
+* Sample results cache table
+
+segId  type  typeId  res
+1      club  1001    TAB
+1      fol   TAB
+1      club  1002    TAB
