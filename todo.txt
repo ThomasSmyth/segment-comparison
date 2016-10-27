@@ -1,0 +1,4 @@
+
+* Add flag to segment comparison to only use starred segments
+* create compare function to accept dictionary of parmeters
+* move functions to separate namespaces
