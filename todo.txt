@@ -4,6 +4,7 @@
 * move functions to separate namespaces
 * cache retrieved leaderboards in table 
 
+* cache clubs
 * Sample results cache table
 
 segId  type  typeId  res
