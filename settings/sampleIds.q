@@ -5,14 +5,14 @@ athId2:1811586;
 segId:1127380; // Castlereagh -> Albertbridge
 clbId:25148; // reddit-bikecommuting
 
-oauth:"oauth";
-athlete:"athlete";
-athleteById:"athletes/",string athId;
-activity:"activities/",string actId;
-activityStream:"activities/",string[actId],"/streams";
-club:"clubs/",string clbId;
-segment:"segments/",string segId;
-segmentLeaderboard:"segments/",string[segId],"/leaderboard";
-segmentAllEfforts:"segments/",string[segId],"/all_efforts";
-uploads:"uploads";
+.webpage.oauth:"oauth";
+.webpage.athlete:"athlete";
+.webpage.athleteById:"athletes/",string athId;
+.webpage.activity:"activities/",string actId;
+.webpage.activityStream:"activities/",string[actId],"/streams";
+.webpage.club:"clubs/",string clbId;
+.webpage.segment:"segments/",string segId;
+.webpage.segmentLeaderboard:"segments/",string[segId],"/leaderboard";
+.webpage.segmentAllEfforts:"segments/",string[segId],"/all_efforts";
+.webpage.uploads:"uploads";
 
