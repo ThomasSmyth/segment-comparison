@@ -23,10 +23,11 @@ execdict:{
       cf:$[any raze null each x[`custtype_filter];();`$x[`custtype_filter]];
 
       dt:`n xkey flip `n`d`t!flip (
-        ("activities";`before`after!(2016.10.28;2016.10.10); `.return.activities);
-        ("none";      `before`after!(2016.10.28;2016.10.10); `.return.activities);
-        ("segments";  ()!();                                 `aa);
-        ("clubs";     ()!();                                 `bb)
+        ("activities";  `before`after!(2016.10.28;2016.10.10); `.return.activities);
+        ("none";        `before`after!(2016.10.28;2016.10.10); `.return.activities);
+        ("segments";    `before`after!(2016.10.28;2016.10.27); `.return.segments);
+        ("clubs";       ()!();                                 `.return.clubs);
+        ("leaderboard"; (1127380;0N);                          `.return.leaderboard)
       );
 
       `dt set dt x`pivot;
