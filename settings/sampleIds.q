@@ -3,6 +3,7 @@ actId:756713162;
 athId:15522522;
 athId2:1811586;
 segId:1127380; // Castlereagh -> Albertbridge
+segId2:5714115; // Mail shot
 clbId:25148; // reddit-bikecommuting
 
 .webpage.oauth:"oauth";

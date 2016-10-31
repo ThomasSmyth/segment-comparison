@@ -3,11 +3,14 @@
 * create compare function to accept dictionary of parmeters
 * move functions to separate namespaces
 * cache retrieved leaderboards in table 
+* key cache by date, sub cache in data column == raze exec data from cache where date within <RANGE>
+    * possibly not compatible when no range is passed
+    * require range??
 
-* cache clubs
-* Sample results cache table
+    date        data
+    2016.10.01  <TAB>
+    2016.10.02  <TAB>
 
-segId  type  typeId  res
-1      club  1001    TAB
-1      fol   TAB
-1      club  1002    TAB
+* params should include a lists of valid AND required params
+* need to allow for multiple club ids
+    {x[`b]:y; x}[d]'[d`b]
