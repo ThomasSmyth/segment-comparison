@@ -1,18 +1,7 @@
 
 * Add flag to segment comparison to only use starred segments
-* create compare function to accept dictionary of parmeters
-* move functions to separate namespaces
-* cache retrieved leaderboards in table 
-* key cache by date, sub cache in data column == raze exec data from cache where date within <RANGE>
-    * possibly not compatible when no range is passed
-
-    date        data
-    2016.10.01  <TAB>
-    2016.10.02  <TAB>
-
-* params should include a lists of valid AND required params
+* need to support pagination, assume 2 trips per day if limit required
 * need to allow for multiple club ids
     {x[`b]:y; x}[d]'[d`b]
 
-* have variable to indicate null date parameters have been processed
-* REQUIRE DATE RANGE FOR ACTIVITIES
+* .return.clean should return correct types
