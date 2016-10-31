@@ -2,8 +2,10 @@
 .var.homedir:getenv[`HOME],"/git/segment_comparison";
 .var.accessToken:@[{first read0 x};hsym `$.var.homedir,"/settings/token.txt";{"null token"}];
 .var.commandBase:"curl -G https://www.strava.com/api/v3/";
-.var.dateRange.activities:0N;
-.var.dateRange.segments:0N;
+.var.dateRange.activities:();
+.var.dateRange.activities.np:0b;
+.var.dateRange.segments:();
+.var.dateRange.segments.np:0b;
 
 system"l ",.var.homedir,"/settings/sampleIds.q";
 
@@ -56,22 +58,31 @@ showRes:{[segId;resType;resId]
   :uj/[res 0; 1_res];
  };
 
-/ return date list
-.return.datelist:{[t;l]                                     / WHAT SHOULD THIS DO
-   sv[`;`.var.dateRange,t] set 
-   dr:l[0] + til abs (-/) l+0 1;
-   :dr;
-  };
+/ return unprocessed dates
+.return.datelist.check:{[t;s;e]                                   / [type;start;end]
+  v:sv[`;`.var.dateRange,t];
+  if[s=0; s:0Nd];
+  if[e=0; e:0Nd];
+  dr:except[asc distinct (s,e),s+til 1^(e+1)-s] value v;
+  :dr;
+ };
 
-/ return clean dictionary
+.return.datelist.update:{[t;s;e]
+  v:sv[`;`.var.dateRange,t];
+  if[0 in s,e; :.log.error"Need to provide a date range"];
+  r:asc distinct (s,e),s+til 1^(e+1)-s;
+  if[0Nd in r;sv[`;`.var.dateRange,t,`np] set 1b];
+  :v set asc distinct r,value[v];
+ };
+
+/ only return parameters query accepts
 .return.clean:{[params;dict]
   def:(!/) .var.defaults`vr`vl;                             / defaults value for parameters
-  :{a!y a:key[y] inter x}[key[def] inter (),params;dict];   / return valid optional parameters
+  :{a!y a:key[y] inter x}[params;dict];                     / return valid optional parameters
  };
 
 / return additional url parameters
-.return.url:{[params;dict]
-  dict:.return.clean[params;dict];
+.return.url:{[dict]
   if[0=count dict; :""];
   def:(!/) .var.defaults`vr`vl;                             / defaults value for parameters
   dict:{a!y a:key[y] inter x}[params inter key def;dict];   / return valid optional parameters
@@ -83,11 +94,14 @@ showRes:{[segId;resType;resId]
   :" " sv ("-d ",/:string[n],'"="),'(exec fc from .var.defaults where vr in n)@' dict n;  / return parameters
  };
 
+.return.cleanUrl:{[params;dict] .return.url .return.clean[params;dict]}
+
 / return activities
 .return.activities:{[dict]
-//  if[any `start`end in key dict; .return.datelist[]];       / NEEDS FLESHED OUT
+  aa:.return.datelist[`check][`activities;dict`after;dict`before];
+  if[0Nd in aa; "return cache where null"];
   if[count cr:select from .cache.activities; :cr];
-  p:.return.url[`before`after`page`per_page;dict];          / additional url parameters
+  p:.return.cleanUrl[`before`after`page`per_page;dict];      / additional url parameters
   rs:{select `long$id, name, "D"$10#\:start_date, manual from x} each connect["activities";p];
   `.cache.activities upsert rs;
   :`id xkey rs;
