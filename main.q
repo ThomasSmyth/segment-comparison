@@ -36,8 +36,10 @@ showRes:{[segId;resType;resId]
  };
 
 / compare segments
-.segComp.rs:{[clubId]
-  bb:0!.return.segments[()!()];
+.segComp.rs:{[dict]
+  if[not `club_Id in key dict; :.log.error "Need to include club_Id"];
+  clubId:dict`club_Id;
+  bb:0!.return.segments[dict];
   cc:.return.leaderboard[;clubId] each bb`id;
   dd:{([] segment:enlist x) cross y}'[bb`name;cc];
   dd:@[raze dd where 1<count each dd;`athlete_name;`$];
