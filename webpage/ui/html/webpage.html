@@ -4,9 +4,9 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Smart Meter Usage Report</title>
+    <title>Strava Segment Comparison Tool</title>
     <link href="css/bootstrap.min.css" rel="stylesheet">
-    <link href="css/smartmeter.css" rel="stylesheet">
+    <link href="css/webpage.css" rel="stylesheet">
     <link href="css/datepicker.css" rel="stylesheet">
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
@@ -19,21 +19,21 @@
   <body>
     <div class="container">
       <div class="row">
-        <div class="col-md-12"><h2>Smart Meter Usage Report</h2></div>
+        <div class="col-md-12"><h2>Strava Segment Comparison Tool</h2></div>
         <div class="col-md-12"><h4>Filter By</h4></div>
       </div>      
       <div class="row">
         <div class="col-md-3">
           <h4>Start Date</h4>
-          <div class="input-append date" id="startdate" data-date="2013.08.01" data-date-format="yyyy.mm.dd">
-            <input class="span2" size="16" type="text" value="2013.08.01">
+          <div class="input-append date" id="startdate" data-date="-1d" data-date-format="yyyy.mm.dd">
+            <input class="span2" size="16" type="text" value="">
             <span class="add-on glyphicon glyphicon-calendar"></span>
           </div>
         </div>
         <div class="col-md-3">
           <h4>End Date</h4>
-          <div class="input-append date" id="enddate" data-date="2013.08.05" data-date-format="yyyy.mm.dd">
-            <input class="span2" size="16" type="text" value="2013.08.05">
+          <div class="input-append date" id="enddate" data-date="+0d" data-date-format="yyyy.mm.dd">
+            <input class="span2" size="16" type="text" value="">
             <span class="add-on glyphicon glyphicon-calendar"></span>
           </div>
         </div>        
@@ -116,6 +116,6 @@
 <!-- Include all compiled plugins (below), or include individual files as needed -->
 <script src="js/bootstrap.min.js"></script>
 <script src="js/bootstrap-datepicker.js"></script>
-<script src="js/smartmeter.js"></script>
+<script src="js/webpage.js"></script>
   </body>
 </html>

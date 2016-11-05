@@ -1,4 +1,4 @@
-// Smart Meter Usage Report 
+// Strava Segment Comparison Tool
 
 // Helper functions 
 // Format json data into HTML table
@@ -59,8 +59,8 @@ function getInputs() {
   custtypevals = checkboxVals('#custtype-filter');
 
   return {
-    start_date: startdate,
-    end_date: enddate,
+    after: startdate,
+    before: enddate,
     grouping: groupingvals,
     pivot: pivotvals,
     region_filter: regionvals,

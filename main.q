@@ -21,6 +21,7 @@ system"l ",.var.homedir,"/settings/sampleIds.q";
   (`before;     0Nd;    {string (-/)`long$(`timestamp$1+x;1970.01.01D00:00)%1e9});  / end date
   (`club_Id;    0N;     string                                                  );  / for club comparison
   (`segment_Id; 0N;     string                                                  );  / segment to compare on
+  (`pivot;      `none;  ::                                                      );
   (`page;       0N;     string                                                  );  / number of pages
   (`per_page;   0N;     string                                                  )   / results per page
  );
@@ -77,7 +78,7 @@ showRes:{[segId;resType;resId]
 .return.url:{[params;dict]
   if[0=count dict; :""];                                    / if no parametrs return empty string
   def:(!/) .var.defaults`vr`vl;                             / defaults value for parameters
-  n:inter[(),params] where not def=.Q.def[def] string dict; / return altered parameters
+  n:inter[(),params] where not def=.Q.def[def] {$[10=abs type x;x;string x]} each dict; / return altered parameters
   if[all `before`after in n;                                / check timestamps are valid
     if[(<=/)dict`before`after;:.log.error["Before and after timestamps are invalid"]]
   ];
@@ -117,7 +118,9 @@ showRes:{[segId;resType;resId]
   :`id xkey rs;
  };
 
-.return.leaderboard:{[segId;clubId] 
+.return.leaderboard:{[dict]
+  segId:dict`segment_Id;
+  clubId:dict`club_Id; 
   if[null segId; .log.error"Need to specify segmentId"; :()];
   $[null clubId;
     [tp:`following; extra:"-d following=true"];
