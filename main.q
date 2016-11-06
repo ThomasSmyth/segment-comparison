@@ -41,7 +41,7 @@ showRes:{[segId;resType;resId]
   if[not `club_Id in key dict; :.log.error "Need to include club_Id"];
   clubId:dict`club_Id;
   bb:0!.return.segments[dict];
-  cc:.return.leaderboard[;clubId] each bb`id;
+  cc:.return.leaderboard each {x[`segment_Id]:y; x}[dict]'[bb`id];
   dd:{([] segment:enlist x) cross y}'[bb`name;cc];
   dd:@[raze dd where 1<count each dd;`athlete_name;`$];
   if[0=count @[value;`athleteData;()]; `athleteData set connect["athlete";""]];
@@ -128,7 +128,7 @@ showRes:{[segId;resType;resId]
    ];
   if[count rs:exec res from .cache.leaderboards where segmentId=segId, resType=tp, resId=clubId; :raze rs];
   message:connect["segments/",string[segId],"/leaderboard"] extra;
-  rs:select athlete_name, moving_time from message`entries;
+  rs:select athlete_name, `minute$moving_time from message`entries;
   `.cache.leaderboards upsert (segId;tp;clubId;rs);
   :rs;
  };
