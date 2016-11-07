@@ -1,5 +1,5 @@
 ### To Do List ###
 
 * Add flag to segment comparison to only use starred segments
-* need to support pagination, assume 2 trips per day if limit required
+* Add option to exclude commutes from activity list used in .return.segments
 * return time to webpage with preceding 0s dropped

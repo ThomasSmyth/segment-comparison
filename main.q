@@ -10,7 +10,7 @@ system"l ",.var.homedir,"/settings/sampleIds.q";
 .log.error:{-1 string[.z.p]," | Error | ",x;};
 
 .cache.leaderboards:@[value;`.cache.leaderboards;([segmentId:`long$(); resType:`$(); resId:`long$()] res:())];
-.cache.activities:@[value;`.cache.activities;([id:`long$()] name:(); start_date:`date$(); manual:`boolean$())];
+.cache.activities:@[value;`.cache.activities;([id:`long$()] name:(); start_date:`date$(); manual:`boolean$(); commute:`boolean$())];
 .cache.segments:@[value;`.cache.segments;([id:`long$()] name:(); starred:`boolean$())];
 .cache.clubs:@[value;`.cache.clubs;([id:`long$()] name:())];
 
@@ -27,9 +27,20 @@ system"l ",.var.homedir,"/settings/sampleIds.q";
  );
 
 / basic connect function
-connect:{[token;commandBase;datatype;extra]
-  :-29!first system commandBase,datatype," -d access_token=",token," ",extra;       / return dictionary attribute-value pairs
- }[.var.accessToken;.var.commandBase];
+.connect.simple:{[datatype;extra]
+  :-29!first system .var.commandBase,datatype," -d access_token=",.var.accessToken," ",extra;       / return dictionary attribute-value pairs
+ };
+
+.connect.pagination:{[datatype;extra]
+  tab:(1;());
+  data:last {[datatype;extra;tab]
+    tab[1],:ret:.connect.simple[datatype;extra," -d page=",string tab 0];
+    if[count ret; tab[0]+:1];
+    tab
+  }[datatype;extra]/[tab];
+  :data;
+ };
+
 
 / show results neatly
 showRes:{[segId;resType;resId]
@@ -37,24 +48,35 @@ showRes:{[segId;resType;resId]
  };
 
 / compare segments
-.segComp.rs:{[dict]
+.segComp.rs.leaderboard:{[dict]
   if[not `club_Id in key dict; :.log.error "Need to include club_Id"];
   clubId:dict`club_Id;
   bb:0!.return.segments[dict];
   cc:.return.leaderboard each {x[`segment_Id]:y; x}[dict]'[bb`id];
   dd:{([] segment:enlist x) cross y}'[bb`name;cc];
   dd:@[raze dd where 1<count each dd;`athlete_name;`$];
-  if[0=count @[value;`athleteData;()]; `athleteData set connect["athlete";""]];
+  if[0=count @[value;`athleteData;()]; `athleteData set .connect.simple["athlete";""]];
   P:asc exec distinct athlete_name from dd;
   res:0!exec P#(athlete_name!moving_time) by segment:segment from dd;
   cl:`segment,`$" " sv athleteData`firstname`lastname;
   :(cl,cols[res] except cl) xcols res;
  };
 
+.segComp.rs.summary:{[dict]
+  if[not `club_Id in key dict; :.log.error "Need to include club_Id"];
+  clubId:dict`club_Id;
+  bb:0!.return.segments[dict];
+  cc:.return.leaderboard each {x[`segment_Id]:y; x}[dict]'[bb`id];
+  dd:{([] segment:enlist x) cross y}'[bb`name;cc];
+  dd:@[raze dd where 1<count each dd;`athlete_name;`$];
+  ee:select segment, athlete_name, moving_time, minTime:(min;moving_time) fby segment from dd;
+  :`total xdesc select total:count[segment], segment by athlete_name from ee where moving_time=minTime, 1=(count;i) fby segment;
+ };
+
 / compare segments against all users clubs
-.segComp.allClubs:{[]
+.segComp.allClubs.leaderboard:{[]
   bb:0!.return.clubs[];
-  res:.segComp.rs each bb`id;
+  res:.segComp.rs.leaderboard each bb`id;
   :uj/[res 0; 1_res];
  };
 
@@ -92,8 +114,9 @@ showRes:{[segId;resType;resId]
   if[not all `before`after in key dict; :.log.error"Need to provide date range"];
   dr:.return.datelist[`check][`activities;dict`after;dict`before];
   if[0=count where not dr; :select from .cache.activities where start_date in where dr];  / return cached results if they exist
-  p:.return.cleanUrl[`before`after`page`per_page;dict];     / additional url parameters
-  rs:{select `long$id, name, "D"$10#\:start_date, manual from x} each connect["activities";p];
+  p:.return.cleanUrl[`before`after`per_page;dict];     / additional url parameters
+  activ:.connect.pagination["activities";p];           / connect and return activites
+  rs:{select `long$id, name, "D"$10#\:start_date, manual, commute from x} each activ;  / extract relevent fields
   `.cache.activities upsert rs;
   `.var.dateRange.activities set asc distinct .var.dateRange.activities,where not dr;
   :`id xkey rs;
@@ -103,16 +126,16 @@ showRes:{[segId;resType;resId]
 .return.segments:{[dict]
   if[count cr:select from .cache.segments; :cr];            / if results cached then return here
   activ:.return.activities[dict];
-  segs:connect[;""] each "activities/",/:string exec id from activ where not manual;
+  segs:.connect.simple[;""] each "activities/",/:string exec id from activ where not manual;
   rs:distinct select `long$id, name, starred from raze[segs`segment_efforts]`segment where not private;  / return segment ids from activities
-  rs,:select `long$id, name, starred from connect["segments/starred";""];  / return starred segments
+  rs,:select `long$id, name, starred from .connect.simple["segments/starred";""];  / return starred segments
   `.cache.segments upsert rs;                               / upsert to segment cache
   :`id xkey rs;
  };
 
 / return list of users clubs
 .return.clubs:{[]
-  if[0=count @[value;`athleteData;()]; `athleteData set connect["athlete";""]];
+  if[0=count @[value;`athleteData;()]; `athleteData set .connect.simple["athlete";""]];
   if[count .cache.clubs; :.cache.clubs];
   `.cache.clubs upsert rs:select `long$id, name from athleteData[`clubs];
   :`id xkey rs;
@@ -127,7 +150,7 @@ showRes:{[segId;resType;resId]
     [tp:`club; extra:"-d club_id=",string clubId]
    ];
   if[count rs:exec res from .cache.leaderboards where segmentId=segId, resType=tp, resId=clubId; :raze rs];
-  message:connect["segments/",string[segId],"/leaderboard"] extra;
+  message:.connect.simple["segments/",string[segId],"/leaderboard"] extra;
   rs:select athlete_name, `minute$moving_time from message`entries;
   `.cache.leaderboards upsert (segId;tp;clubId;rs);
   :rs;
