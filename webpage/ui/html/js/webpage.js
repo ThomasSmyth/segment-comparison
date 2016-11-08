@@ -86,7 +86,8 @@ ws.onmessage = function (event) {
   if(event.data){
     var edata = JSON.parse(deserialize(event.data)),
         name  = edata.name,
-        data  = edata.data;
+        data  = edata.data,
+        extradata = edata.extra;
 
     // Enable submit button 
     $('#submit').attr("disabled",false);
@@ -114,6 +115,7 @@ ws.onmessage = function (event) {
 
         // Show stats bar
         $('.stats').show();
+        $('#extd').hide();
         
         // Enable export link
         $('#export').removeClass("disabled");
@@ -121,6 +123,37 @@ ws.onmessage = function (event) {
         // Resize table cells
         //$('#tableoutput tbody td, #tableoutput thead th').width($('#tableoutput').width()/$('#tableoutput thead th').length-10);
       }
+      if(name === 'table2'){
+
+        // Build html table with data and fill in stats
+        $('#tableoutput').html(jsonTable(data.data));
+        $('#extd').html("").show();
+        $('#extd').append('<div class="col-md-2">Athletes</div>' +
+        '<div class="col-md-10">' +
+          '<ul id="extra_stats"></ul>' +
+        '</div>');
+        $('#extra_stats').html("");
+        extradata.forEach(function(a){
+          $('#extra_stats').append('<li>'+ a.athlete_name +'</li>');
+        });
+        $('#tblstats').html("").append('<li>Date Range: ' + getInputs().start_date + " to " + getInputs().end_date +'</li>' +
+          '<li>Generated in: ' + (data.time/1000).toFixed(1) + "s" +'</li>' +
+          '<li>Rows: ' + data.rows +'</li>');
+
+        // Show stats bar
+        $('.stats').show();
+        
+        // Enable export link
+        $('#export').removeClass("disabled");
+
+        // Resize table cells
+        //$('#tableoutput tbody td, #tableoutput thead th').width($('#tableoutput').width()/$('#tableoutput thead th').length-10);
+      }
+
+      if(name === 'checkbox'){
+        $('#checkbox').html("").append('<li>TEST LIST ITEM</li>');
+      }
+
     } else {
       $('#error-msg').html(edata.error);
       // Show modal popup

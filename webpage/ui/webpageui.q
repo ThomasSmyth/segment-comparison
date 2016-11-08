@@ -15,8 +15,11 @@ execdict:{
   if[not all `after`before`region_filter`custtype_filter`grouping`pivot in key x;
     :$[`init in key x;
       // Sends database stats on connect
-      [.log.out "connection made";
-       format[`init;dbstats[]]];
+      [
+       .log.out "connection made";
+       `res1 set format[`init;dbstats[]];
+       res1
+      ];
     '"Not all columns are in message"]
   ];
 
@@ -41,8 +44,12 @@ execdict:{
   `dd set data;
 
   // Send formatted table
-  res:format[`table;(`time`rows`data)!data];
-  :res
+  `res set res:format[`table;(`time`rows`data)!data];
+   if[`leaderboard~x`pivot;
+     res[`name]:`table2;
+     res[`extra]:select distinct athlete_name from res[`data;`data];
+     `res set res];
+   :res;
   };
 
 // evaluate incoming data from WebSocket. Outputs error to front end.

@@ -3,3 +3,7 @@
 * Add flag to segment comparison to only use starred segments
 * Add option to exclude commutes from activity list used in .return.segments
 * return time to webpage with preceding 0s dropped
+
+* allow "athletes" section in html be created on the fly
+  e.g. * should display segment name
+       * should display athletes
