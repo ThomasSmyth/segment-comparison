@@ -69,7 +69,7 @@ function getInputs() {
 }
 
 // WEBSOCKETS CONNECTING TO KDB+
-var ws = new WebSocket("ws://localhost:5600");
+var ws = new WebSocket("ws://homer:5700");
 ws.binaryType = 'arraybuffer'; // Required by c.js 
 // WebSocket event handlers
 ws.onopen = function () {
@@ -145,9 +145,26 @@ ws.onmessage = function (event) {
         
         // Enable export link
         $('#export').removeClass("disabled");
+      }
+      if(name === 'table3'){
 
-        // Resize table cells
-        //$('#tableoutput tbody td, #tableoutput thead th').width($('#tableoutput').width()/$('#tableoutput thead th').length-10);
+        // Build html table with data and fill in stats
+        $('#tableoutput').html(jsonTable(data.data));
+        $('#extd').html("").show();
+        $('#extd').append('<div class="col-md-2">Athletes</div>' +
+        '<div class="col-md-10">' +
+          '<ul id="extra_stats"></ul>' +
+        '</div>');
+        $('#extra_stats').html("").append(extradata);
+        $('#tblstats').html("").append('<li>Date Range: ' + getInputs().start_date + " to " + getInputs().end_date +'</li>' +
+          '<li>Generated in: ' + (data.time/1000).toFixed(1) + "s" +'</li>' +
+          '<li>Rows: ' + data.rows +'</li>');
+
+        // Show stats bar
+        $('.stats').show();
+        
+        // Enable export link
+        $('#export').removeClass("disabled");
       }
 
       if(name === 'checkbox'){

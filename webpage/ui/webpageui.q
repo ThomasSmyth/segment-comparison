@@ -23,31 +23,16 @@ execdict:{
     '"Not all columns are in message"]
   ];
 
-  `aa set x;
-  x:.return.clean @[x;`pivot;`$];
-  `bb set x;
-
-  // for testing purposes
-  dt:`n xkey flip `n`d`t!flip (
-    (`activities;  `before`after!(2016.10.28;2016.10.10);   `.return.activities);
-    (`none;        `before`after!(2016.10.28;2016.10.10);   `.return.activities);
-    (`segments;    `before`after!(2016.10.28;2016.10.27);   `.return.segments);
-    (`clubs;       ()!();                                   `.return.clubs);
-    (`leaderboard; `segment_Id`club_Id!(13423965;236501);   `.return.leaderboard.all)
-  );
-
-  `dt set dt x`pivot;
-
-  // Run function using params
-  .log.out "Running query";
-  data:@[{[dt] timeit[dt`t;dt`d;outputrows]}; dt x`pivot; {'"Didn't execute due to ",x}];
-  `dd set data;
+  x:@[x;`pivot;`$];
+  data:.webpage.parseDict x;
 
   // Send formatted table
-  `res set res:format[`table;(`time`rows`data)!data];
+  `res set res:format[`table;(`time`rows`data)!3#data];
    if[`leaderboard~x`pivot;
-     res[`name]:`table2;
-     res[`extra]:select distinct athlete_name from res[`data;`data];
+     res[`name]:`table3;
+     res[`data;`data]:update athlete_name:.return.html.athleteURL'[athlete_id;athlete_name] from res[`data;`data];
+//     res[`extra]:select distinct athlete_name from res[`data;`data];
+     res[`extra]:.return.html.segmentURL 13423965;
      `res set res];
    :res;
   };

@@ -8,7 +8,7 @@
 .h.HOME:"ui/html"
 
 / set port 
-.settings.port:5600;
+.settings.port:5700;
 @[system;"p ",string .settings.port;{-1"Failed to open port: ",string value `.settings.port;exit 1}]
 
 /- Load main compare script

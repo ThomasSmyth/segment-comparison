@@ -10,3 +10,6 @@
 
 * webpage port for xls/csv export should be dynamically created
 * need single function to parse options passed in from webpage and return results
+
+* cache athlete names and ids
+* create wrapper funtion for .return.html namespace to allow addition of html to any webpage
