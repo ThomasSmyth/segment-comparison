@@ -16,10 +16,10 @@ system"l ",.var.homedir,"/settings/sampleIds.q";
 
 .var.defaults:flip `vr`vl`fc!flip (
   (`starred;    0b;     ("false";"true")                                        );  / show starred segments
-  (`follower;   0b;     ("false";"true")                                        );  / compare with followers
+  (`following;  0b;     ("false";"true")                                        );  / compare with those followed
   (`after;      0Nd;    {string (-/)`long$(`timestamp$x;1970.01.01D00:00)%1e9}  );  / start date
   (`before;     0Nd;    {string (-/)`long$(`timestamp$1+x;1970.01.01D00:00)%1e9});  / end date
-  (`club_Id;    0N;     string                                                  );  / for club comparison
+  (`club_id;    0N;     string                                                  );  / for club comparison
   (`segment_Id; 0N;     string                                                  );  / segment to compare on
   (`pivot;      `none;  ::                                                      );
   (`page;       0N;     string                                                  );  / number of pages
@@ -49,10 +49,9 @@ showRes:{[segId;resType;resId]
 
 / compare segments
 .segComp.rs.leaderboard:{[dict]
-  if[not `club_Id in key dict; :.log.error "Need to include club_Id"];
-  clubId:dict`club_Id;
+  if[not `club_id in key dict; :.log.error "Need to include club_id"];
   bb:0!.return.segments[dict];
-  cc:.return.leaderboard each {x[`segment_Id]:y; x}[dict]'[bb`id];
+  cc:.return.leaderboard.all each {x[`segment_Id]:y; x}[dict]'[bb`id];
   dd:{([] segment:enlist x) cross y}'[bb`name;cc];
   dd:@[raze dd where 1<count each dd;`athlete_name;`$];
   if[0=count @[value;`athleteData;()]; `athleteData set .connect.simple["athlete";""]];
@@ -63,10 +62,9 @@ showRes:{[segId;resType;resId]
  };
 
 .segComp.rs.summary:{[dict]
-  if[not `club_Id in key dict; :.log.error "Need to include club_Id"];
-  clubId:dict`club_Id;
+  if[not `club_id in key dict; :.log.error "Need to include club_id"];
   bb:0!.return.segments[dict];
-  cc:.return.leaderboard each {x[`segment_Id]:y; x}[dict]'[bb`id];
+  cc:.return.leaderboard.all each {x[`segment_Id]:y; x}[dict]'[bb`id];
   dd:{([] segment:enlist x) cross y}'[bb`name;cc];
   dd:@[raze dd where 1<count each dd;`athlete_name;`$];
   ee:select segment, athlete_name, moving_time, minTime:(min;moving_time) fby segment from dd;
@@ -93,28 +91,28 @@ showRes:{[segId;resType;resId]
 / return existing parameters in correct format
 .return.clean:{[dict]
   def:(!/) .var.defaults`vr`vl;                             / defaults value for parameters
-  :.Q.def[def] string key[def]!dict[key def];               / return valid optional parameters
+  :.Q.def[def] string key[def]!(def,dict) key[def];         / return valid optional parameters
  };
 
 / build url from specified altered parameters
-.return.url:{[params;dict]
+.return.params.all:{[params;dict]
   if[0=count dict; :""];                                    / if no parametrs return empty string
   def:(!/) .var.defaults`vr`vl;                             / defaults value for parameters
   n:inter[(),params] where not def=.Q.def[def] {$[10=abs type x;x;string x]} each dict; / return altered parameters
   if[all `before`after in n;                                / check timestamps are valid
     if[(<=/)dict`before`after;:.log.error["Before and after timestamps are invalid"]]
   ];
-  :" " sv ("-d ",/:string[n],'"="),'(exec fc from .var.defaults where vr in n)@' dict n;  / return parameters
+  :" " sv ("-d ",/:string[n],'"="),'{func:exec fc from .var.defaults where vr in x; raze func @\: y}'[n;dict n];  / return parameters
  };
 
-.return.cleanUrl:{[params;dict] .return.url[params] .return.clean[dict]}
+.return.params.valid:{[params;dict] .return.params.all[params] .return.clean[dict]}
 
 / return activities
 .return.activities:{[dict]
   if[not all `before`after in key dict; :.log.error"Need to provide date range"];
   dr:.return.datelist[`check][`activities;dict`after;dict`before];
   if[0=count where not dr; :select from .cache.activities where start_date in where dr];  / return cached results if they exist
-  p:.return.cleanUrl[`before`after`per_page;dict];     / additional url parameters
+  p:.return.params.valid[`before`after`per_page;dict];     / additional url parameters
   activ:.connect.pagination["activities";p];           / connect and return activites
   rs:{select `long$id, name, "D"$10#\:start_date, manual, commute from x} each activ;  / extract relevent fields
   `.cache.activities upsert rs;
@@ -141,21 +139,29 @@ showRes:{[segId;resType;resId]
   :`id xkey rs;
  };
 
-.return.leaderboard:{[dict]
-  segId:dict`segment_Id;
-  clubId:dict`club_Id; 
-  if[null segId; .log.error"Need to specify segmentId"; :()];
-  $[null clubId;
-    [tp:`following; extra:"-d following=true"];
-    [tp:`club; extra:"-d club_id=",string clubId]
-   ];
-  if[count rs:exec res from .cache.leaderboards where segmentId=segId, resType=tp, resId=clubId; :raze rs];
-  message:.connect.simple["segments/",string[segId],"/leaderboard"] extra;
-  rs:select athlete_name, `minute$moving_time from message`entries;
-  `.cache.leaderboards upsert (segId;tp;clubId;rs);
-  :rs;
+.return.leaderboard.all:{[dict]
+  if[not `segment_Id in key dict; .log.error"Need to specify a segment id"; :()];
+  if[not any `club_id`following in key dict; .log.error"Need to specify club_id or athletes followed"; :()];
+  rs:([athlete_id:`long$()] athlete_name:(); moving_time:`minute$());
+  if[1b=dict`following; rs,:.return.leaderboard.following[dict]];       / return leaderboard of followers
+  if[`club_id in key dict; rs,:.return.leaderboard.club[dict]];         / return leaderboard of clubs
+  :0!rs;
  };
 
-.return.results:{[dict]         / replacement for .return.leaderboard
-  dict
+.return.leaderboard.club:{[dict]
+  if[count rs:exec res from .cache.leaderboards where segmentId=dict`segment_Id, resType=`club, resId=dict`club_id; :raze rs];
+  extra::.return.params.valid[`club_id] dict;
+  message::.connect.simple["segments/",string[dict`segment_Id],"/leaderboard"] extra;
+  clb:select `long$athlete_id, athlete_name, `minute$moving_time from message`entries;
+  `.cache.leaderboards upsert (dict`segment_Id;`club;dict`club_id;clb);
+  :clb;
+ };
+
+.return.leaderboard.following:{[dict]
+  if[count rs:exec res from .cache.leaderboards where segmentId=dict`segment_Id, resType=`following, resId=0N; :raze rs];
+  extra:.return.params.valid[`following] dict;
+  message:.connect.simple["segments/",string[dict`segment_Id],"/leaderboard"] extra;
+  fol:select `long$athlete_id, athlete_name, `minute$moving_time from message`entries;
+  `.cache.leaderboards upsert (dict`segment_Id;`following;0N;fol);
+  :fol;
  };

@@ -7,3 +7,6 @@
 * allow "athletes" section in html be created on the fly
   e.g. * should display segment name
        * should display athletes
+
+* webpage port for xls/csv export should be dynamically created
+* need single function to parse options passed in from webpage and return results

@@ -33,7 +33,7 @@ execdict:{
     (`none;        `before`after!(2016.10.28;2016.10.10);   `.return.activities);
     (`segments;    `before`after!(2016.10.28;2016.10.27);   `.return.segments);
     (`clubs;       ()!();                                   `.return.clubs);
-    (`leaderboard; `segment_Id`club_Id!(13423965;236501);   `.return.leaderboard)
+    (`leaderboard; `segment_Id`club_Id!(13423965;236501);   `.return.leaderboard.all)
   );
 
   `dt set dt x`pivot;
