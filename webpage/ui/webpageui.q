@@ -17,7 +17,8 @@ execdict:{
       // Sends database stats on connect
       [
        .log.out "connection made";
-       `res1 set format[`init;dbstats[]];
+       `res1 set res1:format[`init;dbstats[]];
+       res1[`extra]:0!.return.clubs[];
        res1
       ];
     '"Not all columns are in message"]

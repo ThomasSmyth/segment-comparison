@@ -47,6 +47,7 @@ function getInputs() {
   var startdate = $('#startdate input').val(),
       enddate   = $('#enddate input').val(),
       pivotvals    = $('.radio input:checked').val(),
+      club_Id  = $('#clubId').val()
       groupingvals = [],
       regionvals = [],
       custtypevals = [];      
@@ -102,6 +103,12 @@ ws.onmessage = function (event) {
         data.forEach(function(a){
           $('#dbstats').append('<li>' + a.field + ': ' + a.val + '</li>');
         });
+        $('#club_list_div').html("").show();
+        $('#club_list_div').append('<div class="col-md-2">Clubs</div>');
+        $('#club_list_div').html("");
+        extradata.forEach(function(a){
+          $('#club_list_div').append('<div class="checklist"><label><input type="checkbox" value="'+a.name+'">'+a.name+'</label></div>');
+        });
       }
 
       // Output table data
@@ -156,6 +163,25 @@ ws.onmessage = function (event) {
           '<ul id="extra_stats"></ul>' +
         '</div>');
         $('#extra_stats').html("").append(extradata);
+        $('#tblstats').html("").append('<li>Date Range: ' + getInputs().start_date + " to " + getInputs().end_date +'</li>' +
+          '<li>Generated in: ' + (data.time/1000).toFixed(1) + "s" +'</li>' +
+          '<li>Rows: ' + data.rows +'</li>');
+
+        // Show stats bar
+        $('.stats').show();
+        
+        // Enable export link
+        $('#export').removeClass("disabled");
+      }
+      if(name === 'clubs'){
+
+        // Build html table with data and fill in stats
+        $('#club_list_div').html("").show();
+        $('#club_list_div').append('<div class="col-md-2">Clubs</div>');
+        $('#club_list_div').html("");
+        extradata.forEach(function(a){
+          $('#club_list_div').append('<div class="checklist"><label><input type="checkbox" value="'+a.name+'">'+a.name+'</label></div>');
+        });
         $('#tblstats').html("").append('<li>Date Range: ' + getInputs().start_date + " to " + getInputs().end_date +'</li>' +
           '<li>Generated in: ' + (data.time/1000).toFixed(1) + "s" +'</li>' +
           '<li>Rows: ' + data.rows +'</li>');
