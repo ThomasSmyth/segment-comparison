@@ -49,11 +49,13 @@ showRes:{[segId;resType;resId]
 
 / compare segments
 .segComp.rs.leaderboard:{[dict]
-  if[not `club_id in key dict; :.log.error "Need to include club_id"];
+  if[not any `club_id`following in key dict; .log.error"Need to specify club_id or athletes followed"; :()];
   bb:0!.return.segments[dict];
-  cc:.return.leaderboard.all each {x[`segment_id]:y; x}[dict]'[bb`id];
-  dd:{([] segment:enlist x) cross y}'[bb`name;cc];
-  dd:@[raze dd where 1<count each dd;`athlete_name;`$];
+  details:$[1<count dict`club_id;
+    flip[dict] cross ([] segment_id:bb`id);
+    {x[`segment_id]:y; x}[dict]'[bb`id]];
+  cc:.return.leaderboard.all each details;
+  dd:@[raze cc where 1<count each cc;`athlete_name;`$];
   if[0=count @[value;`athleteData;()]; `athleteData set .connect.simple["athlete";""]];
   P:asc exec distinct athlete_name from dd;
   res:0!exec P#(athlete_name!moving_time) by segment:segment from dd;
@@ -62,13 +64,13 @@ showRes:{[segId;resType;resId]
  };
 
 .segComp.rs.summary:{[dict]
-  if[not `club_id in key dict; :.log.error "Need to include club_id"];
+  if[not any `club_id`following in key dict; .log.error"Need to specify club_id or athletes followed"; :()];
   bb:0!.return.segments[dict];
   cc:.return.leaderboard.all each {x[`segment_id]:y; x}[dict]'[bb`id];
   dd:{([] segment:enlist x) cross y}'[bb`name;cc];
   dd:@[raze dd where 1<count each dd;`athlete_name;`$];
   ee:select segment, athlete_name, moving_time, minTime:(min;moving_time) fby segment from dd;
-  :`total xdesc select total:count[segment], segment by athlete_name from ee where moving_time=minTime, 1=(count;i) fby segment;
+  :`total xdesc select total:count[segment], segment by athlete_name from ee where moving_time=minTime, 1=(count;i) fby segment; 
  };
 
 / compare segments against all users clubs
@@ -156,8 +158,12 @@ showRes:{[segId;resType;resId]
  };
 
 .return.segmentName:{[id]
-  if[count segName:.cache.segments[id]`name; :segname]; / if cached then return name
-  .connect.simple ["segments/",string id;""]`name}      / else request data
+  if[count segName:.cache.segments[id]`name; :segName];     / if cached then return name
+//  .log.out"Retrieving segments";
+  res:.connect.simple ["segments/",string id;""]`name;      / else request data
+//  .log.out"Returning segments";
+  :res;
+ };
 
 .return.html.segmentURL:{[id]
   name:.return.segmentName[id];
@@ -178,27 +184,30 @@ showRes:{[segId;resType;resId]
 
 .return.leaderboard.all:{[dict]
   if[not `segment_id in key dict; .log.error"Need to specify a segment id"; :()];
-  if[not any `club_id`following in key dict; .log.error"Need to specify club_id or athletes followed"; :()];
-  rs:([athlete_id:`long$()] athlete_name:(); moving_time:`minute$());
+  rs:([athlete_id:`long$()] athlete_name:(); moving_time:`minute$(); segment:());
   if[1b=dict`following; rs,:.return.leaderboard.following[dict]];       / return leaderboard of followers
   if[`club_id in key dict; rs,:.return.leaderboard.club[dict]];         / return leaderboard of clubs
-  :0!rs;
+  :`segment xcols 0!rs;
  };
 
 .return.leaderboard.club:{[dict]
-  if[0<count rs:.cache.leaderboards[(dict`segment_id;`club;dict`club_id)]`res; :rs];
-  extra::.return.params.valid[`club_id] dict;
-  message::.connect.simple["segments/",string[dict`segment_id],"/leaderboard"] extra;
+  if[0<count rs:.cache.leaderboards[(dict`segment_id;`club;dict`club_id)]`res;
+    :rs cross ([] segment:enlist .return.segmentName[dict`segment_id]);
+  ];
+  extra:.return.params.valid[`club_id] dict;
+  message:.connect.simple["segments/",string[dict`segment_id],"/leaderboard"] extra;
   clb:select `long$athlete_id, athlete_name, `minute$moving_time from message`entries;
   `.cache.leaderboards upsert (dict`segment_id;`club;dict`club_id;clb);
-  :clb;
+  :clb cross ([] segment:enlist .return.segmentName[dict`segment_id]);
  };
 
 .return.leaderboard.following:{[dict]
-  if[0<count rs:.cache.leaderboards[(dict`segment_id;`following;0N)]`res; :rs];
+  if[0<count rs:.cache.leaderboards[(dict`segment_id;`following;0N)]`res;
+    :rs cross ([] segment:enlist .return.segmentName[dict`segment_id]);
+  ];
   extra:.return.params.valid[`following] dict;
   message:.connect.simple["segments/",string[dict`segment_id],"/leaderboard"] extra;
   fol:select `long$athlete_id, athlete_name, `minute$moving_time from message`entries;
   `.cache.leaderboards upsert (dict`segment_id;`following;0N;fol);
-  :fol;
+  :fol cross ([] segment:enlist .return.segmentName[dict`segment_id]);
  };
