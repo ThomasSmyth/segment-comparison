@@ -7,7 +7,7 @@
 system"l ",.var.homedir,"/settings/sampleIds.q";
 
 .log.out:{-1 string[.z.p]," | Info | ",x;};
-.log.error:{-1 string[.z.p]," | Error | ",x;};
+.log.error:{-1 string[.z.p]," | Error | ",x; 'x};
 
 .cache.leaderboards:@[value;`.cache.leaderboards;([segmentId:`long$(); resType:`$(); resId:`long$()] res:())];
 .cache.activities:@[value;`.cache.activities;([id:`long$()] name:(); start_date:`date$(); manual:`boolean$(); commute:`boolean$())];
@@ -15,15 +15,15 @@ system"l ",.var.homedir,"/settings/sampleIds.q";
 .cache.clubs:@[value;`.cache.clubs;([id:`long$()] name:())];
 
 .var.defaults:flip `vr`vl`fc!flip (
-  (`starred;    0b;     ("false";"true")                                        );  / show starred segments
-  (`following;  0b;     ("false";"true")                                        );  / compare with those followed
-  (`after;      0Nd;    {string (-/)`long$(`timestamp$x;1970.01.01D00:00)%1e9}  );  / start date
-  (`before;     0Nd;    {string (-/)`long$(`timestamp$1+x;1970.01.01D00:00)%1e9});  / end date
-  (`club_id;    0N;     string                                                  );  / for club comparison
-  (`segment_id; 0N;     string                                                  );  / segment to compare on
-  (`pivot;      `none;  ::                                                      );
-  (`page;       0N;     string                                                  );  / number of pages
-  (`per_page;   0N;     string                                                  )   / results per page
+  (`starred      ; 0b   ; ("false";"true")                                        );  / show starred segments
+  (`following    ; 0b   ; ("false";"true")                                        );  / compare with those followed
+  (`clubs        ; 0b   ; ("false";"true")                                        );  / for club comparison
+  (`after        ; 0Nd  ; {string (-/)`long$(`timestamp$x;1970.01.01D00:00)%1e9}  );  / start date
+  (`before       ; 0Nd  ; {string (-/)`long$(`timestamp$1+x;1970.01.01D00:00)%1e9});  / end date
+  (`club_id      ; (),0N; string                                                  );  / for club comparison
+  (`segment_id   ; 0N   ; string                                                  );  / segment to compare on
+  (`page         ; 0N   ; string                                                  );  / number of pages
+  (`per_page     ; 0N   ; string                                                  )   / results per page
  );
 
 / basic connect function
@@ -32,15 +32,12 @@ system"l ",.var.homedir,"/settings/sampleIds.q";
  };
 
 .connect.pagination:{[datatype;extra]
-  tab:(1;());
-  data:last {[datatype;extra;tab]
+  :last {[datatype;extra;tab]                   / iterate over pages until no extra results are returned
     tab[1],:ret:.connect.simple[datatype;extra," -d page=",string tab 0];
     if[count ret; tab[0]+:1];
-    tab
-  }[datatype;extra]/[tab];
-  :data;
+    :tab;
+  }[datatype;extra]/[(1;())];
  };
-
 
 / show results neatly
 showRes:{[segId;resType;resId]
@@ -48,22 +45,24 @@ showRes:{[segId;resType;resId]
  };
 
 / compare segments
-.segComp.rs.leaderboard:{[dict]
-  if[not any `club_id`following in key dict; .log.error"Need to specify club_id or athletes followed"; :()];
+.segComp.leaderboard:{[dict]
+  if[0=count @[value;`athleteData;()]; `athleteData set .connect.simple["athlete";""]];
+  athleteName:`$" " sv athleteData`firstname`lastname;
+  empty:![([] Segment:());();0b;enlist[athleteName]!()];
+  if[not max dict`following`clubs; :empty];
   bb:0!.return.segments[dict];
-  details:$[1<count dict`club_id;
+  details:$[(7=type dict`club_id)&(not all null dict`club_id);
     flip[dict] cross ([] segment_id:bb`id);
     {x[`segment_id]:y; x}[dict]'[bb`id]];
   cc:.return.leaderboard.all each details;
   dd:@[raze cc where 1<count each cc;`athlete_name;`$];
-  if[0=count @[value;`athleteData;()]; `athleteData set .connect.simple["athlete";""]];
   P:asc exec distinct athlete_name from dd;
-  res:0!exec P#(athlete_name!moving_time) by segment:segment from dd;
-  cl:`segment,`$" " sv athleteData`firstname`lastname;
+  res:0!exec P#(athlete_name!moving_time) by Segment:Segment from dd;
+  cl:`Segment,athleteName;
   :(cl,cols[res] except cl) xcols res;
  };
 
-.segComp.rs.summary:{[dict]
+.segComp.summary:{[dict]
   if[not any `club_id`following in key dict; .log.error"Need to specify club_id or athletes followed"; :()];
   bb:0!.return.segments[dict];
   cc:.return.leaderboard.all each {x[`segment_id]:y; x}[dict]'[bb`id];
@@ -71,37 +70,6 @@ showRes:{[segId;resType;resId]
   dd:@[raze dd where 1<count each dd;`athlete_name;`$];
   ee:select segment, athlete_name, moving_time, minTime:(min;moving_time) fby segment from dd;
   :`total xdesc select total:count[segment], segment by athlete_name from ee where moving_time=minTime, 1=(count;i) fby segment; 
- };
-
-/ compare segments against all users clubs
-.segComp.allClubs.leaderboard:{[]
-  bb:0!.return.clubs[];
-  res:.segComp.rs.leaderboard each bb`id;
-  :uj/[res 0; 1_res];
- };
-
-.webpage.parseDict:{[x]
-  `aa set x;
-  x:.return.clean x;
-  `bb set x;
-
-  // for testing purposes
-  dt:`n xkey flip `n`d`t!flip (
-    (`activities;  `before`after!(2016.10.28;2016.10.10);   `.return.activities);
-    (`none;        `before`after!(2016.10.28;2016.10.10);   `.return.activities);
-    (`segments;    `before`after!(2016.10.28;2016.10.27);   `.return.segments);
-    (`clubs;       ()!();                                   `.return.clubs);
-    (`leaderboard; `segment_id`club_id!(13423965;236501);   `.return.leaderboard.all)
-  );
-
-  `dt set pvt:dt x`pivot;
-  `x set x;
-
-  // Run function using params
-  .log.out "Running query";
-  data:@[{[dt] timeit[dt`t;dt`d;outputrows]}; pvt; {'"Didn't execute due to ",x}];
-  `dd set data;
-  :data;
  };
 
 / return dictionary of date status
@@ -124,10 +92,7 @@ showRes:{[segId;resType;resId]
 .return.params.all:{[params;dict]
   if[0=count dict; :""];                                    / if no parametrs return empty string
   def:(!/) .var.defaults`vr`vl;                             / defaults value for parameters
-  n:inter[(),params] where not def=.Q.def[def] {$[10=abs type x;x;string x]} each dict; / return altered parameters
-  if[all `before`after in n;                                / check timestamps are valid
-    if[(<=/)dict`before`after;:.log.error["Before and after timestamps are invalid"]]
-  ];
+  n:inter[(),params] where not def~'.Q.def[def] {$[10=abs type x;x;string x]} each dict; / return altered parameters
   :" " sv ("-d ",/:string[n],'"="),'{func:exec fc from .var.defaults where vr in x; raze func @\: y}'[n;dict n];  / return parameters
  };
 
@@ -135,7 +100,6 @@ showRes:{[segId;resType;resId]
 
 / return activities
 .return.activities:{[dict]
-  if[not all `before`after in key dict; :.log.error"Need to provide date range"];
   dr:.return.datelist[`check][`activities;dict`after;dict`before];
   if[0=count where not dr; :select from .cache.activities where start_date in where dr];  / return cached results if they exist
   p:.return.params.valid[`before`after`per_page;dict];     / additional url parameters
@@ -150,6 +114,7 @@ showRes:{[segId;resType;resId]
 .return.segments:{[dict]
   if[count cr:select from .cache.segments; :cr];            / if results cached then return here
   activ:.return.activities[dict];
+  if[0=count activ; :cr];
   segs:.connect.simple[;""] each "activities/",/:string exec id from activ where not manual;
   rs:distinct select `long$id, name, starred from raze[segs`segment_efforts]`segment where not private;  / return segment ids from activities
   rs,:select `long$id, name, starred from .connect.simple["segments/starred";""];  / return starred segments
@@ -184,30 +149,30 @@ showRes:{[segId;resType;resId]
 
 .return.leaderboard.all:{[dict]
   if[not `segment_id in key dict; .log.error"Need to specify a segment id"; :()];
-  rs:([athlete_id:`long$()] athlete_name:(); moving_time:`minute$(); segment:());
+  rs:([athlete_id:`long$()] athlete_name:(); moving_time:`minute$(); Segment:`long$());
   if[1b=dict`following; rs,:.return.leaderboard.following[dict]];       / return leaderboard of followers
-  if[`club_id in key dict; rs,:.return.leaderboard.club[dict]];         / return leaderboard of clubs
-  :`segment xcols 0!rs;
+  if[not any null dict`club_id; rs,:.return.leaderboard.club[dict]];    / return leaderboard of clubs
+  :`Segment xcols 0!rs;
  };
 
 .return.leaderboard.club:{[dict]
   if[0<count rs:.cache.leaderboards[(dict`segment_id;`club;dict`club_id)]`res;
-    :rs cross ([] segment:enlist .return.segmentName[dict`segment_id]);
+    :rs cross ([] Segment:enlist dict`segment_id);
   ];
   extra:.return.params.valid[`club_id] dict;
   message:.connect.simple["segments/",string[dict`segment_id],"/leaderboard"] extra;
   clb:select `long$athlete_id, athlete_name, `minute$moving_time from message`entries;
   `.cache.leaderboards upsert (dict`segment_id;`club;dict`club_id;clb);
-  :clb cross ([] segment:enlist .return.segmentName[dict`segment_id]);
+  :clb cross ([] Segment:enlist dict`segment_id);
  };
 
 .return.leaderboard.following:{[dict]
   if[0<count rs:.cache.leaderboards[(dict`segment_id;`following;0N)]`res;
-    :rs cross ([] segment:enlist .return.segmentName[dict`segment_id]);
+    :rs cross ([] Segment:enlist dict`segment_id);
   ];
   extra:.return.params.valid[`following] dict;
   message:.connect.simple["segments/",string[dict`segment_id],"/leaderboard"] extra;
   fol:select `long$athlete_id, athlete_name, `minute$moving_time from message`entries;
   `.cache.leaderboards upsert (dict`segment_id;`following;0N;fol);
-  :fol cross ([] segment:enlist .return.segmentName[dict`segment_id]);
+  :fol cross ([] Segment:enlist dict`segment_id);
  };

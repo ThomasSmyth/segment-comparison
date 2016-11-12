@@ -42,26 +42,36 @@ function checkboxVals(selector){
   } 
   return array;
 }
+
 // Returns an object of all inputs used for the query
 function getInputs() {
-  var startdate = $('#startdate input').val(),
-      enddate   = $('#enddate input').val(),
-      pivotvals    = $('.radio input:checked').val(),
-      club_Id  = $('#clubId').val()
-      groupingvals = [],
-      regionvals = [],
-      custtypevals = [];      
+  var startdate     = $('#startdate input').val(),
+      enddate       = $('#enddate input').val(),
+      pivotvals     = $('.radio input:checked').val(),
+      club_Id       = $('#clubId').val()
+      groupingvals  = [],
+      clubvals      = [],
+      followingvals = [],
+      include_clubs = [],
+      regionvals    = [],
+      custtypevals  = [];      
 
   // Add values from grouping,region & custtype filter to their respective array
   $('#grouping .checklist input:checked').each(function(a,b){groupingvals.push($(b).val());});
+  $('#following .checklist input:checked').each(function(a,b){followingvals.push($(b).val());});
+  $('#include_clubs .checklist input:checked').each(function(a,b){include_clubs.push($(b).val());});
 
   // Add checkbox values to appropriate array depending on whether "All" option is checked
   regionvals = checkboxVals('#region-filter');
   custtypevals = checkboxVals('#custtype-filter');
+  clubvals = checkboxVals('#clubs-filter');
 
   return {
     after: startdate,
     before: enddate,
+    club_id: clubvals,
+    following: followingvals,
+    include_clubs: include_clubs,
     grouping: groupingvals,
     pivot: pivotvals,
     region_filter: regionvals,
@@ -70,7 +80,7 @@ function getInputs() {
 }
 
 // WEBSOCKETS CONNECTING TO KDB+
-var ws = new WebSocket("ws://homer:5700");
+var ws = new WebSocket("ws://localhost:5700");
 ws.binaryType = 'arraybuffer'; // Required by c.js 
 // WebSocket event handlers
 ws.onopen = function () {
@@ -100,15 +110,15 @@ ws.onmessage = function (event) {
       // Initial data about the database
       if(name === 'init'){
         // stylise field val into field: val
-        data.forEach(function(a){
-          $('#dbstats').append('<li>' + a.field + ': ' + a.val + '</li>');
-        });
-        $('#club_list_div').html("").show();
-        $('#club_list_div').append('<div class="col-md-2">Clubs</div>');
-        $('#club_list_div').html("");
+        $('#following').show();
+        $('#include_clubs').show();
+        $('#clubs-filter').html("").show();
+        $('#clubs-filter').append('<div class="col-md-2">Clubs</div>');
+        $('#clubs-filter').html("");
         extradata.forEach(function(a){
-          $('#club_list_div').append('<div class="checklist"><label><input type="checkbox" value="'+a.name+'">'+a.name+'</label></div>');
+          $('#clubs-filter').append('<div class="checklist"><label><input type="checkbox" value="'+a.id+'">'+a.name+'</label></div>');
         });
+        $('#clubs-filter').append('<div class="checklist"><label><input type="checkbox" value="all">All Clubs</label></div>');
       }
 
       // Output table data
@@ -122,7 +132,7 @@ ws.onmessage = function (event) {
 
         // Show stats bar
         $('.stats').show();
-        $('#extd').hide();
+        $('#segName').hide();
         
         // Enable export link
         $('#export').removeClass("disabled");
@@ -130,35 +140,12 @@ ws.onmessage = function (event) {
         // Resize table cells
         //$('#tableoutput tbody td, #tableoutput thead th').width($('#tableoutput').width()/$('#tableoutput thead th').length-10);
       }
-      if(name === 'table2'){
-
-        // Build html table with data and fill in stats
-        $('#tableoutput').html(jsonTable(data.data));
-        $('#extd').html("").show();
-        $('#extd').append('<div class="col-md-2">Athletes</div>' +
-        '<div class="col-md-10">' +
-          '<ul id="extra_stats"></ul>' +
-        '</div>');
-        $('#extra_stats').html("");
-        extradata.forEach(function(a){
-          $('#extra_stats').append('<li>'+ a.athlete_name +'</li>');
-        });
-        $('#tblstats').html("").append('<li>Date Range: ' + getInputs().start_date + " to " + getInputs().end_date +'</li>' +
-          '<li>Generated in: ' + (data.time/1000).toFixed(1) + "s" +'</li>' +
-          '<li>Rows: ' + data.rows +'</li>');
-
-        // Show stats bar
-        $('.stats').show();
-        
-        // Enable export link
-        $('#export').removeClass("disabled");
-      }
       if(name === 'table3'){
 
         // Build html table with data and fill in stats
         $('#tableoutput').html(jsonTable(data.data));
-        $('#extd').html("").show();
-        $('#extd').append('<div class="col-md-2">Athletes</div>' +
+        $('#segName').html("").show();
+        $('#segName').append('<div class="col-md-2">Segment Name</div>' +
         '<div class="col-md-10">' +
           '<ul id="extra_stats"></ul>' +
         '</div>');
@@ -172,29 +159,6 @@ ws.onmessage = function (event) {
         
         // Enable export link
         $('#export').removeClass("disabled");
-      }
-      if(name === 'clubs'){
-
-        // Build html table with data and fill in stats
-        $('#club_list_div').html("").show();
-        $('#club_list_div').append('<div class="col-md-2">Clubs</div>');
-        $('#club_list_div').html("");
-        extradata.forEach(function(a){
-          $('#club_list_div').append('<div class="checklist"><label><input type="checkbox" value="'+a.name+'">'+a.name+'</label></div>');
-        });
-        $('#tblstats').html("").append('<li>Date Range: ' + getInputs().start_date + " to " + getInputs().end_date +'</li>' +
-          '<li>Generated in: ' + (data.time/1000).toFixed(1) + "s" +'</li>' +
-          '<li>Rows: ' + data.rows +'</li>');
-
-        // Show stats bar
-        $('.stats').show();
-        
-        // Enable export link
-        $('#export').removeClass("disabled");
-      }
-
-      if(name === 'checkbox'){
-        $('#checkbox').html("").append('<li>TEST LIST ITEM</li>');
       }
 
     } else {
@@ -218,7 +182,8 @@ $(function() {
 
   // Add calendar for start,end date
   $('#startdate').datepicker();
-  $('#enddate').datepicker();
+  $('#enddate').datepicker(
+  );
 
   // Filter options
   // This is a UI design pattern for when there is a list of multiple options for when atleast one option is required.
