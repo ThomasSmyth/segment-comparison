@@ -1,15 +1,33 @@
 ### To Do List ###
 
+// v1 //
+
+* return empty table/notification when no activites are found
+* if user has no clubs then auto return following
+* if user is following no athletes then return error (lock submit button)
+* add checkbox to return leaderboard summary
+
+// v2 //
+
+* set default start/end date on webpage
+* highlight quickest time in gold, include additional colours for 2 and 3
+
+// v3 //
+
+* display message to notify user results are processing
+* athlete filter on results
+
+// v4 //
+
+* create and host webpage on local server
+* create splash page to allow users to authenticate
+
+// additional //
+
+* auto-submit on checkbox click
+* include hidden segments
+* set min start date as athlete join date
 * Add flag to segment comparison to only use starred segments
 * Add option to exclude commutes from activity list used in .return.segments
 * return time to webpage with preceding 0s dropped
-
-* allow "athletes" section in html be created on the fly
-  e.g. * should display segment name
-       * should display athletes
-
 * webpage port for xls/csv export should be dynamically created
-* need single function to parse options passed in from webpage and return results
-
-* cache athlete names and ids
-* create wrapper funtion for .return.html namespace to allow addition of html to any webpage
