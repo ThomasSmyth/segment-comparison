@@ -6,18 +6,26 @@
 * if user has no clubs then auto return following
 * if user is following no athletes then return error (lock submit button)
 * add checkbox to return leaderboard summary
+* highlight quickest time with <mark></mark>
 
 // v2 //
 
 * set default start/end date on webpage
-* highlight quickest time in gold, include additional colours for 2 and 3
+* replace mark with colour defined in tr tag (gold, silver, bronze), 2 methods:
+    * new json function that take second table with 1 2 3 for positions to colour and 0 from standard colour
+    * q function to string each table row and add tags with colours
 
 // v3 //
 
 * display message to notify user results are processing
+* head to head, user against each athlete
 * athlete filter on results
 
 // v4 //
+
+* place segment and athlete filters in scrollable boxes
+
+// v5 //
 
 * create and host webpage on local server
 * create splash page to allow users to authenticate
