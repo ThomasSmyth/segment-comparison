@@ -14,11 +14,12 @@ system"l ",.var.homedir,"/settings/sampleIds.q";
 .cache.activities:@[value;`.cache.activities;([id:`long$()] name:(); start_date:`date$(); manual:`boolean$(); commute:`boolean$())];
 .cache.segments:@[value;`.cache.segments;([id:`long$()] name:(); starred:`boolean$())];
 .cache.clubs:@[value;`.cache.clubs;([id:`long$()] name:())];
+.cache.athletes:@[value;`.cache.athletes;([id:`long$()] name:())];
 
 .var.defaults:flip `vr`vl`fc!flip (
   (`starred      ; 0b   ; ("false";"true")                                        );  / show starred segments
   (`following    ; 0b   ; ("false";"true")                                        );  / compare with those followed
-  (`clubs        ; 0b   ; ("false";"true")                                        );  / for club comparison
+  (`include_clubs; 0b   ; ("false";"true")                                        );  / for club comparison
   (`after        ; 0Nd  ; {string (-/)`long$(`timestamp$x;1970.01.01D00:00)%1e9}  );  / start date
   (`before       ; 0Nd  ; {string (-/)`long$(`timestamp$1+x;1970.01.01D00:00)%1e9});  / end date
   (`club_id      ; (),0N; string                                                  );  / for club comparison
@@ -46,23 +47,41 @@ showRes:{[segId;resType;resId]
  };
 
 .segComp.base:{[dict]
-  empty:![([] Segment:());();0b;enlist[.return.athleteData[][`fullname]]!()];
-  if[not max dict`following`clubs; :empty];
+  empty:([] Segment:`long$(); athlete_id:`long$(); athlete_name:`$(); elapsed_time:`minute$());
+  if[not max dict`following`include_clubs; :empty];
   bb:0!.return.segments[dict];
   details:$[(7=type dict`club_id)&(not all null dict`club_id);
     flip[dict] cross ([] segment_id:bb`id);
     {x[`segment_id]:y; x}[dict]'[bb`id]];
   cc:.return.leaderboard.all each details;
-  :@[raze cc where 1<count each cc;`athlete_name;`$];
+  res:@[raze cc where 1<count each cc;`athlete_name;`$];
+  `.cache.athletes upsert distinct select id:athlete_id, name:athlete_name from res;
+  :res;
  };
 
 / compare segments
 .segComp.leaderboard:{[dict]
   dd:.segComp.base[dict];
-  P:asc exec distinct athlete_name from dd;
-  res:0!exec P#(athlete_name!elapsed_time) by Segment:Segment from dd;
-  cl:`Segment,.return.athleteData[][`fullname];
+  empty:![([] Segment:());();0b;enlist[(`$string `long$.return.athleteData[][`id])]!()];
+  if[0=count dd; :empty];
+  P:asc exec distinct `$string athlete_id from dd;
+  res:0!exec P#((`$string athlete_id)!elapsed_time) by Segment:Segment from dd;
+  cl:`Segment,`$string`long$.return.athleteData[][`id];
   :(cl,cols[res] except cl) xcols res;
+ };
+
+.segComp.hr.leaderboard:{[dict]
+  res:.segComp.leaderboard dict;
+  ath:.return.athleteName each "J"$string 1_ cols res;
+  :(`Segment,ath) xcol update .return.segmentName each Segment from res;
+ };
+
+.segComp.html.leaderboard:{[dict]
+  res:.segComp.leaderboard dict;
+//  ath:`$.return.html.athleteURL each "J"$string 1_ cols res;
+//  res:(`Segment,ath) xcol res;
+  ath:.return.athleteName each "J"$string 1_ cols res;
+  :(`Segment,ath) xcol update .return.html.segmentURL each Segment from res;
  };
 
 .segComp.highlight:{[dict]
@@ -144,8 +163,11 @@ showRes:{[segId;resType;resId]
   .h.ha["http://www.strava.com/segments/",string id;name]
  };
 
-.return.html.athleteURL:{[id;name]      / for use with .cache.leaderboards
-  .h.ha["http://www.strava.com/athletes/",string id;name]
+.return.athleteName:{[id] first value .cache.athletes id};
+
+.return.html.athleteURL:{[id]      / for use with .cache.leaderboards
+  name:.return.athleteName[id];
+  .h.ha["http://www.strava.com/athletes/",string id;string name]
  };
 
 / return list of users clubs

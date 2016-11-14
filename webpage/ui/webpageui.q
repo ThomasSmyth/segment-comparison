@@ -19,6 +19,7 @@ execdict:{
       // Sends database stats on connect
       [
        .log.out "connection made";
+       .return.athleteData[];
        res1:format[`init;dbstats[]];
        res1[`extra]:0!.return.clubs[];
        `res1 set res1;
@@ -33,8 +34,8 @@ execdict:{
   x:@[x;`club_id;"J"$]; 
   `aa set x;
 
-  x[`following]:"following" in x`following;
-  if[not "include_clubs" in enlist x`include_clubs; x[`club_id]:enlist 0N];
+  x[`following]:"following" in enlist x`following;
+  x[`include_clubs]:"include_clubs" in enlist x`include_clubs;
   if[x[`club_id]~`long$(); x[`club_id]:exec id from .return.clubs[]];
   x:.return.clean x;
 

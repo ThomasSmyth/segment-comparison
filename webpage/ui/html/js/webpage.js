@@ -80,7 +80,7 @@ function getInputs() {
 }
 
 // WEBSOCKETS CONNECTING TO KDB+
-var ws = new WebSocket("ws://localhost:5700");
+var ws = new WebSocket("ws://homer:5700");
 ws.binaryType = 'arraybuffer'; // Required by c.js 
 // WebSocket event handlers
 ws.onopen = function () {
