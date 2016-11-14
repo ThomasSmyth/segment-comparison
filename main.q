@@ -1,8 +1,7 @@
 
 .var.homedir:getenv[`HOME],"/git/segment_comparison";
-.var.accessToken:@[{first read0 x};hsym `$.var.homedir,"/settings/token.txt";{"null token"}];
+.var.accessToken:@[{first read0 x};hsym `$.var.homedir,"/settings/token.txt";{x;log.error"null token"}];
 .var.commandBase:"curl -G https://www.strava.com/api/v3/";
-.var.dateRange.activities:();
 .var.athleteData:();
 
 system"l ",.var.homedir,"/settings/sampleIds.q";
@@ -11,7 +10,7 @@ system"l ",.var.homedir,"/settings/sampleIds.q";
 .log.error:{-1 string[.z.p]," | Error | ",x; 'x};
 
 .cache.leaderboards:@[value;`.cache.leaderboards;([segmentId:`long$(); resType:`$(); resId:`long$()] res:())];
-.cache.activities:@[value;`.cache.activities;([id:`long$()] name:(); start_date:`date$(); manual:`boolean$(); commute:`boolean$())];
+.cache.activities:@[value;`.cache.activities;([id:`long$()] name:(); start_date:`date$(); commute:`boolean$())];
 .cache.segments:@[value;`.cache.segments;([id:`long$()] name:(); starred:`boolean$())];
 .cache.clubs:@[value;`.cache.clubs;([id:`long$()] name:())];
 .cache.athletes:@[value;`.cache.athletes;([id:`long$()] name:())];
@@ -30,7 +29,7 @@ system"l ",.var.homedir,"/settings/sampleIds.q";
 
 / basic connect function
 .connect.simple:{[datatype;extra]
-  :-29!first system .var.commandBase,datatype," -d access_token=",.var.accessToken," ",extra;       / return dictionary attribute-value pairs
+  :-29!first system .var.commandBase,datatype," -H \"Authorization: Bearer ",.var.accessToken,"\" ",extra;       / return dictionary attribute-value pairs
  };
 
 .connect.pagination:{[datatype;extra]
@@ -49,12 +48,12 @@ showRes:{[segId;resType;resId]
 .segComp.base:{[dict]
   empty:([] Segment:`long$(); athlete_id:`long$(); athlete_name:`$(); elapsed_time:`minute$());
   if[not max dict`following`include_clubs; :empty];
-  bb:0!.return.segments[dict];
+  segments:0!.return.segments[dict];
   details:$[(7=type dict`club_id)&(not all null dict`club_id);
-    flip[dict] cross ([] segment_id:bb`id);
-    {x[`segment_id]:y; x}[dict]'[bb`id]];
-  cc:.return.leaderboard.all each details;
-  res:@[raze cc where 1<count each cc;`athlete_name;`$];
+    flip[dict] cross ([] segment_id:segments`id);
+    {x[`segment_id]:y; x}[dict]'[segments`id]];
+  lead:.return.leaderboard.all each details;
+  res:@[raze lead where 1<count each lead;`athlete_name;`$];
   `.cache.athletes upsert distinct select id:athlete_id, name:athlete_name from res;
   :res;
  };
@@ -100,16 +99,6 @@ showRes:{[segId;resType;resId]
   :`total xdesc select total:count[Segment], Segment by athlete_name from ee where elapsed_time=minTime, 1=(count;i) fby Segment; 
  };
 
-/ return dictionary of date status
-.return.datelist.check:{[t;s;e]                                   / [type;start;end]
-  v:sv[`;`.var.dateRange,t];
-  if[14<>type s,e; :.log.error"Need to provide a date range"];
-  dr:asc distinct (s,e),s+til 1^(e+1)-s;
-  d:(!/)flip dr,'0b;
-  d[value v]:1b;
-  :d;
- };
-
 / return existing parameters in correct format
 .return.clean:{[dict]
   def:(!/) .var.defaults`vr`vl;                             / defaults value for parameters
@@ -128,22 +117,19 @@ showRes:{[segId;resType;resId]
 
 / return activities
 .return.activities:{[dict]
-  dr:.return.datelist[`check][`activities;dict`after;dict`before];
-  if[0=count where not dr; :select from .cache.activities where start_date in where dr];  / return cached results if they exist
-  p:.return.params.valid[`before`after`per_page;dict];     / additional url parameters
-  activ:.connect.pagination["activities";p];           / connect and return activites
-  rs:{select `long$id, name, "D"$10#\:start_date, manual, commute from x} each activ;  / extract relevent fields
-  `.cache.activities upsert rs;
-  `.var.dateRange.activities set asc distinct .var.dateRange.activities,where not dr;
-  :`id xkey rs;
+  if[0=count .cache.activities;
+    act:.connect.pagination["activities";"-d per_page=200"];
+    `.cache.activities upsert select `long$id, name, "D"$10#/:start_date, commute from (act where not act@\:`manual); 
+  ];
+  :select from .cache.activities where start_date within dict`after`before;
  };
 
 / return segment data from activity list
 .return.segments:{[dict]
   if[count cr:select from .cache.segments; :cr];            / if results cached then return here
-  activ:.return.activities[dict];
+  activ:0!.return.activities[dict];
   if[0=count activ; :cr];
-  segs:.connect.simple[;""] each "activities/",/:string exec id from activ where not manual;
+  segs:.connect.simple[;""] each "activities/",/:string exec id from activ;
   rs:distinct select `long$id, name, starred from raze[segs`segment_efforts]`segment where not private, not hazardous;  / return segment ids from activities
   rs,:select `long$id, name, starred from .connect.simple["segments/starred";""];  / return starred segments
   `.cache.segments upsert rs;                               / upsert to segment cache
@@ -172,13 +158,18 @@ showRes:{[segId;resType;resId]
 
 / return list of users clubs
 .return.clubs:{[]
+  .log.out"Retrieving club data";
   .return.athleteData[];
-  if[count .cache.clubs; :.cache.clubs];
+  if[count .cache.clubs; 
+    .log.out"Returning cached club data";
+    :.cache.clubs];
+  .log.out"Returning club data from strava.com";
   `.cache.clubs upsert rs:select `long$id, name from .return.athleteData[][`clubs];
   :`id xkey rs;
  };
 
 .return.athleteData:{[]
+  .log.out"Retrieving activites";
   if[0<count .var.athleteData; :.var.athleteData];
   ad:.connect.simple["athlete";""];
   ad[`fullname]:`$" " sv ad[`firstname`lastname];
