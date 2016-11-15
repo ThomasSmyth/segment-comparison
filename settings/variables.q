@@ -25,3 +25,7 @@
   (`club_id      ; (),0N; string                                                  );  / for club comparison
   (`segment_id   ; 0N   ; string                                                  )   / segment to compare on
  );
+
+// Number of rows to output to front end
+.var.outputrows:50;
+

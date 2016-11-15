@@ -1,7 +1,7 @@
 /- load the webpage functions
 
 // .load.stuff:{@[system;"l ",x;{-1"Failed to load ",x," : ",x;exit 1}]}
-@[system;"l webpagefunctions.q";{-1"Failed to load webpagefunctions.q : ",x;exit 1}]
+//@[system;"l webpagefunctions.q";{-1"Failed to load webpagefunctions.q : ",x;exit 1}]
 
 /- load webpage UI
 @[system;"l ui/webpageui.q";{-1"Failed to load webpageui.q : ",x;exit 1}]

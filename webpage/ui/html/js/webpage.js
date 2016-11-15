@@ -102,6 +102,7 @@ ws.onmessage = function (event) {
       // Initial data about the database
       if(name === 'init'){
         // stylise field val into field: val
+        $('#processing').hide();
         $('#summary').show();
         $('#following').show();
         $('#include_clubs').show();
@@ -118,8 +119,9 @@ ws.onmessage = function (event) {
       if(name === 'table'){
 
         // Build html table with data and fill in stats
+        $('#processing').hide();
         $('#tableoutput').html(jsonTable(data.data));
-        $('#tblstats').html("").append('<li>Date Range: ' + getInputs().start_date + " to " + getInputs().end_date +'</li>' +
+        $('#tblstats').html("").append('<li>Date Range: ' + getInputs().startdate + " to " + getInputs().enddate +'</li>' +
           '<li>Generated in: ' + (data.time/1000).toFixed(1) + "s" +'</li>' +
           '<li>Rows: ' + data.rows +'</li>');
 
@@ -133,25 +135,9 @@ ws.onmessage = function (event) {
         // Resize table cells
         //$('#tableoutput tbody td, #tableoutput thead th').width($('#tableoutput').width()/$('#tableoutput thead th').length-10);
       }
-      if(name === 'table3'){
 
-        // Build html table with data and fill in stats
-        $('#tableoutput').html(jsonTable(data.data));
-        $('#segName').html("").show();
-        $('#segName').append('<div class="col-md-2">Segment Name</div>' +
-        '<div class="col-md-10">' +
-          '<ul id="extra_stats"></ul>' +
-        '</div>');
-        $('#extra_stats').html("").append(extradata);
-        $('#tblstats').html("").append('<li>Date Range: ' + getInputs().start_date + " to " + getInputs().end_date +'</li>' +
-          '<li>Generated in: ' + (data.time/1000).toFixed(1) + "s" +'</li>' +
-          '<li>Rows: ' + data.rows +'</li>');
-
-        // Show stats bar
-        $('.stats').show();
-        
-        // Enable export link
-        $('#export').removeClass("disabled");
+      if(name === 'processing'){
+        $('#processing').show();
       }
 
     } else {
@@ -202,6 +188,7 @@ $(function() {
   $('#submit').click(function(){
     // Disable submit button on submit
     $(this).attr("disabled",true);
+    $('#processing').show();
     // Disable export on submit
     $('#export').addClass("disabled");  
     // Send to kdb+ over websockets  

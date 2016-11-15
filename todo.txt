@@ -15,7 +15,6 @@
 
 // v3 //
 
-* display message to notify user results are processing
 * head to head, user against each athlete
 * athlete filter on results
 
@@ -32,8 +31,9 @@
 
 * auto-submit on checkbox click
 * include hidden segments
-* set min start date as athlete join date
-* Add flag to segment comparison to only use starred segments
-* Add option to exclude commutes from activity list used in .return.segments
+    * Add flag to segment comparison to only use starred segments
+    * Add option to exclude commutes from activity list used in .return.segments
 * return time to webpage with preceding 0s dropped
 * webpage port for xls/csv export should be dynamically created
+* add timer to send weekly email
+

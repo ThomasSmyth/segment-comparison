@@ -118,11 +118,11 @@ showRes:{[segId;resType;resId]
   activ:0!.return.activities[dict];
   if[0=count activ; :0#.cache.segments];
 
-  chd:$[0=count .cache.segByAct;();.cache.segByAct activ`id];
+  chd:except[;0N] raze $[0=count .cache.segByAct;();.cache.segByAct activ`id];
   nchd:exec id from activ where not id in key .cache.segByAct;
   aa:raze {[n]
-    s:.return.activityDetail n;
-    rs:distinct select `long$id, name, starred from s[`segment_efforts]`segment where not private, not hazardous;
+    if[0=count s:.return.activityDetail[n][`segment_efforts]; :enlist[n]!enlist[0N]];
+    rs:distinct select `long$id, name, starred from s[`segment] where not private, not hazardous;
     `.cache.segments upsert rs;                             / upsert to segment cache
     :enlist[n]!enlist rs`id;
   } each nchd;
@@ -164,7 +164,7 @@ showRes:{[segId;resType;resId]
  };
 
 .return.athleteData:{[]
-  .log.out"Retrieving activites";
+  .log.out"Retrieving Athlete Data";
   if[0<count .var.athleteData; :.var.athleteData];
   ad:.connect.simple["athlete";""];
   ad[`fullname]:`$" " sv ad[`firstname`lastname];

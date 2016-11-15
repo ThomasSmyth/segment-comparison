@@ -1,8 +1,12 @@
 // Webpage ui code
 // Required to work with json
 
-// Number of rows to output to front end
-outputrows:50;
+timeit:{[func;dict;maxsize]
+ start:.z.p;
+ res:export::0!func @ dict;
+ (`int$(.z.p - start)%1000000; count res; maxsize sublist res)}
+
+dbstats:{([]field:("Date Range";"Meter Table Count");val:(((string .z.d)," to ",string .z.d);{reverse "," sv 3 cut reverse string x}[0]))}
 
 // Format dictionary to be encoded into json
 format:{[name;data]
@@ -45,7 +49,7 @@ execdict:{
   // Run function using params
   .log.out "Running query";
   func:$[x`summary;.segComp.summary.html;.segComp.leaderboard.html];
-  data:.[{[func;dict] timeit[func;dict;outputrows]}; (func;x); {.log.error"Didn't execute due to ",x}];
+  data:.[{[func;dict] timeit[func;dict;.var.outputrows]}; (func;x); {.log.error"Didn't execute due to ",x}];
   `dd set data;
 
   // Send formatted table
@@ -58,4 +62,8 @@ execdict:{
 evaluate:{@[execdict;x;{(enlist `error)!(enlist x)}]}
 
 // WebSocket handler
-.z.ws:{neg[.z.w] -8!.j.j[evaluate[.j.k -9!x]];}
+.z.ws:{
+  `query set .j.k -9!x;
+  neg[.z.w] -8!.j.j `name`data!(`processing;());
+  neg[.z.w] -8!.j.j[evaluate[.j.k -9!x]];
+ };

@@ -42,27 +42,30 @@
         <div class="col-md-1 col-md-offset-10"><a href="http://localhost:5700/export.csv?export" class="btn btn-primary btn-md disabled" id="export" alt="Save CSV file of most recent query">Export</a></div> 
         <div class="col-md-1 "><button type="button" class="btn btn-primary btn-md" id="submit" alt="Submit query" disabled>Submit</button></div> 
       </div>
+      <div class="checkz" id="segName" style="display:none;">
+      </div>      
+      <div class="checkz" id="summary" style="display:none;">
+        <div class="checklist"><label><input type="checkbox" value="summary">Summarise Results</label></div>
+      </div>      
+      <div class="checkz" id="following" style="display:none;">
+        <div class="checklist"><label><input type="checkbox" value="following">Include Following</label></div>
+      </div>      
+      <div class="checkz" id="include_clubs" style="display:none;">
+        <div class="checklist"><label><input type="checkbox" value="include_clubs">Include Clubs</label></div>
+      </div>      
+      <div class="col-md-3 multi-select-checkbox" id="clubs-filter" style="display:none;">
+      </div>      
+      <div class="col-md-3 multi-select-checkbox" id="athlete-filter" style="display:none;">
+      </div>      
       <div class="row stats">
         <div class="col-md-2">Table stats</div> 
         <div class="col-md-10">
           <ul id="tblstats"></ul>   
         </div> 
       </div>      
-      <div class="row stats" id="segName" style="display:none;">
-      </div>      
-      <div class="row stats" id="summary" style="display:none;">
-        <div class="checklist"><label><input type="checkbox" value="summary">Summarise Results</label></div>
-      </div>      
-      <div class="row stats" id="following" style="display:none;">
-        <div class="checklist"><label><input type="checkbox" value="following">Include Following</label></div>
-      </div>      
-      <div class="row stats" id="include_clubs" style="display:none;">
-        <div class="checklist"><label><input type="checkbox" value="include_clubs">Include Clubs</label></div>
-      </div>      
-      <div class="col-md-3 multi-select-checkbox" id="clubs-filter" style="display:none;">
-      </div>      
       <div class="row"> 
         <div class="col-md-12" id="connecting"><h4 style="text-align:center;">Connecting...</h4></div>
+        <div id="processing" style="display:none;"><h4 style="text-align:center;">Processing Query...</h4></div>
         <div class="col-md-12" id="tableoutput"></div>
       </div>
     </div>
