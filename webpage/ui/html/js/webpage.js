@@ -47,25 +47,18 @@ function checkboxVals(selector){
 function getInputs() {
   var startdate     = $('#startdate input').val(),
       enddate       = $('#enddate input').val(),
-      pivotvals     = $('.radio input:checked').val(),
       club_Id       = $('#clubId').val()
-      groupingvals  = [],
       clubvals      = [],
       following     = [],
       summary       = [],
       include_clubs = [],
-      regionvals    = [],
-      custtypevals  = [];      
 
   // Add values from grouping,region & custtype filter to their respective array
-  $('#grouping .checklist input:checked').each(function(a,b){groupingvals.push($(b).val());});
   $('#summary .checklist input:checked').each(function(a,b){summary.push($(b).val());});
   $('#following .checklist input:checked').each(function(a,b){following.push($(b).val());});
   $('#include_clubs .checklist input:checked').each(function(a,b){include_clubs.push($(b).val());});
 
   // Add checkbox values to appropriate array depending on whether "All" option is checked
-  regionvals = checkboxVals('#region-filter');
-  custtypevals = checkboxVals('#custtype-filter');
   clubvals = checkboxVals('#clubs-filter');
 
   return {
@@ -75,10 +68,6 @@ function getInputs() {
     summary: summary,
     following: following,
     include_clubs: include_clubs,
-    grouping: groupingvals,
-    pivot: pivotvals,
-    region_filter: regionvals,
-    custtype_filter: custtypevals
   }
 }
 

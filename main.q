@@ -1,31 +1,7 @@
 
+/ load variables
 .var.homedir:getenv[`HOME],"/git/segment_comparison";
-.var.accessToken:@[{first read0 x};hsym `$.var.homedir,"/settings/token.txt";{x;log.error"null token"}];
-.var.commandBase:"curl -G https://www.strava.com/api/v3/";
-.var.athleteData:();
-
-system"l ",.var.homedir,"/settings/sampleIds.q";
-
-.log.out:{-1 string[.z.p]," | Info | ",x;};
-.log.error:{-1 string[.z.p]," | Error | ",x; 'x};
-
-.cache.leaderboards:@[value;`.cache.leaderboards;([segmentId:`long$(); resType:`$(); resId:`long$()] res:())];
-.cache.activities:@[value;`.cache.activities;([id:`long$()] name:(); start_date:`date$(); commute:`boolean$())];
-.cache.segments:@[value;`.cache.segments;([id:`long$()] name:(); starred:`boolean$())];
-.cache.clubs:@[value;`.cache.clubs;([id:`long$()] name:())];
-.cache.athletes:@[value;`.cache.athletes;([id:`long$()] name:())];
-
-.var.defaults:flip `vr`vl`fc!flip (
-  (`starred      ; 0b   ; ("false";"true")                                        );  / show starred segments
-  (`summary      ; 0b   ; ("false";"true")                                        );  / summarise results
-  (`following    ; 0b   ; ("false";"true")                                        );  / compare with those followed
-  (`include_clubs; 0b   ; ("false";"true")                                        );  / for club comparison
-  (`after        ; 0Nd  ; {string (-/)`long$(`timestamp$x;1970.01.01D00:00)%1e9}  );  / start date
-  (`before       ; 0Nd  ; {string (-/)`long$(`timestamp$1+x;1970.01.01D00:00)%1e9});  / end date
-  (`club_id      ; (),0N; string                                                  );  / for club comparison
-  (`segment_id   ; 0N   ; string                                                  );  / segment to compare on
-  (`page         ; 0N   ; string                                                  )   / number of pages
- );
+system"l ",.var.homedir,"/settings/variables.q";
 
 / basic connect function
 .connect.simple:{[datatype;extra]
@@ -130,16 +106,29 @@ showRes:{[segId;resType;resId]
   :select from .cache.activities where start_date within dict`after`before;
  };
 
+.return.activityDetail:{[id]
+  :.connect.simple["activities/",string id;""];
+ };
+
 / return segment data from activity list
 .return.segments:{[dict]
-  if[count cr:select from .cache.segments; :cr];            / if results cached then return here
+  if[0=count .cache.segments;
+    `.cache.segments upsert select `long$id, name, starred from .connect.simple["segments/starred";""];  / return starred segments
+  ];
   activ:0!.return.activities[dict];
-  if[0=count activ; :cr];
-  segs:.connect.simple[;""] each "activities/",/:string exec id from activ;
-  rs:distinct select `long$id, name, starred from raze[segs`segment_efforts]`segment where not private, not hazardous;  / return segment ids from activities
-  rs,:select `long$id, name, starred from .connect.simple["segments/starred";""];  / return starred segments
-  `.cache.segments upsert rs;                               / upsert to segment cache
-  :`id xkey rs;
+  if[0=count activ; :0#.cache.segments];
+
+  chd:$[0=count .cache.segByAct;();.cache.segByAct activ`id];
+  nchd:exec id from activ where not id in key .cache.segByAct;
+  aa:raze {[n]
+    s:.return.activityDetail n;
+    rs:distinct select `long$id, name, starred from s[`segment_efforts]`segment where not private, not hazardous;
+    `.cache.segments upsert rs;                             / upsert to segment cache
+    :enlist[n]!enlist rs`id;
+  } each nchd;
+  .cache.segByAct,:aa;
+  ids:distinct raze chd, value[aa], exec id from .cache.segments where starred;
+  :select from .cache.segments where id in ids;
  };
 
 .return.segmentName:{[id]

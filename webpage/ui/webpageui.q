@@ -48,9 +48,9 @@ execdict:{
   data:.[{[func;dict] timeit[func;dict;outputrows]}; (func;x); {.log.error"Didn't execute due to ",x}];
   `dd set data;
 
-//  data[2]:update Segment:.return.html.segmentURL'[Segment] from data[2];
   // Send formatted table
   `res set res:format[`table;(`time`rows`data)!data];
+  .log.out "Returning results";
    :res;
   };
 

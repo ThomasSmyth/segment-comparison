@@ -5,8 +5,6 @@
 * return empty table/notification when no activites are found
 * if user has no clubs then auto return following
 * if user is following no athletes then return error (lock submit button)
-* add checkbox to return leaderboard summary
-* highlight quickest time with <mark></mark>
 
 // v2 //
 

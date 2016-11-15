@@ -44,3 +44,11 @@ input[type="checkbox"]{
   width:992px;
   overflow: auto;
 }
+
+/* Club checkboxes */
+#clubs-filter {
+    background-color: yellow;
+    width: 250px;
+    height: 300px;
+    overflow: auto;
+}
