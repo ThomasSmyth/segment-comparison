@@ -4,6 +4,7 @@
 .var.accessToken:@[{first read0 x};` sv hsym[`$.var.homedir],`settings`token.txt;{x;log.error"no token file"}];
 .var.commandBase:"curl -G https://www.strava.com/api/v3/";
 .var.athleteData:();
+.var.athleteList:();
 
 .log.out:{-1 string[.z.p]," | Info | ",x;};
 .log.error:{-1 string[.z.p]," | Error | ",x; 'x};
@@ -23,6 +24,7 @@
   (`after        ; 0Nd  ; {string (-/)`long$(`timestamp$x;1970.01.01D00:00)%1e9}  );  / start date
   (`before       ; 0Nd  ; {string (-/)`long$(`timestamp$1+x;1970.01.01D00:00)%1e9});  / end date
   (`club_id      ; (),0N; string                                                  );  / for club comparison
+  (`athlete_id   ; (),0N; string                                                  );  / filter athletes
   (`segment_id   ; 0N   ; string                                                  )   / segment to compare on
  );
 

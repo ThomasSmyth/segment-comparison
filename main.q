@@ -21,6 +21,10 @@ showRes:{[segId;resType;resId]
   :([] segmentId:enlist segId) cross .cache.leaderboards[(segId;resType;resId)]`res;
  };
 
+.segComp.wrap:{[dict]
+  :$[dict`summary;.segComp.summary.html;.segComp.leaderboard.html] delete athlete_id from dict;
+ };
+
 / compare segments
 .segComp.leaderboard.raw:{[dict]
 //  empty:([] Segment:`long$(); athlete_id:`long$(); athlete_name:`$(); elapsed_time:`minute$());
@@ -33,8 +37,6 @@ showRes:{[segId;resType;resId]
   lead:.return.leaderboard.all each details;
   dd:@[raze lead where 1<count each lead;`athlete_name;`$];
   `.cache.athletes upsert distinct select id:athlete_id, name:athlete_name from dd;
-//  empty:![([] Segment:());();0b;enlist[(`$string `long$.return.athleteData[][`id])]!()];
-//  if[0=count dd; :empty];
   P:asc exec distinct `$string athlete_id from dd;
   res:0!exec P#((`$string athlete_id)!elapsed_time) by Segment:Segment from dd;
   cl:`Segment,`$string`long$.return.athleteData[][`id];
@@ -47,37 +49,34 @@ showRes:{[segId;resType;resId]
   :(`Segment,ath) xcol update .return.segmentName each Segment from res;
  };
 
-.segComp.leaderboard.html:{[dict]
-  res:.segComp.leaderboard.highlight dict;
+.segComp.leaderboard.html:{[data]
 //  ath:`$.return.html.athleteURL each "J"$string 1_ cols res;
 //  res:(`Segment,ath) xcol res;
-  ath:.return.athleteName each "J"$string 1_ cols res;
-  :(`Segment,ath) xcol update .return.html.segmentURL each Segment from res;
+  ath:.return.athleteName each "J"$string 1_ cols data;
+  :(`Segment,ath) xcol update .return.html.segmentURL each Segment from data;
  };
 
-.segComp.leaderboard.highlight:{[dict]
-  aa:.segComp.leaderboard.raw dict;
-  bb:aa,'?[@[aa;1_cols aa;0w^];();0b;enlist[`tt]!enlist(min@\:;(enlist,1_cols aa))];
+.segComp.leaderboard.highlight:{[data]
+  bb:data,'?[@[data;1_cols data;0w^];();0b;enlist[`tt]!enlist(min@\:;(enlist,1_cols data))];
   func:{$[x=y;"<mark>",string[x],"<mark>";string x]};
-  :delete tt from ![bb;();0b;(1_cols aa)!{((';x);y;`tt)}[func] each 1_cols aa];
+  :delete tt from ![bb;();0b;(1_cols data)!{((';x);y;`tt)}[func] each 1_cols data];
  };
 
-.segComp.summary.raw:{[dict]
-  aa:.segComp.leaderboard.raw dict;
-  bb:aa,'?[@[aa;1_cols aa;0w^];();0b;enlist[`tt]!enlist(min@\:;(enlist,1_cols aa))];
+.segComp.summary.raw:{[data]
+  bb:data,'?[@[data;1_cols data;0w^];();0b;enlist[`tt]!enlist(min@\:;(enlist,1_cols data))];
   func:{x=y};
-  res:delete tt from ![bb;();0b;(1_cols aa)!{((';x);y;`tt)}[func] each 1_cols aa];
+  res:delete tt from ![bb;();0b;(1_cols data)!{((';x);y;`tt)}[func] each 1_cols data];
   res:([] Athlete:`$(); Total:(); Segments:()) upsert {segs:?[x;enlist(=;y;1);();`Segment]; (y; count segs; segs)}[res] each 1_cols res;
   :res;
  };
 
 .segComp.summary.hr:{[dict]
-  res:.segComp.summary.raw dict;
+  res:.segComp.summary.raw .segComp.leaderboard.raw dict;
   :update .return.athleteName each "J"$string Athlete, .return.segmentName@/:/:Segments from res;
  };
 
-.segComp.summary.html:{[dict]
-  res:.segComp.summary.raw dict;
+.segComp.summary.html:{[data]
+  res:.segComp.summary.raw data;
   :update .return.html.athleteURL each "J"$string Athlete, .return.html.segmentURL@/:/:Segments from res;
  };
 

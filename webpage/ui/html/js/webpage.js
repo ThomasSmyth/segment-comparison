@@ -47,7 +47,7 @@ function checkboxVals(selector){
 function getInputs() {
   var startdate     = $('#startdate input').val(),
       enddate       = $('#enddate input').val(),
-      club_Id       = $('#clubId').val()
+      athlete_Id    = $('#athleteId').val()
       clubvals      = [],
       following     = [],
       summary       = [],
@@ -60,11 +60,13 @@ function getInputs() {
 
   // Add checkbox values to appropriate array depending on whether "All" option is checked
   clubvals = checkboxVals('#clubs-filter');
+  athletevals = checkboxVals('#athlete-filter');
 
   return {
     after: startdate,
     before: enddate,
     club_id: clubvals,
+    athlete_id: athletevals,
     summary: summary,
     following: following,
     include_clubs: include_clubs,
@@ -134,6 +136,32 @@ ws.onmessage = function (event) {
 
         // Resize table cells
         //$('#tableoutput tbody td, #tableoutput thead th').width($('#tableoutput').width()/$('#tableoutput thead th').length-10);
+      }
+
+      if(name === 'table2'){
+
+        // Build html table with data and fill in stats
+        $('#processing').hide();
+
+        $('#athlete-filter').html("").show();
+        $('#athlete-filter').append('<div class="col-md-2">Athletes</div>');
+        $('#athlete-filter').html("");
+        extradata.forEach(function(a){
+          $('#athlete-filter').append('<div class="checklist"><label><input type="checkbox" value="'+a.id+'">'+a.name+'</label></div>');
+        });
+        $('#athlete-filter').append('<div class="checklist"><label><input type="checkbox" value="all">All Clubs</label></div>');
+
+        $('#tableoutput').html(jsonTable(data.data));
+        $('#tblstats').html("").append('<li>Date Range: ' + getInputs().startdate + " to " + getInputs().enddate +'</li>' +
+          '<li>Generated in: ' + (data.time/1000).toFixed(1) + "s" +'</li>' +
+          '<li>Rows: ' + data.rows +'</li>');
+
+        // Show stats bar
+        $('.stats').show();
+        $('#segName').hide();
+        
+        // Enable export link
+        $('#export').removeClass("disabled");
       }
 
       if(name === 'processing'){

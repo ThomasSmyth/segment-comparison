@@ -1,10 +1,17 @@
 // Webpage ui code
 // Required to work with json
 
-timeit:{[func;dict;maxsize]
- start:.z.p;
- res:export::0!func @ dict;
- (`int$(.z.p - start)%1000000; count res; maxsize sublist res)}
+timeit:{[dict;maxsize]
+  start:.z.p;
+  res:export::0!.segComp.leaderboard.raw delete athlete_id from dict;
+  edata:$[all (ids:"J"$string 2_cols[res]) in .var.athleteList;
+    ();
+    [value `.var.athleteList set ids;
+     select from .cache.athletes where id in ids]
+  ];
+  res:.segComp.leaderboard.html .segComp.leaderboard.highlight res;
+  :(`int$(.z.p - start)%1000000; count res; maxsize sublist res; edata);
+ };
 
 dbstats:{([]field:("Date Range";"Meter Table Count");val:(((string .z.d)," to ",string .z.d);{reverse "," sv 3 cut reverse string x}[0]))}
 
@@ -18,7 +25,7 @@ execdict:{
 
   `inputs set x;
 
-  if[not all `after`before`club_id`following`include_clubs in key x;
+  if[not all `after`before`club_id`athlete_id`following`include_clubs in key x;
     :$[`init in key x;
       // Sends database stats on connect
       [
@@ -43,19 +50,21 @@ execdict:{
   x[`include_clubs]:"include_clubs" in enlist x`include_clubs;
   if[x[`club_id]~`long$(); x[`club_id]:exec id from .return.clubs[]];
   x:.return.clean x;
-
+ 
   `x set x;
 
   // Run function using params
   .log.out "Running query";
-  func:$[x`summary;.segComp.summary.html;.segComp.leaderboard.html];
-  data:.[{[func;dict] timeit[func;dict;.var.outputrows]}; (func;x); {.log.error"Didn't execute due to ",x}];
+  data:@[{[dict] timeit[dict;.var.outputrows]}; x; {.log.error"Didn't execute due to ",x}];
   `dd set data;
 
   // Send formatted table
-  `res set res:format[`table;(`time`rows`data)!data];
+  res:format[`table;(`time`rows`data`extra)!data];
+//  if[count res[`data;`extra]; res[`name]:`table2];
+  `res set res;
   .log.out "Returning results";
-   :res;
+  res[`data]:delete extra from res[`data];
+  :res;
   };
 
 // evaluate incoming data from WebSocket. Outputs error to front end.
