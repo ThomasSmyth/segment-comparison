@@ -35,6 +35,7 @@ execdict:{
   `aa set x;
 
   x[`following]:"following" in enlist x`following;
+  x[`summary]:"summary" in enlist x`summary;
   x[`include_clubs]:"include_clubs" in enlist x`include_clubs;
   if[x[`club_id]~`long$(); x[`club_id]:exec id from .return.clubs[]];
   x:.return.clean x;
@@ -43,10 +44,11 @@ execdict:{
 
   // Run function using params
   .log.out "Running query";
-  data:.[{[func;dict] timeit[func;dict;outputrows]}; (.segComp.leaderboard;x); {.log.error"Didn't execute due to ",x}];
+  func:$[x`summary;.segComp.summary.html;.segComp.leaderboard.html];
+  data:.[{[func;dict] timeit[func;dict;outputrows]}; (func;x); {.log.error"Didn't execute due to ",x}];
   `dd set data;
 
-  data[2]:update Segment:.return.html.segmentURL'[Segment] from data[2];
+//  data[2]:update Segment:.return.html.segmentURL'[Segment] from data[2];
   // Send formatted table
   `res set res:format[`table;(`time`rows`data)!data];
    :res;

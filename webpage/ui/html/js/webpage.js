@@ -51,14 +51,16 @@ function getInputs() {
       club_Id       = $('#clubId').val()
       groupingvals  = [],
       clubvals      = [],
-      followingvals = [],
+      following     = [],
+      summary       = [],
       include_clubs = [],
       regionvals    = [],
       custtypevals  = [];      
 
   // Add values from grouping,region & custtype filter to their respective array
   $('#grouping .checklist input:checked').each(function(a,b){groupingvals.push($(b).val());});
-  $('#following .checklist input:checked').each(function(a,b){followingvals.push($(b).val());});
+  $('#summary .checklist input:checked').each(function(a,b){summary.push($(b).val());});
+  $('#following .checklist input:checked').each(function(a,b){following.push($(b).val());});
   $('#include_clubs .checklist input:checked').each(function(a,b){include_clubs.push($(b).val());});
 
   // Add checkbox values to appropriate array depending on whether "All" option is checked
@@ -70,7 +72,8 @@ function getInputs() {
     after: startdate,
     before: enddate,
     club_id: clubvals,
-    following: followingvals,
+    summary: summary,
+    following: following,
     include_clubs: include_clubs,
     grouping: groupingvals,
     pivot: pivotvals,
@@ -110,6 +113,7 @@ ws.onmessage = function (event) {
       // Initial data about the database
       if(name === 'init'){
         // stylise field val into field: val
+        $('#summary').show();
         $('#following').show();
         $('#include_clubs').show();
         $('#clubs-filter').html("").show();

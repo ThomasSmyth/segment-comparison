@@ -17,14 +17,14 @@ system"l ",.var.homedir,"/settings/sampleIds.q";
 
 .var.defaults:flip `vr`vl`fc!flip (
   (`starred      ; 0b   ; ("false";"true")                                        );  / show starred segments
+  (`summary      ; 0b   ; ("false";"true")                                        );  / summarise results
   (`following    ; 0b   ; ("false";"true")                                        );  / compare with those followed
   (`include_clubs; 0b   ; ("false";"true")                                        );  / for club comparison
   (`after        ; 0Nd  ; {string (-/)`long$(`timestamp$x;1970.01.01D00:00)%1e9}  );  / start date
   (`before       ; 0Nd  ; {string (-/)`long$(`timestamp$1+x;1970.01.01D00:00)%1e9});  / end date
   (`club_id      ; (),0N; string                                                  );  / for club comparison
   (`segment_id   ; 0N   ; string                                                  );  / segment to compare on
-  (`page         ; 0N   ; string                                                  );  / number of pages
-  (`per_page     ; 0N   ; string                                                  )   / results per page
+  (`page         ; 0N   ; string                                                  )   / number of pages
  );
 
 / basic connect function
@@ -34,7 +34,7 @@ system"l ",.var.homedir,"/settings/sampleIds.q";
 
 .connect.pagination:{[datatype;extra]
   :last {[datatype;extra;tab]                   / iterate over pages until no extra results are returned
-    tab[1],:ret:.connect.simple[datatype;extra," -d page=",string tab 0];
+    tab[1],:ret:.connect.simple[datatype;extra," -d per_page=200 -d page=",string tab 0];
     if[count ret; tab[0]+:1];
     :tab;
   }[datatype;extra]/[(1;())];
@@ -45,58 +45,64 @@ showRes:{[segId;resType;resId]
   :([] segmentId:enlist segId) cross .cache.leaderboards[(segId;resType;resId)]`res;
  };
 
-.segComp.base:{[dict]
-  empty:([] Segment:`long$(); athlete_id:`long$(); athlete_name:`$(); elapsed_time:`minute$());
+/ compare segments
+.segComp.leaderboard.raw:{[dict]
+//  empty:([] Segment:`long$(); athlete_id:`long$(); athlete_name:`$(); elapsed_time:`minute$());
+  empty:![([] Segment:());();0b;enlist[(`$string `long$.return.athleteData[][`id])]!()];
   if[not max dict`following`include_clubs; :empty];
   segments:0!.return.segments[dict];
   details:$[(7=type dict`club_id)&(not all null dict`club_id);
     flip[dict] cross ([] segment_id:segments`id);
     {x[`segment_id]:y; x}[dict]'[segments`id]];
   lead:.return.leaderboard.all each details;
-  res:@[raze lead where 1<count each lead;`athlete_name;`$];
-  `.cache.athletes upsert distinct select id:athlete_id, name:athlete_name from res;
-  :res;
- };
-
-/ compare segments
-.segComp.leaderboard:{[dict]
-  dd:.segComp.base[dict];
-  empty:![([] Segment:());();0b;enlist[(`$string `long$.return.athleteData[][`id])]!()];
-  if[0=count dd; :empty];
+  dd:@[raze lead where 1<count each lead;`athlete_name;`$];
+  `.cache.athletes upsert distinct select id:athlete_id, name:athlete_name from dd;
+//  empty:![([] Segment:());();0b;enlist[(`$string `long$.return.athleteData[][`id])]!()];
+//  if[0=count dd; :empty];
   P:asc exec distinct `$string athlete_id from dd;
   res:0!exec P#((`$string athlete_id)!elapsed_time) by Segment:Segment from dd;
   cl:`Segment,`$string`long$.return.athleteData[][`id];
   :(cl,cols[res] except cl) xcols res;
  };
 
-.segComp.hr.leaderboard:{[dict]
-  res:.segComp.leaderboard dict;
+.segComp.leaderboard.hr:{[dict]
+  res:.segComp.leaderboard.raw dict;
   ath:.return.athleteName each "J"$string 1_ cols res;
   :(`Segment,ath) xcol update .return.segmentName each Segment from res;
  };
 
-.segComp.html.leaderboard:{[dict]
-  res:.segComp.leaderboard dict;
+.segComp.leaderboard.html:{[dict]
+  res:.segComp.leaderboard.highlight dict;
 //  ath:`$.return.html.athleteURL each "J"$string 1_ cols res;
 //  res:(`Segment,ath) xcol res;
   ath:.return.athleteName each "J"$string 1_ cols res;
   :(`Segment,ath) xcol update .return.html.segmentURL each Segment from res;
  };
 
-.segComp.highlight:{[dict]
-  dd:.segComp.base[dict];
-  ee:select Segment, athlete_name, elapsed_time, minTime:(min;elapsed_time) fby Segment from dd;
-  ff:update elapsed_time:{$[x=y;"<mark>",string[x],"</mark>";string x]}'[elapsed_time;minTime] from ee;
-  P:asc exec distinct athlete_name from ff;
-  res:0!exec P#(athlete_name!elapsed_time) by Segment:Segment from ff;
-  cl:`Segment,.return.athleteData[][`fullname];
-  :(cl,cols[res] except cl) xcols res;
-  }
+.segComp.leaderboard.highlight:{[dict]
+  aa:.segComp.leaderboard.raw dict;
+  bb:aa,'?[@[aa;1_cols aa;0w^];();0b;enlist[`tt]!enlist(min@\:;(enlist,1_cols aa))];
+  func:{$[x=y;"<mark>",string[x],"<mark>";string x]};
+  :delete tt from ![bb;();0b;(1_cols aa)!{((';x);y;`tt)}[func] each 1_cols aa];
+ };
 
-.segComp.summary:{[dict]
-  dd:.segComp.base[dict];
-  ee:select Segment, athlete_name, elapsed_time, minTime:(min;elapsed_time) fby Segment from dd;
-  :`total xdesc select total:count[Segment], Segment by athlete_name from ee where elapsed_time=minTime, 1=(count;i) fby Segment; 
+.segComp.summary.raw:{[dict]
+  aa:.segComp.leaderboard.raw dict;
+  bb:aa,'?[@[aa;1_cols aa;0w^];();0b;enlist[`tt]!enlist(min@\:;(enlist,1_cols aa))];
+  func:{x=y};
+  res:delete tt from ![bb;();0b;(1_cols aa)!{((';x);y;`tt)}[func] each 1_cols aa];
+  res:([] Athlete:`$(); Total:(); Segments:()) upsert {segs:?[x;enlist(=;y;1);();`Segment]; (y; count segs; segs)}[res] each 1_cols res;
+  :res;
+ };
+
+.segComp.summary.hr:{[dict]
+  res:.segComp.summary.raw dict;
+  :update .return.athleteName each "J"$string Athlete, .return.segmentName@/:/:Segments from res;
+ };
+
+.segComp.summary.html:{[dict]
+  res:.segComp.summary.raw dict;
+  :update .return.html.athleteURL each "J"$string Athlete, .return.html.segmentURL@/:/:Segments from res;
  };
 
 / return existing parameters in correct format
@@ -118,7 +124,7 @@ showRes:{[segId;resType;resId]
 / return activities
 .return.activities:{[dict]
   if[0=count .cache.activities;
-    act:.connect.pagination["activities";"-d per_page=200"];
+    act:.connect.pagination["activities";""];
     `.cache.activities upsert select `long$id, name, "D"$10#/:start_date, commute from (act where not act@\:`manual); 
   ];
   :select from .cache.activities where start_date within dict`after`before;
