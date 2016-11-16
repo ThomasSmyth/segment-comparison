@@ -92,20 +92,14 @@ ws.onmessage = function (event) {
     var edata = JSON.parse(deserialize(event.data)),
         name  = edata.name,
         data  = edata.data,
-        extradata = edata.extra;
+        extraname = edata.extraname;
+        extradata = edata.extradata;
 
     // Enable submit button 
     $('#submit').attr("disabled",false);
-    
-    // Data handling functionality
-    // Print database and table stats, and output table. Display error.
-    if(edata.hasOwnProperty('data')){
-
-      // Initial data about the database
-      if(name === 'init'){
-        // stylise field val into field: val
-        $('#processing').hide();
-        $('#summary').show();
+   
+    if(edata.hasOwnProperty('extradata')){
+      if(extraname === 'clubs'){
         $('#following').show();
         $('#include_clubs').show();
         $('#clubs-filter').html("").show();
@@ -115,6 +109,27 @@ ws.onmessage = function (event) {
           $('#clubs-filter').append('<div class="checklist"><label><input type="checkbox" value="'+a.id+'">'+a.name+'</label></div>');
         });
         $('#clubs-filter').append('<div class="checklist"><label><input type="checkbox" value="all">All Clubs</label></div>');
+      }
+      if(extraname === 'athletes'){
+        $('#athlete-filter').html("").show();
+        $('#athlete-filter').append('<div class="col-md-2">Athletes</div>');
+        $('#athlete-filter').html("");
+        extradata.forEach(function(a){
+          $('#athlete-filter').append('<div class="checklist"><label><input type="checkbox" value="'+a.id+'">'+a.name+'</label></div>');
+        });
+        $('#athlete-filter').append('<div class="checklist"><label><input type="checkbox" value="all">All Athletes</label></div>');
+      }
+    }
+ 
+    // Data handling functionality
+    // Print database and table stats, and output table. Display error.
+    if(edata.hasOwnProperty('data')){
+
+      // Initial data about the database
+      if(name === 'init'){
+        // stylise field val into field: val
+        $('#processing').hide();
+        $('#summary').show();
       }
 
       // Output table data
@@ -138,31 +153,6 @@ ws.onmessage = function (event) {
         //$('#tableoutput tbody td, #tableoutput thead th').width($('#tableoutput').width()/$('#tableoutput thead th').length-10);
       }
 
-      if(name === 'table2'){
-
-        // Build html table with data and fill in stats
-        $('#processing').hide();
-
-        $('#athlete-filter').html("").show();
-        $('#athlete-filter').append('<div class="col-md-2">Athletes</div>');
-        $('#athlete-filter').html("");
-        extradata.forEach(function(a){
-          $('#athlete-filter').append('<div class="checklist"><label><input type="checkbox" value="'+a.id+'">'+a.name+'</label></div>');
-        });
-        $('#athlete-filter').append('<div class="checklist"><label><input type="checkbox" value="all">All Clubs</label></div>');
-
-        $('#tableoutput').html(jsonTable(data.data));
-        $('#tblstats').html("").append('<li>Date Range: ' + getInputs().startdate + " to " + getInputs().enddate +'</li>' +
-          '<li>Generated in: ' + (data.time/1000).toFixed(1) + "s" +'</li>' +
-          '<li>Rows: ' + data.rows +'</li>');
-
-        // Show stats bar
-        $('.stats').show();
-        $('#segName').hide();
-        
-        // Enable export link
-        $('#export').removeClass("disabled");
-      }
 
       if(name === 'processing'){
         $('#processing').show();

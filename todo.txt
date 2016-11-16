@@ -1,11 +1,5 @@
 ### To Do List ###
 
-// v1 //
-
-* return empty table/notification when no activites are found
-* if user has no clubs then auto return following
-* if user is following no athletes then return error (lock submit button)
-
 // v2 //
 
 * set default start/end date on webpage
@@ -16,11 +10,11 @@
 // v3 //
 
 * head to head, user against each athlete
-* athlete filter on results
 
 // v4 //
 
 * place segment and athlete filters in scrollable boxes
+* if user is following no athletes then return error (lock submit button)
 
 // v5 //
 
