@@ -4,7 +4,7 @@
 timeit:{[dict]
   output:()!();
   start:.z.p;
-  data:export::0!.segComp.leaderboard.raw delete athlete_id from dict;
+  data:export::0!.segComp.leaderboard.raw dict;
   if[not (asc ids:"J"$string 2_cols[data])~asc .var.athleteList;
     if[0<count .return.clubs;
       .log.out"Creating data for athletes checklist";

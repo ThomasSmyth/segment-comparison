@@ -27,6 +27,7 @@ showRes:{[segId;resType;resId]
 
 / compare segments
 .segComp.leaderboard.raw:{[dict]
+  dict:delete athlete_id from dict;
   empty:![([] Segment:());();0b;enlist[(`$string .return.athleteData[][`id])]!()];
   if[not max dict`following`include_clubs; :empty];
   segments:0!.return.segments[dict];
