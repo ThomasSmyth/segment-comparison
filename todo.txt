@@ -10,6 +10,8 @@
 // v3 //
 
 * head to head, user against each athlete
+* colour segments on map
+* user coloured markers for beginnings
 
 // v4 //
 

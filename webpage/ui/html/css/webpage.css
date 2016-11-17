@@ -61,4 +61,5 @@ input[type="checkbox"]{
 #map {
     width: 800px;
     height:400px;
+    margin-bottom:40px;
 }

@@ -5,6 +5,11 @@ timeit:{[dict]
   output:()!();
   start:.z.p;
   data:export::0!.segComp.leaderboard.raw dict;
+  if[1b=x`include_map;
+    segs:.return.stream.segment each exec Segment from data;
+    output,:`plottype`polyline`markers!(`lineMarkers;segs;first each segs);
+  ];
+  
   if[not (asc ids:"J"$string 2_cols[data])~asc .var.athleteList;
     if[0<count .return.clubs;
       .log.out"Creating data for athletes checklist";
@@ -32,7 +37,9 @@ timeit:{[dict]
   :output;
  };
 
+
 dbstats:{([]field:("Date Range";"Meter Table Count");val:(((string .z.d)," to ",string .z.d);{reverse "," sv 3 cut reverse string x}[0]))}
+
 
 // Format dictionary to be encoded into json
 format:{[name;data]
@@ -44,7 +51,7 @@ execdict:{
 
   `inputs set x;
 
-  if[not all `after`before`club_id`athlete_id`following`include_clubs in key x;
+  if[not all `after`before`club_id`athlete_id`following`include_map`include_clubs in key x;
     :$[`init in key x;
       / Sends database stats on connect
       [
@@ -53,13 +60,10 @@ execdict:{
        .return.athleteData[];                                       / get athlete data
        res:format[`init;dbstats[]];
        // need some logic here to deal with no followers/clubs
-//       if[count cb:0!.return.clubs[];
-//         res[`extraname]:`clubs;
-//         res[`extradata]:cb;
-//       ];
-       res[`plottype]:`lineMarkers;
-       res[`polyline]:lines;
-       res[`markers]:first each lines;
+       if[count cb:0!.return.clubs[];
+         res[`extraname]:`clubs;
+         res[`extradata]:cb;
+       ];
        `res1 set res;
        res
       ];
@@ -72,6 +76,7 @@ execdict:{
   x:@[x;`club_id`athlete_id;"J"$]; 
   `aa set x;
 
+  x[`include_map]:"include_map" in enlist x`include_map;
   x[`include_clubs]:"include_clubs" in enlist x`include_clubs;
   x[`following]:"following" in enlist x`following;
   if[0=count .return.clubs; x[`following]:1b];

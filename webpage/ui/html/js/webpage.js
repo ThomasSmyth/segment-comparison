@@ -50,6 +50,7 @@ function getInputs() {
       athlete_Id    = $('#athleteId').val()
       clubvals      = [],
       following     = [],
+      include_map   = [],
       summary       = [],
       include_clubs = [],
 
@@ -57,6 +58,7 @@ function getInputs() {
   $('#summary .checklist input:checked').each(function(a,b){summary.push($(b).val());});
   $('#following .checklist input:checked').each(function(a,b){following.push($(b).val());});
   $('#include_clubs .checklist input:checked').each(function(a,b){include_clubs.push($(b).val());});
+  $('#include_map .checklist input:checked').each(function(a,b){include_map.push($(b).val());});
 
   // Add checkbox values to appropriate array depending on whether "All" option is checked
   clubvals = checkboxVals('#clubs-filter');
@@ -70,6 +72,7 @@ function getInputs() {
     summary: summary,
     following: following,
     include_clubs: include_clubs,
+    include_map: include_map,
   }
 }
 
@@ -206,6 +209,7 @@ ws.onmessage = function (event) {
         // stylise field val into field: val
         $('#processing').hide();
         $('#summary').show();
+        $('#include_map').show();
       }
 
       // Output table data
@@ -213,6 +217,7 @@ ws.onmessage = function (event) {
 
         // Build html table with data and fill in stats
         $('#processing').hide();
+        $('#tableoutput').show();
         $('#tableoutput').html(jsonTable(data.data));
         $('#tblstats').html("").append('<li>Date Range: ' + getInputs().startdate + " to " + getInputs().enddate +'</li>' +
           '<li>Generated in: ' + (data.time/1000).toFixed(1) + "s" +'</li>' +

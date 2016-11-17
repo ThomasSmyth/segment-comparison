@@ -22,6 +22,7 @@
   (`starred      ; 0b   ; ("false";"true")                                        );  / show starred segments
   (`summary      ; 0b   ; ("false";"true")                                        );  / summarise results
   (`following    ; 0b   ; ("false";"true")                                        );  / compare with those followed
+  (`include_map  ; 0b   ; ("false";"true")                                        );  / show map
   (`include_clubs; 0b   ; ("false";"true")                                        );  / for club comparison
   (`after        ; 0Nd  ; {string (-/)`long$(`timestamp$x;1970.01.01D00:00)%1e9}  );  / start date
   (`before       ; 0Nd  ; {string (-/)`long$(`timestamp$1+x;1970.01.01D00:00)%1e9});  / end date
