@@ -170,6 +170,23 @@ showRes:{[segId;resType;resId]
   :ad;
  };
 
+.return.stream.segment:{[segId]
+//  .log.out"Retrieving stream for segment: ",string[segId];
+  if[0<count res:raze exec data from .cache.streams.segments where id = segId; :res];
+  aa:first .connect.simple["segments/",string[segId],"/streams/latlng";""];
+  data:aa`data;
+  `.cache.streams.segments upsert (segId;data);
+  :data;
+ };
+
+.return.stream.activity:{[actId]
+  if[0<count res:raze exec data from .cache.streams.activities where id = actId; :res`data];
+  aa:first .connect.simple["activities/",string[actId],"/streams/latlng";""];
+  data:aa`data;
+  `.cache.streams.activities upsert (actId;data);
+  :data;
+ };
+
 .return.leaderboard.all:{[dict]
   if[not `segment_id in key dict; .log.error"Need to specify a segment id"; :()];
   rs:([athlete_id:`long$()] athlete_name:(); elapsed_time:`minute$(); Segment:`long$());

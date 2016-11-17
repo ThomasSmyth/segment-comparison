@@ -15,6 +15,8 @@
 .cache.segments:@[value;`.cache.segments;([id:`long$()] name:(); starred:`boolean$())];
 .cache.clubs:@[value;`.cache.clubs;([id:`long$()] name:())];
 .cache.athletes:@[value;`.cache.athletes;([id:`long$()] name:())];
+.cache.streams.segments:@[value;`.cache.stream.segments;([id:`long$()] data:())];
+.cache.streams.activities:@[value;`.cache.stream.activites;([id:`long$()] data:())];
 
 .var.defaults:flip `vr`vl`fc!flip (
   (`starred      ; 0b   ; ("false";"true")                                        );  / show starred segments
