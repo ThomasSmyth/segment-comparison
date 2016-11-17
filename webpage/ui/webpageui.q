@@ -53,10 +53,13 @@ execdict:{
        .return.athleteData[];                                       / get athlete data
        res:format[`init;dbstats[]];
        // need some logic here to deal with no followers/clubs
-       if[count cb:0!.return.clubs[];
-         res[`extraname]:`clubs;
-         res[`extradata]:cb;
-       ];
+//       if[count cb:0!.return.clubs[];
+//         res[`extraname]:`clubs;
+//         res[`extradata]:cb;
+//       ];
+       res[`plottype]:`lineMarkers;
+       res[`polyline]:lines;
+       res[`markers]:first each lines;
        `res1 set res;
        res
       ];

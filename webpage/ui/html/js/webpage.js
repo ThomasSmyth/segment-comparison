@@ -73,6 +73,67 @@ function getInputs() {
   }
 }
 
+function plotLines(lineArray){
+
+    var cp = [54.55662, -5.892407];
+
+    var map = L.map('map',{
+        center: cp,
+        zoom: 10
+    });
+
+    L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    // add line from toUnion array points to map with some basic styling
+    lineArray.forEach(function(line){
+      L.polyline(line,{color:'blue',opacity:1}).addTo(map);
+    });
+}
+
+function plotMarkers(markArray){
+
+    var cp = [54.55662, -5.892407];
+
+    var map = L.map('map',{
+        center: cp,
+        zoom: 10
+    });
+
+    L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    // add line from toUnion array points to map with some basic styling
+    markArray.forEach(function(mark){
+      L.marker(mark).addTo(map);
+    });
+}
+
+function plotMarkerLines(markArray, lineArray){
+
+    var cp = [54.55662, -5.892407];
+
+    var map = L.map('map',{
+        center: cp,
+        zoom: 10
+    });
+
+    L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    // add line from toUnion array points to map with some basic styling
+    markArray.forEach(function(mark){
+      L.marker(mark).addTo(map);
+    });
+
+    lineArray.forEach(function(line){
+      L.polyline(line,{color:'blue',opacity:1}).addTo(map);
+    });
+}
+
 // WEBSOCKETS CONNECTING TO KDB+
 var ws = new WebSocket("ws://homer:5700");
 ws.binaryType = 'arraybuffer'; // Required by c.js 
@@ -94,6 +155,9 @@ ws.onmessage = function (event) {
         data  = edata.data,
         extraname = edata.extraname;
         extradata = edata.extradata;
+        plottype = edata.plottype
+        polyline = edata.polyline;
+        markers = edata.markers;
 
     // Enable submit button 
     $('#submit').attr("disabled",false);
@@ -118,6 +182,18 @@ ws.onmessage = function (event) {
           $('#athlete-filter').append('<div class="checklist"><label><input type="checkbox" value="'+a.id+'">'+a.name+'</label></div>');
         });
         $('#athlete-filter').append('<div class="checklist"><label><input type="checkbox" value="all">All Athletes</label></div>');
+      }
+    }
+
+    if(edata.hasOwnProperty('plottype')){
+      if(plottype === 'polyline'){
+        plotLines(polyline);
+      }
+      if(plottype === 'markers'){
+        plotMarkers(markers);
+      }
+      if(plottype === 'lineMarkers'){
+        plotMarkerLines(markers, polyline);
       }
     }
  

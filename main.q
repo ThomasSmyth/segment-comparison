@@ -2,6 +2,7 @@
 / load variables
 .var.homedir:getenv[`HOME],"/git/segment_comparison";
 system"l ",.var.homedir,"/settings/variables.q";
+lines:get hsym `$.var.homedir,"/settings/lines";
 
 / basic connect function
 .connect.simple:{[datatype;extra]
