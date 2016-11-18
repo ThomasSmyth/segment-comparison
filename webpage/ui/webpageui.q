@@ -5,10 +5,6 @@ timeit:{[dict]
   output:()!();
   start:.z.p;
   data:export::0!.segComp.leaderboard.raw dict;
-  if[1b=x`include_map;
-    segs:.return.stream.segment each exec Segment from data;
-    output,:`plottype`polyline`markers!(`lineMarkers;segs;first each segs);
-  ];
   
   if[not (asc ids:"J"$string 2_cols[data])~asc .var.athleteList;
     if[0<count .return.clubs;
@@ -23,9 +19,7 @@ timeit:{[dict]
   if[(0<count id)&(any id in ids);
     cb:`$string id;
     cn:`Segment,`$string (.return.athleteData[][`id]),cb;
-    cond:enlist $[1=count cb;
-      (~:),enlist(^:),cb;
-      (~:),enlist(&),(^:),/:cb];
+    cond:enlist (~:),enlist $[1=count cb; (^:),cb; (&),(^:),/:cb];
     data:?[data;cond;0b;cn!cn]];
 
   res:$[dict`summary;                                           / check if summary has been specified
@@ -34,6 +28,12 @@ timeit:{[dict]
     .segComp.leaderboard.html .segComp.leaderboard.highlight data];  / return leaderboard
   res:(`int$(.z.p - start)%1000000; count res; res);
   output,:format[`table;(`time`rows`data)!res];                 / Send formatted table
+
+  if[1b=x`include_map;                                          / create map from result subset
+    segs:.return.stream.segment each exec Segment from data;
+    output,:`plottype`polyline`markers!(`lineMarkers;segs;first each segs);
+  ];
+
   :output;
  };
 

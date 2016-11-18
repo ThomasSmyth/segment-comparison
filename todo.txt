@@ -33,3 +33,9 @@
 * webpage port for xls/csv export should be dynamically created
 * add timer to send weekly email
 
+// map //
+
+* create map as var outside function scope
+* create markers and ploylines as layers and allow user to remove them
+* colour in lines for different ahletes
+* custom marker for each athlete (store photo in tempdir)

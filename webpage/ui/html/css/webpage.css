@@ -42,24 +42,26 @@ input[type="checkbox"]{
 #tableoutput {
   height: 400px;
   width:992px;
+  margin-bottom:40px;
   overflow: auto;
 }
 
 /* Club checkboxes */
 #clubs-filter {
-    background-color: yellow;
-    width: 250px;
-    height: 300px;
-    overflow: auto;
+  background-color: yellow;
+  width: 250px;
+  height: 300px;
+  overflow: auto;
 }
 
 #processing {
-    width: 100%;
-    clear:left;
+  width: 100%;
+  clear:left;
 }
 
 #map {
-    width: 800px;
-    height:400px;
-    margin-bottom:40px;
+  width: 800px;
+  height:400px;
+  margin-bottom:40px;
 }
+

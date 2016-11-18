@@ -76,6 +76,38 @@ function getInputs() {
   }
 }
 
+function showMap(){
+
+    var cp = [54.55662, -5.892407];
+
+    var map = L.map('map',{
+        center: cp,
+        zoom: 10
+    });
+
+//    map.eachLayer(function (layer) {
+//        map.removeLayer(layer);
+//    });
+
+    L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+}
+
+function clearMap() {
+    for(i in m._layers) {
+        if(m._layers[i]._path != undefined) {
+            try {
+                m.removeLayer(m._layers[i]);
+            }
+            catch(e) {
+                console.log("problem with " + e + m._layers[i]);
+            }
+        }
+    }
+}
+
 function plotLines(lineArray){
 
     var cp = [54.55662, -5.892407];
@@ -84,6 +116,8 @@ function plotLines(lineArray){
         center: cp,
         zoom: 10
     });
+
+    clearMap();
 
     L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
@@ -103,6 +137,8 @@ function plotMarkers(markArray){
         center: cp,
         zoom: 10
     });
+
+    clearMap();
 
     L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
@@ -132,6 +168,7 @@ function plotMarkerLines(markArray, lineArray){
       L.marker(mark).addTo(map);
     });
 
+    // add line from toUnion array points to map with some basic styling
     lineArray.forEach(function(line){
       L.polyline(line,{color:'blue',opacity:1}).addTo(map);
     });
@@ -156,14 +193,15 @@ ws.onmessage = function (event) {
     var edata = JSON.parse(deserialize(event.data)),
         name  = edata.name,
         data  = edata.data,
-        extraname = edata.extraname;
-        extradata = edata.extradata;
-        plottype = edata.plottype
-        polyline = edata.polyline;
+        extraname = edata.extraname,
+        extradata = edata.extradata,
+        plottype = edata.plottype,
+        polyline = edata.polyline,
         markers = edata.markers;
 
     // Enable submit button 
     $('#submit').attr("disabled",false);
+    $('#map_placeholder').hide();
    
     if(edata.hasOwnProperty('extradata')){
       if(extraname === 'clubs'){
@@ -187,17 +225,21 @@ ws.onmessage = function (event) {
         $('#athlete-filter').append('<div class="checklist"><label><input type="checkbox" value="all">All Athletes</label></div>');
       }
     }
-
+ 
+    // Map handling functionality
     if(edata.hasOwnProperty('plottype')){
+
+      $('#map_placeholder').show();
+      $('#map_placeholder').html("").append('<div id="map"></div>');
+
       if(plottype === 'polyline'){
         plotLines(polyline);
-      }
-      if(plottype === 'markers'){
+      } else if(plottype === 'markers'){
         plotMarkers(markers);
-      }
-      if(plottype === 'lineMarkers'){
+      } else if(plottype === 'lineMarkers'){
         plotMarkerLines(markers, polyline);
       }
+
     }
  
     // Data handling functionality
@@ -232,11 +274,6 @@ ws.onmessage = function (event) {
 
         // Resize table cells
         //$('#tableoutput tbody td, #tableoutput thead th').width($('#tableoutput').width()/$('#tableoutput thead th').length-10);
-      }
-
-
-      if(name === 'processing'){
-        $('#processing').show();
       }
 
     } else {
