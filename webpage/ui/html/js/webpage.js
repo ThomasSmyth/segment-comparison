@@ -80,7 +80,7 @@ function showMap(){
 
     var cp = [54.55662, -5.892407];
 
-    var map = L.map('map',{
+    window.map = L.map('map',{
         center: cp,
         zoom: 10
     });
@@ -108,74 +108,64 @@ function clearMap() {
     }
 }
 
+function get_random_color() 
+{
+    var letters = '0123456789ABCDEF'.split('');
+    var color = '#';
+    for (var i = 0; i < 6; i++ ) 
+    {
+       color += letters[Math.round(Math.random() * 15)];
+    }
+return color;
+}
+
+var layerGroup = false;
+var layerControl = false;
+
 function plotLines(lineArray){
 
-    var cp = [54.55662, -5.892407];
-
-    var map = L.map('map',{
-        center: cp,
-        zoom: 10
-    });
-
-    clearMap();
-
-    L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
-
-    // add line from toUnion array points to map with some basic styling
+    if(layerGroup === false) {       
+        layerGroup = L.layerGroup();
+    }
+  
     lineArray.forEach(function(line){
-      L.polyline(line,{color:'blue',opacity:1}).addTo(map);
-    });
+      layerGroup.addLayer(L.polyline(line,{color:'blue',opacity:1}));
+    }); 
+
+    layerGroup.addTo(map);
+        
+    layerControl.addOverlay(layerGroup, "Polyline");
+
+    return flase;
+
 }
 
 function plotMarkers(markArray){
+   // loop over each marker and add to map
+   for (var i = 0; i < markArray.length; i++) {
+       marker = new L.marker([markArray[i][0],markArray[i][1]])
+           .bindPopup(markArray[i][2])
+           .addTo(map);
+   } 
 
-    var cp = [54.55662, -5.892407];
-
-    var map = L.map('map',{
-        center: cp,
-        zoom: 10
-    });
-
-    clearMap();
-
-    L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
-
-    // add line from toUnion array points to map with some basic styling
-    markArray.forEach(function(mark){
-      L.marker(mark).addTo(map);
-    });
 }
 
 function plotMarkerLines(markArray, lineArray){
+    // add map to webpage
+    showMap();
 
-    var cp = [54.55662, -5.892407];
+    // add markers to map
+    plotMarkers(markArray);
 
-    var map = L.map('map',{
-        center: cp,
-        zoom: 10
-    });
-
-    L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
-
-    // add line from toUnion array points to map with some basic styling
-    markArray.forEach(function(mark){
-      L.marker(mark).addTo(map);
-    });
-
-    // add line from toUnion array points to map with some basic styling
+    // add lines to map 
+    plotLines(lineArray);
     lineArray.forEach(function(line){
-      L.polyline(line,{color:'blue',opacity:1}).addTo(map);
-    });
+      plotLines(line);
+    }); 
 }
 
 // WEBSOCKETS CONNECTING TO KDB+
-var ws = new WebSocket("ws://homer:5700");
+var ws = new WebSocket("ws://localhost:5700");
 ws.binaryType = 'arraybuffer'; // Required by c.js 
 // WebSocket event handlers
 ws.onopen = function () {

@@ -111,7 +111,7 @@ showRes:{[segId;resType;resId]
 / return segment data from activity list
 .return.segments:{[dict]
   if[0=count .cache.segments;
-    `.cache.segments upsert select `long$id, name, starred from .connect.simple["segments/starred";""];  / return starred segments
+    `.cache.segments upsert {select `long$id, name, starred from x} each .connect.simple["segments/starred";""];  / return starred segments
   ];
   activ:0!.return.activities[dict];
   if[0=count activ; :0#.cache.segments];

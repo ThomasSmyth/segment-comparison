@@ -20,7 +20,7 @@ timeit:{[dict]
     cb:`$string id;
     cn:`Segment,`$string (.return.athleteData[][`id]),cb;
     cond:enlist (~:),enlist $[1=count cb; (^:),cb; (&),(^:),/:cb];
-    data:?[data;cond;0b;cn!cn]];
+    export::data:?[data;cond;0b;cn!cn]];
 
   res:$[dict`summary;                                           / check if summary has been specified
     [export::.segComp.summary.raw data;                         / update export table
@@ -30,8 +30,9 @@ timeit:{[dict]
   output,:format[`table;(`time`rows`data)!res];                 / Send formatted table
 
   if[1b=x`include_map;                                          / create map from result subset
-    segs:.return.stream.segment each exec Segment from data;
-    output,:`plottype`polyline`markers!(`lineMarkers;segs;first each segs);
+    lines:{.return.stream.segment each x} each ids:exec Segments from .segComp.summary.raw data;
+    marks:(first each raze lines),'(enlist each .return.segmentName each raze ids),'(raze ids);
+    output,:`plottype`polyline`markers!(`lineMarkers;lines;marks);
   ];
 
   :output;
