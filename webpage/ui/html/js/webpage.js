@@ -119,10 +119,10 @@ function get_random_color()
 return color;
 }
 
-var layerGroup = false;
-var layerControl = false;
-
 function plotLines(lineArray){
+
+    var layerGroup = false;
+    var layerControl = false;
 
     if(layerGroup === false) {       
         layerGroup = L.layerGroup();
