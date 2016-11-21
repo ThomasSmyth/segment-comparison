@@ -126,17 +126,19 @@ function plotLines(lineArray){
 
     if(layerGroup === false) {       
         layerGroup = L.layerGroup();
-    }
   
-    lineArray.forEach(function(line){
-      layerGroup.addLayer(L.polyline(line,{color:'blue',opacity:1}));
-    }); 
+        layerGroup.addLayer(L.polyline(lineArray,{color:'blue',opacity:1}));
 
-    layerGroup.addTo(map);
-        
+        layerGroup.addTo(map);
+    }
+
+    if(layerControl === false) {
+        layerControl = L.control.layers().addTo(map);
+    }
+
     layerControl.addOverlay(layerGroup, "Polyline");
 
-    return flase;
+    return false;
 
 }
 
@@ -159,13 +161,13 @@ function plotMarkerLines(markArray, lineArray){
 
     // add lines to map 
     plotLines(lineArray);
-    lineArray.forEach(function(line){
-      plotLines(line);
-    }); 
+//    lineArray.forEach(function(line){
+//      plotLines(line);
+//    }); 
 }
 
 // WEBSOCKETS CONNECTING TO KDB+
-var ws = new WebSocket("ws://localhost:5700");
+var ws = new WebSocket("ws://homer:5700");
 ws.binaryType = 'arraybuffer'; // Required by c.js 
 // WebSocket event handlers
 ws.onopen = function () {

@@ -17,15 +17,6 @@ lines:get hsym `$.var.homedir,"/settings/lines";
   }[datatype;extra]/[(1;())];
  };
 
-/ show results neatly
-showRes:{[segId;resType;resId]
-  :([] segmentId:enlist segId) cross .cache.leaderboards[(segId;resType;resId)]`res;
- };
-
-.segComp.wrap:{[dict]
-  :$[dict`summary;.segComp.summary.html;.segComp.leaderboard.html] delete athlete_id from dict;
- };
-
 / compare segments
 .segComp.leaderboard.raw:{[dict]
   dict:delete athlete_id from dict;
@@ -35,12 +26,15 @@ showRes:{[segId;resType;resId]
   details:$[(7=type dict`club_id)&(not all null dict`club_id);
     flip[dict] cross ([] segment_id:segments`id);
     {x[`segment_id]:y; x}[dict]'[segments`id]];
+  .log.out"returning segment leaderboards";
   lead:.return.leaderboard.all each details;
   dd:@[raze lead where 1<count each lead;`athlete_name;`$];
   `.cache.athletes upsert distinct select id:athlete_id, name:athlete_name from dd;
+  .log.out"pivoting results";
   P:asc exec distinct `$string athlete_id from dd;
   res:0!exec P#((`$string athlete_id)!elapsed_time) by Segment:Segment from dd;
   cl:`Segment,`$string .return.athleteData[][`id];
+  .log.out"returning raw leaderboard";
   :(cl,cols[res] except cl) xcols res;
  };
 
@@ -97,11 +91,16 @@ showRes:{[segId;resType;resId]
 
 / return activities
 .return.activities:{[dict]
+  .log.out"retrieving activity list";
   if[0=count .cache.activities;
     act:.connect.pagination["activities";""];
-    `.cache.activities upsert select `long$id, name, "D"$10#/:start_date, commute from (act where not act@\:`manual); 
+    data:select `long$id, name, "D"$10#/:start_date, commute from (act where not act@\:`manual); 
+    .log.out"retrieved ",string[count data]," activities from strava";
+    `.cache.activities upsert data;
   ];
-  :select from .cache.activities where start_date within dict`after`before;
+  res:select from .cache.activities where start_date within dict`after`before;
+  .log.out"found ",string[count res]," activities in date range ",raze string dict[`after]," to ",dict[`before];
+  :res;
  };
 
 .return.activityDetail:{[id]
@@ -114,8 +113,10 @@ showRes:{[segId;resType;resId]
     `.cache.segments upsert {select `long$id, name, starred from x} each .connect.simple["segments/starred";""];  / return starred segments
   ];
   activ:0!.return.activities[dict];
-  if[0=count activ; :0#.cache.segments];
-
+  if[0=count activ;
+    .log.out"no segments in date range due to lack of activities";
+    :0#.cache.segments;
+  ];
   chd:except[;0N] raze $[0=count .cache.segByAct;();.cache.segByAct activ`id];
   nchd:exec id from activ where not id in key .cache.segByAct;
   aa:raze {[n]
@@ -126,6 +127,7 @@ showRes:{[segId;resType;resId]
   } each nchd;
   .cache.segByAct,:aa;
   ids:distinct raze chd, value[aa], exec id from .cache.segments where starred;
+  .log.out"returning segments";
   :select from .cache.segments where id in ids;
  };
 
@@ -197,23 +199,31 @@ showRes:{[segId;resType;resId]
  };
 
 .return.leaderboard.club:{[dict]
-  if[0<count rs:.cache.leaderboards[(dict`segment_id;`club_id;dict`club_id)]`res;
-    :rs cross ([] Segment:enlist dict`segment_id);
+  {.log.out"returning segment: ",x,", club_id: ",y} . string dict`segment_id`club_id;
+  if[0<count rs:select from .cache.leaderboards where segmentId=dict`segment_id, resType=`club_id, resId=dict`club_id;
+    :(raze exec res from rs) cross ([] Segment:enlist dict`segment_id);
   ];
   extra:.return.params.valid[`club_id] dict;
   message:.connect.simple["segments/",string[dict`segment_id],"/leaderboard"] extra;
-  res:select `long$athlete_id, athlete_name, `minute$elapsed_time from message`entries;
+  res:$[0=count message`entries;
+    raze exec res from rs;
+    select `long$athlete_id, athlete_name, `minute$elapsed_time from message`entries
+  ];
   `.cache.leaderboards upsert (dict`segment_id;`club_id;dict`club_id;res);
   :res cross ([] Segment:enlist dict`segment_id);
  };
 
 .return.leaderboard.following:{[dict]
-  if[0<count rs:.cache.leaderboards[(dict`segment_id;`following;0N)]`res;
-    :rs cross ([] Segment:enlist dict`segment_id);
+  .log.out"returning segment: ",string[dict`segment_id],", following"; 
+  if[0<count rs:select from .cache.leaderboards where segmentId=dict`segment_id, resType=`following, resId=0N;
+    :(raze exec res from rs) cross ([] Segment:enlist dict`segment_id);
   ];
   extra:.return.params.valid[`following] dict;
   message:.connect.simple["segments/",string[dict`segment_id],"/leaderboard"] extra;
-  res:select `long$athlete_id, athlete_name, `minute$elapsed_time from message`entries;
+  res:$[0=count message`entries;
+    rs;
+    select `long$athlete_id, athlete_name, `minute$elapsed_time from message`entries
+  ];
   `.cache.leaderboards upsert (dict`segment_id;`following;0N;res);
   :res cross ([] Segment:enlist dict`segment_id);
  };
