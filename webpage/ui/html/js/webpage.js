@@ -119,13 +119,13 @@ function get_random_color()
 return color;
 }
 
-function plotLines(lineArray){
+function plotLines(athlete, lineArray){
 
     polylineLayerGroup = L.layerGroup();
 
     polylineLayerGroup.addLayer(L.polyline(lineArray,{color:'blue',opacity:1})).addTo(map);
 
-    layerControl.addOverlay(polylineLayerGroup, "Polyline");
+    layerControl.addOverlay(polylineLayerGroup, athlete);
 
 }
 
@@ -152,10 +152,11 @@ function plotMarkerLines(athletes, markArray, lineArray){
     for (var i = 0; i < markArray.length; i++ ) 
     {
       plotMarkers(athletes[i], markArray[i]);
+      plotLines(athletes[i], lineArray[i]);
     }
 
     // add lines to map 
-    plotLines(lineArray);
+//    plotLines(lineArray);
 //    lineArray.forEach(function(line){
 //      plotLines(line);
 //    }); 
