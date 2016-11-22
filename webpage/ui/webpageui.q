@@ -33,7 +33,7 @@ timeit:{[dict]
     aths:.return.athleteName each "J"$ string 1_cols data;
     lines:{.return.stream.segment each x} each ids:exec Segments from .segComp.summary.raw data;
 //    marks:(first each raze lines),'(enlist each .return.segmentName each raze ids),'(raze ids);
-    marks:raze {(first each x),'(enlist each .return.segmentName each y),'(y)}'[lines;ids];
+    marks:{(first each x),'(enlist each .return.segmentName each y),'(y)}'[lines;ids];
     output,:`plottype`polyline`markers!(`lineMarkers;lines;marks);
   ];
 

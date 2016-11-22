@@ -127,8 +127,6 @@ function plotLines(lineArray){
 
     layerControl.addOverlay(polylineLayerGroup, "Polyline");
 
-    return false;
-
 }
 
 function plotMarkers(markArray){
@@ -140,8 +138,6 @@ function plotMarkers(markArray){
   });
     
   layerControl.addOverlay(marksLayerGroup, "Marks");
-       
-  return false;
 
 }
 
@@ -153,7 +149,9 @@ function plotMarkerLines(markArray, lineArray){
     layerControl = L.control.layers().addTo(map);
 
     // add markers to map
-    plotMarkers(markArray);
+    markArray.forEach(function(mark){
+      plotMarkers(mark);
+    });
 
     // add lines to map 
     plotLines(lineArray);
