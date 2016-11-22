@@ -129,7 +129,7 @@ function plotLines(lineArray){
 
 }
 
-function plotMarkers(markArray){
+function plotMarkers(athlete, markArray){
   // loop over each marker and add to map
   var marksLayerGroup = L.layerGroup();
 
@@ -137,11 +137,11 @@ function plotMarkers(markArray){
     marksLayerGroup.addLayer(L.marker([mark[0],mark[1]]).bindPopup(mark[2])).addTo(map);
   });
     
-  layerControl.addOverlay(marksLayerGroup, "Marks");
+  layerControl.addOverlay(marksLayerGroup, athlete);
 
 }
 
-function plotMarkerLines(markArray, lineArray){
+function plotMarkerLines(athletes, markArray, lineArray){
     // add map to webpage
     showMap();
 
@@ -149,9 +149,10 @@ function plotMarkerLines(markArray, lineArray){
     layerControl = L.control.layers().addTo(map);
 
     // add markers to map
-    markArray.forEach(function(mark){
-      plotMarkers(mark);
-    });
+    for (var i = 0; i < markArray.length; i++ ) 
+    {
+      plotMarkers(athletes[i], markArray[i]);
+    }
 
     // add lines to map 
     plotLines(lineArray);
@@ -184,7 +185,8 @@ ws.onmessage = function (event) {
         extradata = edata.extradata,
         plottype = edata.plottype,
         polyline = edata.polyline,
-        markers = edata.markers;
+        markers = edata.markers,
+        athletes = edata.names;
 
     // Enable submit button 
     $('#submit').attr("disabled",false);
@@ -224,7 +226,7 @@ ws.onmessage = function (event) {
       } else if(plottype === 'markers'){
         plotMarkers(markers);
       } else if(plottype === 'lineMarkers'){
-        plotMarkerLines(markers, polyline);
+        plotMarkerLines(athletes, markers, polyline);
       }
 
     }
