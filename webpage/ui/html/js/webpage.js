@@ -121,40 +121,36 @@ return color;
 
 function plotLines(lineArray){
 
-    var layerGroup = false;
-    var layerControl = false;
+    polylineLayerGroup = L.layerGroup();
 
-    if(layerGroup === false) {       
-        layerGroup = L.layerGroup();
-  
-        layerGroup.addLayer(L.polyline(lineArray,{color:'blue',opacity:1}));
+    polylineLayerGroup.addLayer(L.polyline(lineArray,{color:'blue',opacity:1})).addTo(map);
 
-        layerGroup.addTo(map);
-    }
-
-    if(layerControl === false) {
-        layerControl = L.control.layers().addTo(map);
-    }
-
-    layerControl.addOverlay(layerGroup, "Polyline");
+    layerControl.addOverlay(polylineLayerGroup, "Polyline");
 
     return false;
 
 }
 
 function plotMarkers(markArray){
-   // loop over each marker and add to map
-   for (var i = 0; i < markArray.length; i++) {
-       marker = new L.marker([markArray[i][0],markArray[i][1]])
-           .bindPopup(markArray[i][2])
-           .addTo(map);
-   } 
+  // loop over each marker and add to map
+  var marksLayerGroup = L.layerGroup();
+
+  markArray.forEach(function(mark){
+    marksLayerGroup.addLayer(L.marker([mark[0],mark[1]]).bindPopup(mark[2])).addTo(map);
+  });
+    
+  layerControl.addOverlay(marksLayerGroup, "Marks");
+       
+  return false;
 
 }
 
 function plotMarkerLines(markArray, lineArray){
     // add map to webpage
     showMap();
+
+    // add layer control to map
+    layerControl = L.control.layers().addTo(map);
 
     // add markers to map
     plotMarkers(markArray);
@@ -165,6 +161,7 @@ function plotMarkerLines(markArray, lineArray){
 //      plotLines(line);
 //    }); 
 }
+
 
 // WEBSOCKETS CONNECTING TO KDB+
 var ws = new WebSocket("ws://homer:5700");
