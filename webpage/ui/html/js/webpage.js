@@ -78,29 +78,23 @@ function getInputs() {
 
 function showMap(){
 
-    window.map = L.map('map');
+  window.map = L.map('map');
 
-//    map.eachLayer(function (layer) {
-//        map.removeLayer(layer);
-//    });
-
-    L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
+  L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+  attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+  }).addTo(map);
 
 }
 
 function clearMap() {
-  for(i in m._layers) {
-    if(m._layers[i]._path != undefined) {
-      try {
-        m.removeLayer(m._layers[i]);
-      }
-      catch(e) {
-        console.log("problem with " + e + m._layers[i]);
-      }
-    }
-  }
+  map.eachLayer(function (layer) {
+      map.removeLayer(layer);
+  });
+
+  L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+  attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+  }).addTo(map);
+
 }
 
 function get_random_colour() {
@@ -140,6 +134,8 @@ function plotMarkerLines(athletes, bounds, markArray, lineArray){
   showMap();
 
   map.fitBounds(bounds);
+
+  clearMap();
 
   // add layer control to map
   layerControl = L.control.layers().addTo(map);
