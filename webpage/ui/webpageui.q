@@ -4,6 +4,10 @@
 timeit:{[dict]
   output:()!();
   start:.z.p;
+
+  .log.out"query parameters:";
+  .Q.s 0N!dict;
+
   data:export::0!.segComp.leaderboard.raw dict;
   
   if[not (asc ids:"J"$string 2_cols[data])~asc .var.athleteList;
@@ -26,19 +30,24 @@ timeit:{[dict]
     [export::.segComp.summary.raw data;                         / update export table
      .segComp.summary.html data];                               / return summary
     .segComp.leaderboard.html .segComp.leaderboard.highlight data];  / return leaderboard
+
   res:(`int$(.z.p - start)%1000000; count res; res);
   output,:format[`table;(`time`rows`data)!res];                 / Send formatted table
 
   if[1b=x`include_map;                                          / create map from result subset
-    aths:.return.athleteName each "J"$ string 1_cols data;
-    .log.out"retrieving segment streams";
-    lines:{.return.stream.segment each x} each ids:exec Segments from .segComp.summary.raw data;
-    marks:{(first each x),'(enlist each .return.segmentName each y),'(y)}'[lines;ids];
-    bounds:(min;max)@\: raze raze lines;
-    output,:`plottype`polyline`markers`names`bounds!(`lineMarkers;lines;marks;aths;bounds);
+    output,:.return.mapDetails[data];
   ];
 
   :output;
+ };
+
+.return.mapDetails:{[data]
+  aths:.return.athleteName each "J"$ string 1_cols data;
+  .log.out"retrieving segment streams";
+  lines:{.return.stream.segment each x} each ids:exec Segments from .segComp.summary.raw data;
+  marks:{(first each x),'(enlist each .return.segmentName each y),'(y)}'[lines;ids];
+  bounds:(min;max)@\: raze raze lines;
+  :`plottype`polyline`markers`names`bounds!(`lineMarkers;lines;marks;aths;bounds);
  };
 
 

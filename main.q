@@ -23,6 +23,7 @@ lines:get hsym `$.var.homedir,"/settings/lines";
   empty:![([] Segment:());();0b;enlist[(`$string .return.athleteData[][`id])]!()];
   if[not max dict`following`include_clubs; :empty];
   segments:0!.return.segments[dict];
+  if[0=count segments; :empty];
   details:$[(7=type dict`club_id)&(not all null dict`club_id);
     flip[dict] cross ([] segment_id:segments`id);
     {x[`segment_id]:y; x}[dict]'[segments`id]];
@@ -193,37 +194,28 @@ lines:get hsym `$.var.homedir,"/settings/lines";
 .return.leaderboard.all:{[dict]
   if[not `segment_id in key dict; .log.error"Need to specify a segment id"; :()];
   rs:([athlete_id:`long$()] athlete_name:(); elapsed_time:`minute$(); Segment:`long$());
-  if[1b=dict`following; rs,:.return.leaderboard.following[dict]];       / return leaderboard of followers
-  if[1b=dict`include_clubs; rs,:.return.leaderboard.club[dict]];    / return leaderboard of clubs
+  if[1b=dict`following;
+    {.log.out"returning segment: ",x,", club_id: ",y} . string dict`segment_id`club_id;
+    rs,:.return.leaderboard.sub[dict;`club_id;dict`club_id];                    / return leaderboard of followers
+  ];
+  if[1b=dict`include_clubs;
+    .log.out"returning segment: ",string[dict`segment_id],", following"; 
+    rs,:.return.leaderboard.sub[dict;`following;0N];                         / return leaderboard of clubs
+  ];
   :`Segment xcols 0!rs;
  };
 
-.return.leaderboard.club:{[dict]
-  {.log.out"returning segment: ",x,", club_id: ",y} . string dict`segment_id`club_id;
-  if[0<count rs:select from .cache.leaderboards where segmentId=dict`segment_id, resType=`club_id, resId=dict`club_id;
+.return.leaderboard.sub:{[dict;typ;leadId]
+  if[0<count rs:select from .cache.leaderboards where segmentId=dict`segment_id, resType=typ, resId=leadId;
     :(raze exec res from rs) cross ([] Segment:enlist dict`segment_id);
   ];
-  extra:.return.params.valid[`club_id] dict;
+  extra:.return.params.valid[typ] dict;
   message:.connect.simple["segments/",string[dict`segment_id],"/leaderboard"] extra;
   res:$[0=count message`entries;
     raze exec res from rs;
     select `long$athlete_id, athlete_name, `minute$elapsed_time from message`entries
   ];
-  `.cache.leaderboards upsert (dict`segment_id;`club_id;dict`club_id;res);
+  `.cache.leaderboards upsert (dict`segment_id;typ;leadId;res);
   :res cross ([] Segment:enlist dict`segment_id);
  };
 
-.return.leaderboard.following:{[dict]
-  .log.out"returning segment: ",string[dict`segment_id],", following"; 
-  if[0<count rs:select from .cache.leaderboards where segmentId=dict`segment_id, resType=`following, resId=0N;
-    :(raze exec res from rs) cross ([] Segment:enlist dict`segment_id);
-  ];
-  extra:.return.params.valid[`following] dict;
-  message:.connect.simple["segments/",string[dict`segment_id],"/leaderboard"] extra;
-  res:$[0=count message`entries;
-    rs;
-    select `long$athlete_id, athlete_name, `minute$elapsed_time from message`entries
-  ];
-  `.cache.leaderboards upsert (dict`segment_id;`following;0N;res);
-  :res cross ([] Segment:enlist dict`segment_id);
- };

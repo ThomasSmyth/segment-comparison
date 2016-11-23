@@ -263,6 +263,8 @@ ws.onmessage = function (event) {
   }
 };
 ws.error = function (error) {
+  // hide processing
+  $('#processing').hide();
   // Enable submit button 
   $('#submit').attr("disabled",false);
   // Write error message
