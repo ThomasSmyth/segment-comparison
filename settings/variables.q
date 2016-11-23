@@ -2,7 +2,7 @@
 //system"l ",.var.homedir,"/settings/sampleIds.q";
 
 .var.accessToken:@[{first read0 x};` sv hsym[`$.var.homedir],`settings`token.txt;{x;log.error"no token file"}];
-.var.commandBase:"curl -G https://www.strava.com/api/v3/";
+.var.commandBase:"curl -sG https://www.strava.com/api/v3/";
 .var.athleteData:@[value;`.var.athleteData;()];
 .var.athleteList:@[value;`.var.athleteList;()];
 

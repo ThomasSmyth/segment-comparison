@@ -4,8 +4,10 @@
 
 * set default start/end date on webpage
 * replace mark with colour defined in tr tag (gold, silver, bronze), 2 methods:
-    * new json function that take second table with 1 2 3 for positions to colour and 0 from standard colour
+    * new js function that take second table with 1 2 3 for positions to colour and 0 from standard colour
     * q function to string each table row and add tags with colours
+* add error when no results are returned
+* hide processing div when error is returned
 
 // v3 //
 
@@ -25,7 +27,6 @@
 
 // additional //
 
-* auto-submit on checkbox click
 * include hidden segments
     * Add flag to segment comparison to only use starred segments
     * Add option to exclude commutes from activity list used in .return.segments
@@ -35,7 +36,6 @@
 
 // map //
 
-* create map as var outside function scope
-* create markers and ploylines as layers and allow user to remove them
+* clear elements instead of redrawing map
 * colour in lines for different ahletes
 * custom marker for each athlete (store photo in tempdir)

@@ -33,9 +33,9 @@ timeit:{[dict]
     aths:.return.athleteName each "J"$ string 1_cols data;
     .log.out"retrieving segment streams";
     lines:{.return.stream.segment each x} each ids:exec Segments from .segComp.summary.raw data;
-//    marks:(first each raze lines),'(enlist each .return.segmentName each raze ids),'(raze ids);
     marks:{(first each x),'(enlist each .return.segmentName each y),'(y)}'[lines;ids];
-    output,:`plottype`polyline`markers`names!(`lineMarkers;lines;marks;aths);
+    bounds:(min;max)@\: raze raze lines;
+    output,:`plottype`polyline`markers`names`bounds!(`lineMarkers;lines;marks;aths;bounds);
   ];
 
   :output;

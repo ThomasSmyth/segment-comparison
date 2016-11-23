@@ -78,12 +78,7 @@ function getInputs() {
 
 function showMap(){
 
-    var cp = [54.55662, -5.892407];
-
-    window.map = L.map('map',{
-        center: cp,
-        zoom: 10
-    });
+    window.map = L.map('map');
 
 //    map.eachLayer(function (layer) {
 //        map.removeLayer(layer);
@@ -96,70 +91,67 @@ function showMap(){
 }
 
 function clearMap() {
-    for(i in m._layers) {
-        if(m._layers[i]._path != undefined) {
-            try {
-                m.removeLayer(m._layers[i]);
-            }
-            catch(e) {
-                console.log("problem with " + e + m._layers[i]);
-            }
-        }
+  for(i in m._layers) {
+    if(m._layers[i]._path != undefined) {
+      try {
+        m.removeLayer(m._layers[i]);
+      }
+      catch(e) {
+        console.log("problem with " + e + m._layers[i]);
+      }
     }
+  }
 }
 
-function get_random_color() 
-{
-    var letters = '0123456789ABCDEF'.split('');
-    var color = '#';
-    for (var i = 0; i < 6; i++ ) 
-    {
-       color += letters[Math.round(Math.random() * 15)];
-    }
-return color;
+function get_random_colour() {
+  var letters = '0123456789ABCDEF'.split('');
+  var colour = '#';
+  for (var i = 0; i < 6; i++ ) 
+  {
+     colour += letters[Math.round(Math.random() * 15)];
+  }
+  return colour;
 }
 
 function plotLines(athlete, lineArray){
 
-    polylineLayerGroup = L.layerGroup();
+  polylineLayerGroup = L.layerGroup();
 
-    polylineLayerGroup.addLayer(L.polyline(lineArray,{color:'blue',opacity:1})).addTo(map);
+  polylineLayerGroup.addLayer(L.polyline(lineArray,{color:'blue',opacity:1})).addTo(map);
 
-    layerControl.addOverlay(polylineLayerGroup, athlete);
+  layerControl.addOverlay(polylineLayerGroup, athlete.concat(" segments"));
 
 }
 
 function plotMarkers(athlete, markArray){
   // loop over each marker and add to map
-  var marksLayerGroup = L.layerGroup();
+  marksLayerGroup = L.layerGroup();
 
   markArray.forEach(function(mark){
     marksLayerGroup.addLayer(L.marker([mark[0],mark[1]]).bindPopup(mark[2])).addTo(map);
   });
     
-  layerControl.addOverlay(marksLayerGroup, athlete);
+  layerControl.addOverlay(marksLayerGroup, athlete.concat(" markers"));
 
 }
 
-function plotMarkerLines(athletes, markArray, lineArray){
-    // add map to webpage
-    showMap();
+function plotMarkerLines(athletes, bounds, markArray, lineArray){
+  // add map to webpage
+  showMap();
 
-    // add layer control to map
-    layerControl = L.control.layers().addTo(map);
+  map.fitBounds(bounds);
 
+  // add layer control to map
+  layerControl = L.control.layers().addTo(map);
+
+  for (var i = 0; i < markArray.length; i++ ) 
+  {
     // add markers to map
-    for (var i = 0; i < markArray.length; i++ ) 
-    {
-      plotMarkers(athletes[i], markArray[i]);
-      plotLines(athletes[i], lineArray[i]);
-    }
-
+    plotMarkers(athletes[i], markArray[i]);
     // add lines to map 
-//    plotLines(lineArray);
-//    lineArray.forEach(function(line){
-//      plotLines(line);
-//    }); 
+    plotLines(athletes[i], lineArray[i]);
+  }
+
 }
 
 
@@ -187,7 +179,8 @@ ws.onmessage = function (event) {
         plottype = edata.plottype,
         polyline = edata.polyline,
         markers = edata.markers,
-        athletes = edata.names;
+        athletes = edata.names,
+        bounds = edata.bounds;
 
     // Enable submit button 
     $('#submit').attr("disabled",false);
@@ -227,7 +220,7 @@ ws.onmessage = function (event) {
       } else if(plottype === 'markers'){
         plotMarkers(markers);
       } else if(plottype === 'lineMarkers'){
-        plotMarkerLines(athletes, markers, polyline);
+        plotMarkerLines(athletes, bounds, markers, polyline);
       }
 
     }
