@@ -256,6 +256,7 @@ ws.onmessage = function (event) {
       }
 
     } else {
+      $('#processing').hide();
       $('#error-msg').html(edata.error);
       // Show modal popup
       $('#error-modal').modal();

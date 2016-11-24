@@ -115,7 +115,7 @@ lines:get hsym `$.var.homedir,"/settings/lines";
   ];
   activ:0!.return.activities[dict];
   if[0=count activ;
-    .log.out"no segments in date range due to lack of activities";
+    .log.error"lack of activities in date range";
     :0#.cache.segments;
   ];
   chd:except[;0N] raze $[0=count .cache.segByAct;();.cache.segByAct activ`id];
@@ -129,7 +129,8 @@ lines:get hsym `$.var.homedir,"/settings/lines";
   .cache.segByAct,:aa;
   ids:distinct raze chd, value[aa], exec id from .cache.segments where starred;
   .log.out"returning segments";
-  :select from .cache.segments where id in ids;
+  res:select from .cache.segments where id in ids;
+  :$[0<count res; res; .log.error"lack of segments in date range"];
  };
 
 .return.segmentName:{[id]
@@ -194,11 +195,11 @@ lines:get hsym `$.var.homedir,"/settings/lines";
 .return.leaderboard.all:{[dict]
   if[not `segment_id in key dict; .log.error"Need to specify a segment id"; :()];
   rs:([athlete_id:`long$()] athlete_name:(); elapsed_time:`minute$(); Segment:`long$());
-  if[1b=dict`following;
+  if[1b=dict`include_clubs;
     {.log.out"returning segment: ",x,", club_id: ",y} . string dict`segment_id`club_id;
     rs,:.return.leaderboard.sub[dict;`club_id;dict`club_id];                    / return leaderboard of followers
   ];
-  if[1b=dict`include_clubs;
+  if[1b=dict`following;
     .log.out"returning segment: ",string[dict`segment_id],", following"; 
     rs,:.return.leaderboard.sub[dict;`following;0N];                         / return leaderboard of clubs
   ];
