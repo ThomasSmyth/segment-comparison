@@ -1,29 +1,16 @@
 ### To Do List ###
 
-// v2 //
-
-* set default start/end date on webpage
-* replace mark with colour defined in tr tag (gold, silver, bronze), 2 methods:
-    * new js function that take second table with 1 2 3 for positions to colour and 0 from standard colour
-    * q function to string each table row and add tags with colours
-* add error when no results are returned
-* hide processing div when error is returned
-
 // v3 //
 
-* head to head, user against each athlete
 * colour segments on map
 * user coloured markers for beginnings
+* place segment and athlete filters in scrollable boxes
 
 // v4 //
 
-* place segment and athlete filters in scrollable boxes
-* if user is following no athletes then return error (lock submit button)
-
-// v5 //
-
 * create and host webpage on local server
 * create splash page to allow users to authenticate
+* if user is following no athletes then return error (lock submit button)
 
 // additional //
 
@@ -33,9 +20,12 @@
 * return time to webpage with preceding 0s dropped
 * webpage port for xls/csv export should be dynamically created
 * add timer to send weekly email
+* set default start/end date on webpage
+* replace mark with colour defined in tr tag (gold, silver, bronze), 2 methods:
+    * new js function that take second table with 1 2 3 for positions to colour and 0 from standard colour
+    * q function to string each table row and add tags with colours
 
 // map //
 
 * clear elements instead of redrawing map
-* colour in lines for different ahletes
 * custom marker for each athlete (store photo in tempdir)
