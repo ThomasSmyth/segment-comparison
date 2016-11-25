@@ -77,7 +77,7 @@ lines:get hsym `$.var.homedir,"/settings/lines";
 / return existing parameters in correct format
 .return.clean:{[dict]
   def:(!/) .var.defaults`vr`vl;                             / defaults value for parameters
-  :.Q.def[def] string key[def]!(def,dict) key[def];         / return valid optional parameters
+  :.Q.def[def] string key[def]#def,dict;                    / return valid optional parameters
  };
 
 / build url from specified altered parameters
