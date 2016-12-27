@@ -95,7 +95,7 @@ lines:get hsym `$.var.homedir,"/settings/lines";
   .log.out"retrieving activity list";
   if[0=count .cache.activities;
     act:.connect.pagination["activities";""];
-    data:select `long$id, name, "D"$10#/:start_date, commute from (act where not act@\:`manual); 
+    data:{select `long$id, name, "D"$10#start_date, commute from x} each act where not act@\:`manual;
     .log.out"retrieved ",string[count data]," activities from strava";
     `.cache.activities upsert data;
   ];
