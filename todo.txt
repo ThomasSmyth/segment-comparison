@@ -1,12 +1,21 @@
 ### To Do List ###
 
-// v3 //
+// v1 //
+
+* store results to hdb, cache in memory when user connects
+    * activities
+    * segments
+    * streams
+* clear cache on user disconnect and run garbage collect
+* flag to say if activites segments are cached
+
+// v2 //
 
 * colour segments on map
 * user coloured markers for beginnings
 * place segment and athlete filters in scrollable boxes
 
-// v4 //
+// v3 //
 
 * create and host webpage on local server
 * create splash page to allow users to authenticate
@@ -14,12 +23,10 @@
 
 // additional //
 
-* include hidden segments
-    * Add flag to segment comparison to only use starred segments
-    * Add option to exclude commutes from activity list used in .return.segments
+* Add flag to segment comparison to only use starred segments
+* Add option to exclude commutes from activity list used in .return.segments
 * return time to webpage with preceding 0s dropped
 * webpage port for xls/csv export should be dynamically created
-* add timer to send weekly email
 * set default start/end date on webpage
 * replace mark with colour defined in tr tag (gold, silver, bronze), 2 methods:
     * new js function that take second table with 1 2 3 for positions to colour and 0 from standard colour

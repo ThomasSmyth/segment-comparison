@@ -3,6 +3,10 @@
 
 \c 20 1000
 
+.h.HOME:getenv[`SVAWEB],"/ui/html"
+.var.port:"J"$getenv`SVAPORT;
+.var.homedir:getenv[`SVAHOME];
+
 .var.accessToken:@[{first read0 x};` sv hsym[`$.var.homedir],`settings`token.txt;{x;log.error"no token file"}];
 .var.commandBase:"curl -sG https://www.strava.com/api/v3/";
 .var.athleteData:@[value;`.var.athleteData;()];

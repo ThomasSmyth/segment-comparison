@@ -1,9 +1,4 @@
 
-/ load variables
-.var.homedir:getenv[`HOME],"/git/segment_comparison";
-system"l ",.var.homedir,"/settings/variables.q";
-lines:get hsym `$.var.homedir,"/settings/lines";
-
 / basic connect function
 .connect.simple:{[datatype;extra]
   :-29!first system .var.commandBase,datatype," -H \"Authorization: Bearer ",.var.accessToken,"\" ",extra;       / return dictionary attribute-value pairs
@@ -19,6 +14,7 @@ lines:get hsym `$.var.homedir,"/settings/lines";
 
 / compare segments
 .segComp.leaderboard.raw:{[dict]
+  `dict2 set dict;
   dict:delete athlete_id from dict;
   empty:![([] Segment:());();0b;enlist[(`$string .return.athleteData[][`id])]!()];
   if[not max dict`following`include_clubs; :empty];
@@ -26,7 +22,8 @@ lines:get hsym `$.var.homedir,"/settings/lines";
   if[0=count segments; :empty];
   details:$[(7=type dict`club_id)&(not all null dict`club_id);
     flip[dict] cross ([] segment_id:segments`id);
-    {x[`segment_id]:y; x}[dict]'[segments`id]];
+    @[dict;`segment_id;:;] each segments`id];
+//  details:@[ @[dict;`club_id;:;(),dict`club_id] ;`segment_id;:;] each segments`id;
   .log.out"returning segment leaderboards";
   lead:.return.leaderboard.all each details;
   dd:@[raze lead where 1<count each lead;`athlete_name;`$];
@@ -118,16 +115,16 @@ lines:get hsym `$.var.homedir,"/settings/lines";
     .log.error"lack of activities in date range";
     :0#.cache.segments;
   ];
-  chd:except[;0N] raze $[0=count .cache.segByAct;();.cache.segByAct activ`id];
-  nchd:exec id from activ where not id in key .cache.segByAct;
+  incache:except[;0N] raze $[0=count .cache.segByAct;();.cache.segByAct activ`id];
+  newres:exec id from activ where not id in key .cache.segByAct;
   aa:raze {[n]
     if[0=count s:.return.activityDetail[n][`segment_efforts]; :enlist[n]!enlist[0N]];
     rs:distinct select `long$id, name, starred from s[`segment] where not private, not hazardous;
     `.cache.segments upsert rs;                             / upsert to segment cache
     :enlist[n]!enlist rs`id;
-  } each nchd;
+  } each newres;
   .cache.segByAct,:aa;
-  ids:distinct raze chd, value[aa], exec id from .cache.segments where starred;
+  ids:distinct raze incache, value[aa], exec id from .cache.segments where starred;
   .log.out"returning segments";
   res:select from .cache.segments where id in ids;
   :$[0<count res; res; .log.error"lack of segments in date range"];
