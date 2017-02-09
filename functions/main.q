@@ -1,10 +1,17 @@
 
-/ basic connect function
-.connect.simple:{[datatype;extra]
-  :-29!first system .var.commandBase,datatype," -H \"Authorization: Bearer ",.var.accessToken,"\" ",extra;       / return dictionary attribute-value pairs
+.connect.simple:{[datatype;extra]                               / basic connect function
+  res:-29!first system .var.commandBase,datatype," -H \"Authorization: Bearer ",.var.accessToken,"\" ",extra;       / return dictionary attribute-value pairs
+  if[.var.sleepOnError & @[{`errors in key x};res;0b];          / sleep on error if specified
+    if["rate limit"~raze res[`errors;`field];
+       .log.out"rate limit reached, sleeping for ",str:string .var.sleepTime;
+       system"sleep ",str;
+       res:.z.s[datatype;extra];
+     ];
+   ];
+  :res;
  };
 
-.connect.pagination:{[datatype;extra]
+.connect.pagination:{[datatype;extra]           / retrieve paginated results
   :last {[datatype;extra;tab]                   / iterate over pages until no extra results are returned
     tab[1],:ret:.connect.simple[datatype;extra," -d per_page=200 -d page=",string tab 0];
     if[count ret; tab[0]+:1];
@@ -12,8 +19,7 @@
   }[datatype;extra]/[(1;())];
  };
 
-/ compare segments
-.segComp.leaderboard.raw:{[dict]
+.segComp.leaderboard.raw:{[dict]                                / compare segments
   `dict2 set dict;
   dict:delete athlete_id from dict;
   empty:![([] Segment:());();0b;enlist[(`$string .return.athleteData[][`id])]!()];
@@ -87,8 +93,7 @@
 
 .return.params.valid:{[params;dict] .return.params.all[params] .return.clean[dict]}
 
-/ return activities
-.return.activities:{[dict]
+.return.activities:{[dict]                                      / return activities
   .log.out"retrieving activity list";
   if[0=count .cache.activities;
     act:.connect.pagination["activities";""];
@@ -105,8 +110,7 @@
   :.connect.simple["activities/",string id;""];
  };
 
-/ return segment data from activity list
-.return.segments:{[dict]
+.return.segments:{[dict]                                        / return segment data from activity list
   if[0=count .cache.segments;
     `.cache.segments upsert {select `long$id, name, starred from x} each .connect.simple["segments/starred";""];  / return starred segments
   ];
@@ -194,19 +198,21 @@
   rs:([athlete_id:`long$()] athlete_name:(); elapsed_time:`minute$(); Segment:`long$());
   if[1b=dict`include_clubs;
     {.log.out"returning segment: ",x,", club_id: ",y} . string dict`segment_id`club_id;
-    rs,:.return.leaderboard.sub[dict;`club_id;dict`club_id];                    / return leaderboard of followers
-  ];
+    data:.return.leaderboard.sub[dict;`club_id;dict`club_id];                    / return leaderboard of followers
+    show data;
+    rs,:data;
+   ];
   if[1b=dict`following;
     .log.out"returning segment: ",string[dict`segment_id],", following"; 
     rs,:.return.leaderboard.sub[dict;`following;0N];                         / return leaderboard of clubs
-  ];
+   ];
   :`Segment xcols 0!rs;
  };
 
 .return.leaderboard.sub:{[dict;typ;leadId]
   if[0<count rs:select from .cache.leaderboards where segmentId=dict`segment_id, resType=typ, resId=leadId;
     :(raze exec res from rs) cross ([] Segment:enlist dict`segment_id);
-  ];
+   ];
   extra:.return.params.valid[typ] dict;
   message:.connect.simple["segments/",string[dict`segment_id],"/leaderboard"] extra;
   res:$[0=count message`entries;

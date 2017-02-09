@@ -6,6 +6,8 @@
 .h.HOME:getenv[`SVAWEB],"/ui/html"
 .var.port:"J"$getenv`SVAPORT;
 .var.homedir:getenv[`SVAHOME];
+.var.sleepOnError:1b;
+.var.sleepTime:10;
 
 .var.accessToken:@[{first read0 x};` sv hsym[`$.var.homedir],`settings`token.txt;{x;log.error"no token file"}];
 .var.commandBase:"curl -sG https://www.strava.com/api/v3/";
