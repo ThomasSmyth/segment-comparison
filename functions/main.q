@@ -198,9 +198,7 @@
   rs:([athlete_id:`long$()] athlete_name:(); elapsed_time:`minute$(); Segment:`long$());
   if[1b=dict`include_clubs;
     {.log.out"returning segment: ",x,", club_id: ",y} . string dict`segment_id`club_id;
-    data:.return.leaderboard.sub[dict;`club_id;dict`club_id];                    / return leaderboard of followers
-    show data;
-    rs,:data;
+    rs,:.return.leaderboard.sub[dict;`club_id;dict`club_id];                 / return leaderboard of followers
    ];
   if[1b=dict`following;
     .log.out"returning segment: ",string[dict`segment_id],", following"; 

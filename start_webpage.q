@@ -13,4 +13,4 @@
 @[system;"l ",getenv[`SVAWEB],"/ui/webpageui.q";{-1"Failed to load webpageui.q : ",x;exit 1}]
 
 / set port 
-@[system;"p ",string .var.port;{-1"Failed to open port: ",string value `.settings.port;exit 1}]
+@[system;"p ",string .var.port;{-1"Failed to open port: ",string value `.var.port;exit 1}]
