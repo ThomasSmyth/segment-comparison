@@ -5,9 +5,10 @@ else
 fi
 
 export SVAHOME=$(dirname $dirpath)
+if [ $SVAHOME == "." ]; then
+	SVAHOME=$PWD
+fi
 
 eval ". $(dirname "$dirpath")/env.sh"
-
-echo $SVAHOME
 
 eval "q $(dirname "$dirpath")/start_webpage.q"

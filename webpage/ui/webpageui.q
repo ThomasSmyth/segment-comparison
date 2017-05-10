@@ -9,7 +9,7 @@ timeit:{[dict]
   .Q.s 0N!dict;
 
   data:export::0!.segComp.leaderboard.raw dict;
-  
+
   if[not (asc ids:"J"$string 2_cols[data])~asc .var.athleteList;
     if[0<count .return.clubs;
       .log.out"Creating data for athletes checklist";
@@ -86,7 +86,7 @@ execdict:{
   / validate dictionary
   x:@[x;`before`after;.z.d^"D"$];
   if[(</)x`before`after;:.log.error["Before and after timestamps are invalid"]];
-  x:@[x;`club_id`athlete_id;"J"$]; 
+  x:@[x;`club_id`athlete_id;"J"$];
   `aa set x;
 
   x[`include_map]:"include_map" in enlist x`include_map;
@@ -96,7 +96,7 @@ execdict:{
   x[`summary]:"summary" in enlist x`summary;
   if[x[`club_id]~`long$(); x[`club_id]:exec id from .return.clubs[]];
   x:.return.clean x;
- 
+
   `x set x;
 
   / Run function using params

@@ -37,13 +37,14 @@
   .log.out"pivoting results";
   P:asc exec distinct `$string athlete_id from dd;
   res:0!exec P#((`$string athlete_id)!elapsed_time) by Segment:Segment from dd;
-  cl:`Segment,`$string .return.athleteData[][`id];
+  cl:`Segment,`$string .return.athleteData[]`id;
   .log.out"returning raw leaderboard";
   :(cl,cols[res] except cl) xcols res;
  };
 
 .segComp.leaderboard.hr:{[dict]
   res:.segComp.leaderboard.raw dict;
+  `resRAW set res;
   ath:.return.athleteName each "J"$string 1_ cols res;
   :(`Segment,ath) xcol update .return.segmentName each Segment from res;
  };
@@ -158,7 +159,7 @@
 .return.clubs:{[]
   .log.out"Retrieving club data";
   .return.athleteData[];
-  if[count .cache.clubs; 
+  if[count .cache.clubs;
     .log.out"Returning cached club data";
     :.cache.clubs];
   .log.out"Returning club data from strava.com";
@@ -201,7 +202,7 @@
     rs,:.return.leaderboard.sub[dict;`club_id;dict`club_id];                 / return leaderboard of followers
    ];
   if[1b=dict`following;
-    .log.out"returning segment: ",string[dict`segment_id],", following"; 
+    .log.out"returning segment: ",string[dict`segment_id],", following";
     rs,:.return.leaderboard.sub[dict;`following;0N];                         / return leaderboard of clubs
    ];
   :`Segment xcols 0!rs;
