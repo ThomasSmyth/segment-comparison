@@ -6,14 +6,13 @@
 .h.HOME:getenv[`SVAWEB],"/ui/html"
 .var.port:"J"$getenv`SVAPORT;
 .var.homedir:getenv[`SVAHOME];
+.var.sleepOnError:1b;
+.var.sleepTime:10;
 
 .var.accessToken:@[{first read0 x};` sv hsym[`$.var.homedir],`settings`token.txt;{x;log.error"no token file"}];
 .var.commandBase:"curl -sG https://www.strava.com/api/v3/";
 .var.athleteData:@[value;`.var.athleteData;()];
 .var.athleteList:@[value;`.var.athleteList;()];
-
-.log.out:{-1 string[.z.p]," | Info | ",x;};
-.log.error:{-1 string[.z.p]," | Error | ",x; 'x};
 
 .cache.leaderboards:@[value;`.cache.leaderboards;([segmentId:`long$(); resType:`$(); resId:`long$()] res:())];
 .cache.activities:@[value;`.cache.activities;([id:`long$()] name:(); start_date:`date$(); commute:`boolean$())];

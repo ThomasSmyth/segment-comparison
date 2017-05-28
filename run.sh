@@ -1,3 +1,14 @@
-./env.sh
+if [ "-bash" = $0 ]; then
+    dirpath="${BASH_SOURCE[0]}"
+else
+    dirpath="$0"
+fi
 
-q start_webpage.q
+export SVAHOME=$(dirname $dirpath)
+if [ $SVAHOME == "." ]; then
+	SVAHOME=$PWD
+fi
+
+eval ". $(dirname "$dirpath")/env.sh"
+
+eval "q $(dirname "$dirpath")/start_webpage.q"

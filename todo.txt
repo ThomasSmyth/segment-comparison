@@ -6,8 +6,8 @@
     * activities
     * segments
     * streams
-* clear cache on user disconnect and run garbage collect
-* flag to say if activites segments are cached
+* allow user to saved results
+* add link to segment on map
 
 // v2 //
 

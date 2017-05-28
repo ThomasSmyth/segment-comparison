@@ -1,22 +1,19 @@
-/- load the webpage functions
-
-// .load.stuff:{@[system;"l ",x;{-1"Failed to load ",x," : ",x;exit 1}]}
-//@[system;"l webpagefunctions.q";{-1"Failed to load webpagefunctions.q : ",x;exit 1}]
-
+/ startup webpage
 
 if[()~key hsym `$getenv[`SVAHOME],"/settings/token.txt";
   -1"Token file does not exist";
   :exit 1;
- ];
+];
 
-/ load variables
-@[system;"l ",getenv[`SVAHOME],"/settings/variables.q";{x; -1"Failed to load variables.q";exit 1}];
+.startup.loadFile:{[v;f]                                                                        / load file
+  :@[system;"l ",getenv[v],"/",f;{y; -1"Failed to load ",x;exit 1}f];
+ };
 
-/ Load main compare script
-@[system;"l ",getenv[`SVAHOME],"/functions/main.q";{x; -1"Failed to load main.q";exit 1}];
 
-/ load webpage UI
-@[system;"l ",getenv[`SVAWEB],"/ui/webpageui.q";{-1"Failed to load webpageui.q : ",x;exit 1}]
 
-/ set port
-@[system;"p ",string .var.port;{-1"Failed to open port: ",string value `.settings.port;exit 1}]
+.startup.loadFile[`SVAHOME] "/settings/variables.q";                                            / load variables
+.startup.loadFile[`SVAHOME] "/functions/logging.q";                                             / load logging functions
+.startup.loadFile[`SVAHOME] "/functions/main.q";                                                / Load main compare script
+.startup.loadFile[`SVAWEB] "/ui/webpageui.q";                                                   / load webpage UI
+
+@[system;"p ",string .var.port;{-1"Failed to open port: ",string value `.var.port;exit 1}];     / set port
