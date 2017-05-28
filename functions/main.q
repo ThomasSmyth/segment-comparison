@@ -78,23 +78,21 @@
   :update .return.html.athleteURL each "J"$string Athlete, .return.html.segmentURL@/:/:Segments from res;
  };
 
-/ return existing parameters in correct format
-.return.clean:{[dict]
-  def:(!/) .var.defaults`vr`vl;                             / defaults value for parameters
-  :.Q.def[def] string key[def]#def,dict;                    / return valid optional parameters
+.return.clean:{[dict]                                                                           / return existing parameters in correct format 
+  def:(!/) .var.defaults`vr`vl;                                                                 / defaults value for parameters
+  :.Q.def[def] string key[def]#def,dict;                                                        / return valid optional parameters
  };
 
-/ build url from specified altered parameters
-.return.params.all:{[params;dict]
-  if[0=count dict; :""];                                    / if no parametrs return empty string
-  def:(!/) .var.defaults`vr`vl;                             / defaults value for parameters
-  n:inter[(),params] where not def~'.Q.def[def] {$[10=abs type x;x;string x]} each dict; / return altered parameters
+.return.params.all:{[params;dict]                                                               / build url from specified altered parameters
+  if[0=count dict; :""];                                                                        / if no parametrs return empty string
+  def:(!/) .var.defaults`vr`vl;                                                                 / defaults value for parameters
+  n:inter[(),params] where not def~'.Q.def[def] {$[10=abs type x;x;string x]} each dict;        / return altered parameters
   :" " sv ("-d ",/:string[n],'"="),'{func:exec fc from .var.defaults where vr in x; raze func @\: y}'[n;dict n];  / return parameters
  };
 
 .return.params.valid:{[params;dict] .return.params.all[params] .return.clean[dict]}
 
-.return.activities:{[dict]                                      / return activities
+.return.activities:{[dict]                                                                      / return activities
   .log.out"retrieving activity list";
   if[0=count .cache.activities;
     act:.connect.pagination["activities";""];
@@ -111,7 +109,7 @@
   :.connect.simple["activities/",string id;""];
  };
 
-.return.segments:{[dict]                                        / return segment data from activity list
+.return.segments:{[dict]                                                                        / return segment data from activity list
   if[0=count .cache.segments;
     `.cache.segments upsert {select `long$id, name, starred from x} each .connect.simple["segments/starred";""];  / return starred segments
   ];
@@ -125,7 +123,7 @@
   aa:raze {[n]
     if[0=count s:.return.activityDetail[n][`segment_efforts]; :enlist[n]!enlist[0N]];
     rs:distinct select `long$id, name, starred from s[`segment] where not private, not hazardous;
-    `.cache.segments upsert rs;                             / upsert to segment cache
+    `.cache.segments upsert rs;                                                                 / upsert to segment cache
     :enlist[n]!enlist rs`id;
   } each newres;
   .cache.segByAct,:aa;
@@ -136,10 +134,8 @@
  };
 
 .return.segmentName:{[id]
-  if[count segName:.cache.segments[id]`name; :segName];     / if cached then return name
-//  .log.out"Retrieving segments";
-  res:.connect.simple ["segments/",string id;""]`name;      / else request data
-//  .log.out"Returning segments";
+  if[count segName:.cache.segments[id]`name; :segName];                                         / if cached then return name
+  res:.connect.simple ["segments/",string id;""]`name;                                          / else request data
   :res;
  };
 
@@ -150,13 +146,12 @@
 
 .return.athleteName:{[id] first value .cache.athletes id};
 
-.return.html.athleteURL:{[id]      / for use with .cache.leaderboards
+.return.html.athleteURL:{[id]                                                                   / for use with .cache.leaderboards
   name:.return.athleteName[id];
   .h.ha["http://www.strava.com/athletes/",string id;string name]
  };
 
-/ return list of users clubs
-.return.clubs:{[]
+.return.clubs:{[]                                                                               / return list of users clubs
   .log.out"Retrieving club data";
   .return.athleteData[];
   if[count .cache.clubs;
@@ -168,11 +163,11 @@
  };
 
 .return.athleteData:{[]
-  if[0<count .var.athleteData; :.var.athleteData];                  / return cached result if it exists
+  if[0<count .var.athleteData; :.var.athleteData];                                              / return cached result if it exists
   .log.out"Retrieving Athlete Data from Strava.com";
   ad:.connect.simple["athlete";""];
-  ad[`fullname]:`$" " sv ad[`firstname`lastname];                   / add fullname to data
-  ad:@[ad;`id;`long$];                                              / return athlete_id as type long
+  ad[`fullname]:`$" " sv ad[`firstname`lastname];                                               / add fullname to data
+  ad:@[ad;`id;`long$];                                                                          / return athlete_id as type long
   `.var.athleteData set ad;
   :ad;
  };
@@ -199,11 +194,11 @@
   rs:([athlete_id:`long$()] athlete_name:(); elapsed_time:`minute$(); Segment:`long$());
   if[1b=dict`include_clubs;
     {.log.out"returning segment: ",x,", club_id: ",y} . string dict`segment_id`club_id;
-    rs,:.return.leaderboard.sub[dict;`club_id;dict`club_id];                 / return leaderboard of followers
+    rs,:.return.leaderboard.sub[dict;`club_id;dict`club_id];                                    / return leaderboard of followers
    ];
   if[1b=dict`following;
     .log.out"returning segment: ",string[dict`segment_id],", following";
-    rs,:.return.leaderboard.sub[dict;`following;0N];                         / return leaderboard of clubs
+    rs,:.return.leaderboard.sub[dict;`following;0N];                                            / return leaderboard of clubs
    ];
   :`Segment xcols 0!rs;
  };
