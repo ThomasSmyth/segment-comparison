@@ -214,6 +214,19 @@
     select `long$athlete_id, athlete_name, `minute$elapsed_time from message`entries
   ];
   `.cache.leaderboards upsert (dict`segment_id;typ;leadId;res);
+  .disk.saveTable[`leaderboard] .cache.leaderboards;
   :res cross ([] Segment:enlist dict`segment_id);
+ };
+
+.disk.saveTable:{[table;data]
+  if[not .var.saveCache; :()];
+  loc:` sv .var.savedir,table;
+  :loc set data;
+ };
+
+.disk.loadTable:{[table;mem]
+  if[not .var.loadCache; :()];
+  loc:` sv .var.savedir,table;
+  :mem set get loc;
  };
 

@@ -10,10 +10,10 @@ if[()~key hsym `$getenv[`SVAHOME],"/settings/token.txt";
  };
 
 
-
 .startup.loadFile[`SVAHOME] "/settings/variables.q";                                            / load variables
 .startup.loadFile[`SVAHOME] "/functions/logging.q";                                             / load logging functions
 .startup.loadFile[`SVAHOME] "/functions/main.q";                                                / Load main compare script
 .startup.loadFile[`SVAWEB] "/ui/webpageui.q";                                                   / load webpage UI
+.startup.loadFile[`SVAHOME] "/actions.q";                                                       / actions to perform on startup
 
 @[system;"p ",string .var.port;{-1"Failed to open port: ",string value `.var.port;exit 1}];     / set port
