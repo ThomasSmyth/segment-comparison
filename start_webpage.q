@@ -3,7 +3,7 @@
 if[()~key hsym `$getenv[`SVAHOME],"/settings/token.txt";
   -1"Token file does not exist";
   :exit 1;
-];
+ ];
 
 .startup.loadFile:{[v;f]                                                                        / load file
   :@[system;"l ",getenv[v],"/",f;{y; -1"Failed to load ",x;exit 1}f];
