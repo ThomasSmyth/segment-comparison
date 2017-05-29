@@ -47,8 +47,8 @@
   bb:data,'?[@[data;1_cols data;0w^];();0b;enlist[`tt]!enlist(min@\:;(enlist,1_cols data))];
   func:{x=y};
   res:delete tt from ![bb;();0b;(1_cols data)!{((';x);y;`tt)}[func] each 1_cols data];
-  res:([] Athlete:`$(); Total:(); Segments:()) upsert {segs:?[x;enlist(=;y;1);();`Segment]; (y; count segs; segs)}[res] each 1_cols res;
-  :res;
+  tab:([] Athlete:`$(); Total:(); Segments:());
+  :tab upsert {segs:?[x;enlist(=;y;1);();`Segment]; (y; count segs; segs)}[res] each 1_cols res;
  };
 
 .segComp.summary.hr:{[dict]
@@ -61,7 +61,7 @@
   :update .return.html.athleteURL each "J"$string Athlete, .return.html.segmentURL@/:/:Segments from res;
  };
 
-.return.clean:{[dict]                                                                           / return existing parameters in correct format 
+.return.clean:{[dict]                                                                           / return existing parameters in correct format
   def:(!/) .var.defaults`vr`vl;                                                                 / defaults value for parameters
   :.Q.def[def] string key[def]#def,dict;                                                        / return valid optional parameters
  };
@@ -106,6 +106,7 @@
   incache:except[;0N] raze $[0=count .cache.segByAct;();.cache.segByAct activ`id];
   newres:exec id from activ where not id in key .cache.segByAct;
   segs:raze {[n]
+    .log.out"getting segment efforts for activity: ",string n;
     if[0=count s:.return.activityDetail[n][`segment_efforts]; :enlist[n]!enlist 0N];
     rs:distinct select `long$id, name, starred from s[`segment] where not private, not hazardous;
     `.cache.segments upsert rs;                                                                 / upsert to segment cache
@@ -117,7 +118,8 @@
   ids:distinct raze incache, value[segs], exec id from .cache.segments where starred;
   .log.out"returning segments";
   res:select from .cache.segments where id in ids;
-  :$[0<count res; res; .log.error"lack of segments in date range"];
+  if[0=count res; .log.error"lack of segments in date range"];
+  :res;
  };
 
 .return.segmentName:{[id]

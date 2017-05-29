@@ -36,9 +36,7 @@ exectimeit:{[dict]                                                              
   res:(`int$(.z.p - start)%1000000; count res; res);
   output,:format[`table;(`time`rows`data)!res];                                                 / Send formatted table
 
-  if[1b=dict`include_map;                                                                       / create map from result subset
-    output,:.return.mapDetails[data];
-  ];
+  if[dict`include_map; output,:.return.mapDetails data];                                        / create map from result subset
 
   :output;
  };
