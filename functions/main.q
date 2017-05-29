@@ -129,15 +129,13 @@
  };
 
 .return.html.segmentURL:{[id]
-  name:.return.segmentName[id];
-  .h.ha["http://www.strava.com/segments/",string id;name]
+  :.h.ha["http://www.strava.com/segments/",string id] .return.segmentName[id];
  };
 
 .return.athleteName:{[id] first value .cache.athletes id};
 
 .return.html.athleteURL:{[id]                                                                   / for use with .cache.leaderboards
-  name:.return.athleteName[id];
-  .h.ha["http://www.strava.com/athletes/",string id;string name]
+  :.h.ha["http://www.strava.com/athletes/",string id] string .return.athleteName[id];
  };
 
 .return.clubs:{[]                                                                               / return list of users clubs
@@ -145,7 +143,8 @@
   .return.athleteData[];
   if[count .cache.clubs;
     .log.out"Returning cached club data";
-    :.cache.clubs];
+    :.cache.clubs;
+  ];
   .log.out"Returning club data from strava.com";
   `.cache.clubs upsert rs:select `long$id, name from .return.athleteData[][`clubs];
   .disk.saveCache[`clubs] .cache.clubs;
@@ -165,8 +164,8 @@
 .return.stream.segment:{[segId]
 //  .log.out"Retrieving stream for segment: ",string[segId];
   if[0<count res:raze exec data from .cache.streams.segments where id = segId; :res];
-  aa:first .connect.simple["segments/",string[segId],"/streams/latlng";""];
-  data:aa`data;
+  stream:first .connect.simple["segments/",string[segId],"/streams/latlng";""];
+  data:stream`data;
   `.cache.streams.segments upsert (segId;data);
   .disk.saveCache[`seg_streams] .cache.streams.segments;
   :data;

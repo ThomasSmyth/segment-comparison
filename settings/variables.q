@@ -7,7 +7,7 @@
 .var.savedir:hsym `$getenv[`SVAHOME],"/cache";
 .var.saveCache.all:1b;
 .var.loadCache.all:1b;
-.var.loadCache.leaderboard:0b;                                                                  / leave false to refresh results on launch
+.var.loadCache.leaderboard:1b;                                                                  / leave false to refresh results on launch
 .var.sleepOnError:1b;
 .var.sleepTime:60;
 
