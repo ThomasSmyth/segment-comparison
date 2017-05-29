@@ -1,25 +1,6 @@
+// main functions file
 
-.connect.simple:{[datatype;extra]                               / basic connect function
-  res:-29!first system .var.commandBase,datatype," -H \"Authorization: Bearer ",.var.accessToken,"\" ",extra;       / return dictionary attribute-value pairs
-  if[.var.sleepOnError & @[{`errors in key x};res;0b];          / sleep on error if specified
-    if["rate limit"~raze res[`errors;`field];
-       .log.out"rate limit reached, sleeping for ",str:string .var.sleepTime;
-       system"sleep ",str;
-       res:.z.s[datatype;extra];
-     ];
-   ];
-  :res;
- };
-
-.connect.pagination:{[datatype;extra]           / retrieve paginated results
-  :last {[datatype;extra;tab]                   / iterate over pages until no extra results are returned
-    tab[1],:ret:.connect.simple[datatype;extra," -d per_page=200 -d page=",string tab 0];
-    if[count ret; tab[0]+:1];
-    :tab;
-  }[datatype;extra]/[(1;())];
- };
-
-.segComp.leaderboard.raw:{[dict]                                / compare segments
+.segComp.leaderboard.raw:{[dict]                                                                / compare segments
   `dict2 set dict;
   dict:delete athlete_id from dict;
   empty:![([] Segment:());();0b;enlist[(`$string .return.athleteData[][`id])]!()];
@@ -28,7 +9,8 @@
   if[0=count segments; :empty];
   details:$[(7=type dict`club_id)&(not all null dict`club_id);
     flip[dict] cross ([] segment_id:segments`id);
-    @[dict;`segment_id;:;] each segments`id];
+    @[dict;`segment_id;:;] each segments`id
+  ];
 //  details:@[ @[dict;`club_id;:;(),dict`club_id] ;`segment_id;:;] each segments`id;
   .log.out"returning segment leaderboards";
   lead:.return.leaderboard.all each details;
@@ -178,6 +160,7 @@
   aa:first .connect.simple["segments/",string[segId],"/streams/latlng";""];
   data:aa`data;
   `.cache.streams.segments upsert (segId;data);
+  .disk.saveCache[`seg_streams] .cache.streams.segments;
   :data;
  };
 
@@ -186,6 +169,7 @@
   aa:first .connect.simple["activities/",string[actId],"/streams/latlng";""];
   data:aa`data;
   `.cache.streams.activities upsert (actId;data);
+  .disk.saveCache[`act_streams] .cache.streams.activities;
   :data;
  };
 
@@ -214,19 +198,6 @@
     select `long$athlete_id, athlete_name, `minute$elapsed_time from message`entries
   ];
   `.cache.leaderboards upsert (dict`segment_id;typ;leadId;res);
-  .disk.saveTable[`leaderboard] .cache.leaderboards;
+  .disk.saveCache[`leaderboard] .cache.leaderboards;
   :res cross ([] Segment:enlist dict`segment_id);
  };
-
-.disk.saveTable:{[table;data]
-  if[not .var.saveCache; :()];
-  loc:` sv .var.savedir,table;
-  :loc set data;
- };
-
-.disk.loadTable:{[table;mem]
-  if[not .var.loadCache; :()];
-  loc:` sv .var.savedir,table;
-  :mem set get loc;
- };
-

@@ -9,10 +9,11 @@ if[()~key hsym `$getenv[`SVAHOME],"/settings/token.txt";
   :@[system;"l ",getenv[v],"/",f;{y; -1"Failed to load ",x;exit 1}f];
  };
 
-
 .startup.loadFile[`SVAHOME] "/settings/variables.q";                                            / load variables
 .startup.loadFile[`SVAHOME] "/functions/logging.q";                                             / load logging functions
-.startup.loadFile[`SVAHOME] "/functions/main.q";                                                / Load main compare script
+.startup.loadFile[`SVAHOME] "/functions/main.q";                                                / Load main functions
+.startup.loadFile[`SVAHOME] "/functions/connect.q";                                             / Load connections functions
+.startup.loadFile[`SVAHOME] "/functions/disk.q";                                                / Load disk functions
 .startup.loadFile[`SVAWEB] "/ui/webpageui.q";                                                   / load webpage UI
 .startup.loadFile[`SVAHOME] "/actions.q";                                                       / actions to perform on startup
 
