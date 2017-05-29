@@ -7,9 +7,9 @@
 .var.savedir:hsym `$getenv[`SVAHOME],"/cache";
 .var.saveCache.all:1b;
 .var.loadCache.all:1b;
-.var.loadCache.leaderboard:0b;                                                                  / leave false to refresh results on launch
+.var.loadCache.leaderboard:1b;                                                                  / leave false to refresh results on launch
 .var.sleepOnError:1b;
-.var.sleepTime:15;
+.var.sleepTime:60;
 
 .var.accessToken:@[{first read0 x};` sv .var.homedir,`settings`token.txt;{x;log.error"no token file"}];
 .var.commandBase:"curl -sG https://www.strava.com/api/v3/";

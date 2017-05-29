@@ -16,6 +16,7 @@
   lead:.return.leaderboard.all each details;
   dd:@[raze lead where 1<count each lead;`athlete_name;`$];
   `.cache.athletes upsert distinct select id:athlete_id, name:athlete_name from dd;
+  .disk.saveCache[`athletes] .cache.athletes;
   .log.out"pivoting results";
   P:asc exec distinct `$string athlete_id from dd;
   res:0!exec P#((`$string athlete_id)!elapsed_time) by Segment:Segment from dd;
@@ -81,6 +82,7 @@
     data:{select `long$id, name, "D"$10#start_date, commute from x} each act where not act@\:`manual;
     .log.out"retrieved ",string[count data]," activities from strava";
     `.cache.activities upsert data;
+    .disk.saveCache[`activities] .cache.activities;
   ];
   res:select from .cache.activities where start_date within dict`after`before;
   .log.out"found ",string[count res]," activities in date range ",raze string dict[`after]," to ",dict[`before];
@@ -94,6 +96,7 @@
 .return.segments:{[dict]                                                                        / return segment data from activity list
   if[0=count .cache.segments;
     `.cache.segments upsert {select `long$id, name, starred from x} each .connect.simple["segments/starred";""];  / return starred segments
+    .disk.saveCache[`segments] .cache.segments;
   ];
   activ:0!.return.activities[dict];
   if[0=count activ;
@@ -102,14 +105,16 @@
   ];
   incache:except[;0N] raze $[0=count .cache.segByAct;();.cache.segByAct activ`id];
   newres:exec id from activ where not id in key .cache.segByAct;
-  aa:raze {[n]
-    if[0=count s:.return.activityDetail[n][`segment_efforts]; :enlist[n]!enlist[0N]];
+  segs:raze {[n]
+    if[0=count s:.return.activityDetail[n][`segment_efforts]; :enlist[n]!enlist 0N];
     rs:distinct select `long$id, name, starred from s[`segment] where not private, not hazardous;
     `.cache.segments upsert rs;                                                                 / upsert to segment cache
+    .disk.saveCache[`segments] .cache.segments;
     :enlist[n]!enlist rs`id;
   } each newres;
-  .cache.segByAct,:aa;
-  ids:distinct raze incache, value[aa], exec id from .cache.segments where starred;
+  .cache.segByAct,:segs;
+  .disk.saveCache[`segByAct] .cache.segByAct;
+  ids:distinct raze incache, value[segs], exec id from .cache.segments where starred;
   .log.out"returning segments";
   res:select from .cache.segments where id in ids;
   :$[0<count res; res; .log.error"lack of segments in date range"];
@@ -141,6 +146,7 @@
     :.cache.clubs];
   .log.out"Returning club data from strava.com";
   `.cache.clubs upsert rs:select `long$id, name from .return.athleteData[][`clubs];
+  .disk.saveCache[`clubs] .cache.clubs;
   :`id xkey rs;
  };
 
