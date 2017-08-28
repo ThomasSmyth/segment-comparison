@@ -115,8 +115,8 @@
   incache:except[;0N] raze $[0=count .cache.segByAct;();.cache.segByAct activ`id];				/ remove processed activities
   newres:(),exec id from activ where not id in key .cache.segByAct;
   .cache.segByAct,:segs:newres!.return.segments.activity each newres;
-  .disk.saveCache[`segByAct] .cache.segByAct;
-  ids:distinct raze incache, value[segs], exec id from .cache.segments where starred;
+  .disk.saveCache[`segByAct].cache.segByAct;
+  ids:distinct raze incache,value segs; / exec id from .cache.segments where starred;
   .log.out"returning segments";
   res:select from .cache.segments where id in ids;
   if[0=count res; .log.error"lack of segments in date range"];
