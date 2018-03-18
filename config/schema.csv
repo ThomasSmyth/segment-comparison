@@ -1,0 +1,9 @@
+n,c,t,k
+leaderboards,segmentId|resType|resId|res,JSJ*,segmentId|resType|resId
+activities,id|name|start_date|commute,J*DB,id
+segments,id|name|starred,J*B,id
+clubs,id|name,J*,id
+athletes,id|name,J*,id
+athletes,id|name,J*,id
+streams.segments,id|data,J*,id
+streams.activities,id|data,J*,id

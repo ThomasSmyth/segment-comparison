@@ -1,5 +1,9 @@
 ### To Do List ###
 
+// v0 //
+
+group all lib functions in init funcs to be called after all have been loaded
+
 // v1 //
 
 * store results to hdb, cache in memory when user connects

@@ -11,4 +11,4 @@ fi
 
 eval ". $(dirname "$dirpath")/env.sh"
 
-eval "q $(dirname "$dirpath")/start_webpage.q"
+eval "q $(dirname "$dirpath")/start.q"

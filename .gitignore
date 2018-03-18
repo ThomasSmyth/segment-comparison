@@ -1,3 +1,4 @@
-settings/token.txt
+config/token.txt
+data/*
 cache/*
 logs/*
