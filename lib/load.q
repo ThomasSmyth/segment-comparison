@@ -1,24 +1,24 @@
 .load.file.q:{[d;f]                                                                             / [directory;file] load file
-  if[()~key p:.util.p.symbol d,f;
+  if[()~key p:.utl.p.symbol d,f;
     .log.e("file does not exist {}";.Q.s1 p);
     :();
    ];
   .log.o("loading file {}";.Q.s1 p);
-  :@[system;"l ",.util.p.string p;{y;.log.e("failed to load {}";x);exit 1}.Q.s1];
+  :@[system;"l ",.utl.p.string p;{y;.log.e("failed to load {}";x);exit 1}.Q.s1];
  };
 
 .load.dir.q:{[d]                                                                                / [directory] load all files in a directory
-  .log.o("checking dir {}";.Q.s1 d:.util.p.symbol d);
+  .log.o("checking dir {}";.Q.s1 d:.utl.p.symbol d);
   if[0=count fl:{x where x like"*.q"}key d;
     .log.e("no q files in directory {}";.Q.s1 d);
     :();
    ];
-  .log.o("found q files: {}";", "sv .util.p.string'[fl]);
+  .log.o("found q files: {}";", "sv .utl.p.string'[fl]);
   .load.file.q[d]each fl;
  };
 
 .load.file.csv:{[d;f;t]                                                                         / [directory;file;types] load csv file
-  if[()~key p:.util.p.symbol d,f;                                                               / check file exists
+  if[()~key p:.utl.p.symbol d,f;                                                                / check file exists
     .log.e("file does not exist {}";.Q.s1 p);
     :();
    ];
@@ -29,7 +29,7 @@
  };
 
 .load.file.txt:{[d;f]                                                                           / [directory;file] read txt file from disk
-  if[()~key p:.util.p.symbol d,f;                                                               / check file exists
+  if[()~key p:.utl.p.symbol d,f;                                                                / check file exists
     .log.e("file does not exist {}";.Q.s1 p);
     :();
    ];

@@ -17,7 +17,7 @@
 .cache.segByAct:()!();
 
 .log.logdir:hsym`$getenv`SVALOG;                                                                / log dir
-.log.logfile:.util.p.symbol .log.logdir,`$.util.sub("log_{}";"_"^.Q.n .Q.n?16#string .z.p);     / log file
+.log.logfile:.utl.p.symbol .log.logdir,`$.utl.sub("log_{}";"_"^.Q.n .Q.n?16#string .z.p);       / log file
 .log.h:neg hopen .log.logfile;
 .log.write:1b;
 

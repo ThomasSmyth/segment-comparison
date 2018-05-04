@@ -14,7 +14,7 @@
   :get loc;                                                                                     / return data
  };
 
-.data.loc:{.util.p.symbol .var.savedir,x}                                                       / retrieve location on disk
+.data.loc:{.utl.p.symbol .var.savedir,x}                                                        / retrieve location on disk
 
 .data.zero:{[tab]
   if[not tab in key .data.schemas;:()];                                                         / exit early if no defined schema
