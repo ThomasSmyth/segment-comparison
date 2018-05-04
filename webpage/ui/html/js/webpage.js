@@ -1,11 +1,11 @@
 // Strava Segment Comparison Tool
 
-// Helper functions 
+// Helper functions
 // Format json data into HTML table
-function jsonTable(data){ 
+function jsonTable(data){
   var table,prop,key,row;
   if(data.length === 0){ return false; }
-  
+
   table = '<table class="table table-striped table-hover">';
   table+= '<thead>';
   for(prop in data[0]){ // Column Headers
@@ -18,7 +18,7 @@ function jsonTable(data){
     if (data.hasOwnProperty(key)) {
       table+= '<tr>';
       row = data[key];
-      for(prop in row){ 
+      for(prop in row){
         if (row.hasOwnProperty(prop)) {
           table+= '<td>' + row[prop] + '</td>';
         }
@@ -39,7 +39,7 @@ function checkboxVals(selector){
     if($parent.find('input[value!="all"]:checked').length < $inputs.length - 1){
       $parent.find('input[value!="all"]:checked').each(function(a,b){array.push($(b).val());});
     }
-  } 
+  }
   return array;
 }
 
@@ -100,7 +100,7 @@ function clearMap() {
 function get_random_colour() {
   var letters = '0123456789ABCDEF'.split('');
   var colour = '#';
-  for (var i = 0; i < 6; i++ ) 
+  for (var i = 0; i < 6; i++ )
   {
      colour += letters[Math.round(Math.random() * 15)];
   }
@@ -124,7 +124,7 @@ function plotMarkers(athlete, markArray){
   markArray.forEach(function(mark){
     marksLayerGroup.addLayer(L.marker([mark[0],mark[1]]).bindPopup(mark[2])).addTo(map);
   });
-    
+
   layerControl.addOverlay(marksLayerGroup, athlete.concat(" markers"));
 
 }
@@ -140,11 +140,11 @@ function plotMarkerLines(athletes, bounds, markArray, lineArray){
   // add layer control to map
   layerControl = L.control.layers().addTo(map);
 
-  for (var i = 0; i < markArray.length; i++ ) 
+  for (var i = 0; i < markArray.length; i++ )
   {
     // add markers to map
     plotMarkers(athletes[i], markArray[i]);
-    // add lines to map 
+    // add lines to map
     plotLines(athletes[i], lineArray[i]);
   }
 
@@ -153,17 +153,17 @@ function plotMarkerLines(athletes, bounds, markArray, lineArray){
 
 // WEBSOCKETS CONNECTING TO KDB+
 var ws = new WebSocket("ws://localhost:5700");
-ws.binaryType = 'arraybuffer'; // Required by c.js 
+ws.binaryType = 'arraybuffer'; // Required by c.js
 // WebSocket event handlers
 ws.onopen = function () {
   ws.send(serialize(JSON.stringify({init:1})));
   $('#connecting').hide();
 };
 ws.onclose = function () {
-  // Disable submit button 
+  // Disable submit button
   $(this).attr("disabled",true);
   // Disable export button
-  $('#export').addClass("disabled");  
+  $('#export').addClass("disabled");
 };
 ws.onmessage = function (event) {
   if(event.data){
@@ -178,10 +178,10 @@ ws.onmessage = function (event) {
         athletes = edata.names,
         bounds = edata.bounds;
 
-    // Enable submit button 
+    // Enable submit button
     $('#submit').attr("disabled",false);
     $('#map_placeholder').hide();
-   
+
     if(edata.hasOwnProperty('extradata')){
       if(extraname === 'clubs'){
         $('#following').show();
@@ -204,7 +204,7 @@ ws.onmessage = function (event) {
         $('#athlete-filter').append('<div class="checklist"><label><input type="checkbox" value="all">All Athletes</label></div>');
       }
     }
- 
+
     // Map handling functionality
     if(edata.hasOwnProperty('plottype')){
 
@@ -220,7 +220,7 @@ ws.onmessage = function (event) {
       }
 
     }
- 
+
     // Data handling functionality
     // Print database and table stats, and output table. Display error.
     if(edata.hasOwnProperty('data')){
@@ -247,7 +247,7 @@ ws.onmessage = function (event) {
         // Show stats bar
         $('.stats').show();
         $('#segName').hide();
-        
+
         // Enable export link
         $('#export').removeClass("disabled");
 
@@ -266,7 +266,7 @@ ws.onmessage = function (event) {
 ws.error = function (error) {
   // hide processing
   $('#processing').hide();
-  // Enable submit button 
+  // Enable submit button
   $('#submit').attr("disabled",false);
   // Write error message
   $('#error-msg').html(error.data);
@@ -279,8 +279,7 @@ $(function() {
 
   // Add calendar for start,end date
   $('#startdate').datepicker();
-  $('#enddate').datepicker(
-  );
+  $('#enddate').datepicker();
 
   // Filter options
   // This is a UI design pattern for when there is a list of multiple options for when atleast one option is required.
@@ -308,8 +307,8 @@ $(function() {
     $(this).attr("disabled",true);
     $('#processing').show();
     // Disable export on submit
-    $('#export').addClass("disabled");  
-    // Send to kdb+ over websockets  
+    $('#export').addClass("disabled");
+    // Send to kdb+ over websockets
     ws.send(serialize(JSON.stringify(getInputs())));
   });
 });

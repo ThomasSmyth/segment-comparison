@@ -3,8 +3,16 @@
   :.var.token:first .load.file.txt[.var.homedir,`config;`token.txt];
  };
 
+.http.hu:.h.hug .Q.an,"-.~";                                                                    / URI escaping for non-safe chars, RFC-3986
+
+.http.urlencode:{[d]                                                                            / [dict of params]
+  v:enlist each .http.hu each{$[10=type x;;string]x}'[v:value d];                               / string any values that aren't stringed,escape any chars that need it
+  k:enlist each$[all 10=type'[k];;string]k:key d;                                               / if keys aren't strings, string them
+  :raze" -d ",/:"="sv'k,'v;                                                                     / return urlencoded form of dictionary
+ };
+
 .http.get.basic:{[url;params]                                                                   / [request type; additional parameters] basic http request
-  cmd:.utl.sub("{} -H \"Authorization: Bearer {}\" {}";url;.http.token[];params);
+  cmd:.utl.sub("{} -H \"Authorization: Bearer {}\" {}";(url;.http.token[];.http.urlencode params));
   :.j.k first system .var.commandBase,cmd;
  };
 
@@ -22,16 +30,16 @@
   :res;
  };
 
-.http.get.simple:.http.get.simpleX[;""];                                                        / [request type] simple request with no additional params
+.http.get.simple:.http.get.simpleX[;()!()];                                                     / [request type] simple request with no additional params
 
 .http.get.pgnX:{[url;params]                                                                    / [request type;additional request parameters] retrieve paginated results
-  :last{[url;params;tab]                                                                        / iterate over pages until no params results are returned
-    tab[1],:ret:.http.get.simpleX[url;.utl.sub("{} -d per_page=200 -d page={}";params;tab 0)];
-    :@[tab;0;+;0<count ret];
+  :last{[url;params;res]                                                                        / iterate over pages until no params results are returned
+    res[1],:ret:.http.get.simpleX[url;params,`per_page`page!(200;res 0)];
+    :@[res;0;+;0<count ret];
   }[url;params]/[(1;())];
  };
 
-.http.get.pgn:.http.get.pgnX[;""];                                                              / [request type] pagination request with no additional params
+.http.get.pgn:.http.get.pgnX[;()!()];                                                           / [request type] pagination request with no additional params
 
 .http.activity.detail:{[id]                                                                     / [activity id] return details for an activity
   :.http.get.simple .utl.sub("activities/{}";id);
