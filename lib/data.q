@@ -53,7 +53,7 @@
     ca:.data.load`activities;
    ];
   res:select from ca where start_date within(start;end);
-  .log.o("found {} activities in date range {} to {}";count res;start;end);
+  .log.o("found {} activities in date range {} to {}";(count res;start;end));
   :res;
  };
 

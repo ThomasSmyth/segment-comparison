@@ -7,5 +7,5 @@
   :{
     if[null i:first ss[x;"{}"];:x];                                                             / exit if no substitutions available
     :($[10=abs type y;;string]y)sv @[(0,i)cut x;1;2_];
-  }/[x 0;1_x];
+  }/[x 0;$[10=abs type x 1;enlist;]x 1];
  };
