@@ -1,6 +1,6 @@
 \c 20 1000
 
-.h.HOME:getenv[`SVAWEB],"/ui/html"
+.h.HOME:getenv`SVAWEB;
 .var.port:"J"$getenv`SVAPORT;
 .var.homedir:hsym`$getenv`SVAHOME;
 .var.savedir:hsym`$getenv`SVADATA;

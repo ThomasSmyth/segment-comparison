@@ -5,5 +5,5 @@ fi
 
 export SVACONF=${SVAHOME}/config        # config
 export SVADATA=${SVAHOME}/data          # cache data store
-export SVAWEB=${SVAHOME}/webpage        # location of webpage code
+export SVAWEB=${SVAHOME}/html           # location of webpage code
 export SVALOG=${SVAHOME}/logs           # log store

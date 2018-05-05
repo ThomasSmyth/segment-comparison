@@ -11,7 +11,6 @@
     :exit 1;
    ];
   .load.dir.q shome,`config;                                                                    / load settings and functions
-  .load.file.q[(`$getenv`SVAWEB;`ui)]`webpageui.q;                                              / load webpage UI
   @[{system"p ",string x;.log.o("opened port {}";x)};                                           / open port
     .var.port;
     {y;.log.e("failed to open port {}";x)}.var.port

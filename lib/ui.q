@@ -88,7 +88,7 @@ dbstats:{([]field:("Date Range";"Meter Table Count");val:(string[.z.d]," to ",st
   :data;
   };
 
-.ui.evaluate:{@[.ui.execdict;x;{enlist[`error]!enlist x}]}                                      / evaluate incoming data from websocket, outputting erros to front end
+.ui.evaluate:{@[.ui.execdict;x;{enlist[`error]!enlist x}]}                                      / evaluate incoming data from websocket, outputting errors to front end
 
 .z.ws:{                                                                                         / websocket handler
   .log.o"handling websocket event";
