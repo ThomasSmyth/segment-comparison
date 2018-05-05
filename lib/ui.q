@@ -24,7 +24,9 @@
 
   `:ldb set dict;
   .ui.handleInput dict;                                                                         / get leaderboards
+  / replace with handler for leaderboards and maps
   data:.ldr.main dict;
+  `:lo set data;
 
 /  data:0!.segComp.leaderboard.raw dict;                                                         / return raw leaderboard data
 
@@ -89,8 +91,6 @@
   if[count cl:`after`before`club_id`athlete_id`following`include_map`include_clubs except key dict;
     .log.e("missing parameters {}";", "sv string cl);
    ];
-
-  `inputD set dict;
 
   dict[`athlete_id]:.http.athlete.current[]`id;
   dict:@[dict;`before`after;.z.d^"D"$];                                                         / parse passed date range

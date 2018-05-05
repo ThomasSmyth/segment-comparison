@@ -2,10 +2,22 @@
 
 .ldr.main:{[dict]
   data:.ldr.raw dict`athlete_id;                                                                / retrieve raw leaderboard
+  data:.ldr.display[`default`summary dict`summary][dict`athlete_id;data];                       / display data using chosen method
+  :0!data;
+ };
+
+.ldr.display.default:{[id;data]                                                                 / [athlete id;data] display best times
+  .log.o"producing default leaderboard";
   data:.ldr.html.mark data;                                                                     / highlight best times
   data:.ldr.pivot data;                                                                         / pivot results
-  data:.ldr.html.segments[dict`athlete_id;data];                                                / convert segment id to name and add a link to segment page
-  :0!data;
+  :.ldr.html.segments[id;data];                                                                 / convert segment id to name and add a link to segment page
+ };
+
+.ldr.display.summary:{[id;data]                                                                 / [athlete id;data] display best time counts
+  .log.o"producing sleaderboard summary";
+  data:select from data where time=(min;time)fby segmentId;                                     / get best times by segment
+  data:select total:count i,segments:name by athlete from .ldr.html.segments[id;data];          / return summary
+  :`total xdesc update", "sv/:segments from data;                                               / comma separate values
  };
 
 .ldr.raw:{[id]                                                                                  / [athlete id] return raw leaderboards
