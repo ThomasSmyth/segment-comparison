@@ -61,4 +61,6 @@
  };
 
 .data.segments.activities:{[ids]
+  .log.o"retrieving segments for all activities";
+  :ids;
  };

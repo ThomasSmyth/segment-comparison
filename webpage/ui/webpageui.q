@@ -96,3 +96,5 @@ dbstats:{([]field:("Date Range";"Meter Table Count");val:(string[.z.d]," to ",st
   neg[.z.w] -8!.j.j .ui.format[`processing;()];
   neg[.z.w] -8!.j.j .ui.evaluate .j.k -9!x;
  };
+.z.wo:{.log.o"websocket opened"};
+.z.wc:{.log.o"websocket closed"};

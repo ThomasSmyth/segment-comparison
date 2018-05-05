@@ -4,10 +4,10 @@
   `:ldb set dict;
   dict:`athlete_id _dict;
   .log.o"running query";
-  athId:`$string .data.athlete.current[];
+  athId:`$string .data.athlete.current[]`id;
   empty:([]Segment:()),'flip enlist[athId]!();                                                  / empty results table
   if[not max dict`following`include_clubs;:empty];                                              / exit early if no comparison filters selected
-  act:.data.athlete.activities . dict`start`end;                                                 / get list of activities
+  act:.data.athlete.activities . dict`after`before;                                             / get list of activities
   :.data.segments.activities key[act]`id;
  };
 
