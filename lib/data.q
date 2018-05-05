@@ -75,8 +75,9 @@
  };
 
 .data.activity.get1Segment:{[id;actId]                                                          / [athlete id;activity id]
+  .log.o("gettings segments for activity {}";actId);
   res:.http.activity.detail actId;                                                              / pull details for passed activity
-  res:select`long$id,name from res`segment_efforts;                                             / get required columnis
+  res:select`long$id,name from res[`segment_efforts][`segment] where not private,not hazardous; / get required columns
   .data.save[id;`segments;`matching;res];                                                       / save segments to disk
   a:@[.data.load[id;`activities]actId;`segs;:;1b];                                              / get info for current activity
   .data.save[id;`activities;`matching;([]id:(),actId),\:a];                                     / mark as complete
@@ -89,5 +90,16 @@
   :.data.activity.get1Segment'[id;actIds];                                                      / get segments from remaining activities
  };
 
-.data.segments.leaderboard:{[id]
+.data.segments.get1Leaderboard:{[id;segId]
+  res:.http.segments.leaderboard segId;                                                         / get segment leaderboard
+  res:([]segmentId:(),segId)cross select athlete:athlete_name,time:`long$elapsed_time from res`entries; / get required columns
+  :.data.save[id;`leaderboards;`matching;res];
+ };
+
+.data.segments.leaderboards:{[id]
+  segs:exec id from .data.load[id;`segments];
+  disk:exec distinct segmentId from .data.load[id;`leaderboards];
+  segs:segs except disk;                                                                        / remove cached segments
+  .log.o("{} new segments found";count segs);
+  .data.segments.get1Leaderboard'[id;segs];                                                     / get segment leaderboards
  };

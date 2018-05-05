@@ -1,14 +1,28 @@
 // Webpage ui code
 // Required to work with json
 
-.ui.exectimeit:{[dict]                                                                              / execute function and time it
+/ handles dictionary of parameters passed from webpage/.ui.exectimeit
+.ui.handleInput:{[dict]
+  `:ldb set dict;
+  .log.o"running query";
+  empty:([]Segment:()),'flip enlist[`$string dict`athlete_id]!();                               / empty results table
+  if[not max dict`following`include_clubs;:empty];                                              / exit early if no comparison filters selected
+  act:.data.athlete.activities . dict`athlete_id`after`before;                                  / get list of activities for current athlete
+  .data.activity.segments[id;key[act]`id];                                                      / get segments for selected activities
+  / get leaderboards
+  :();
+  .data.segments.leaderboards[id];
+ };
+
+
+.ui.exectimeit:{[dict]                                                                          / execute function and time it
   output:()!();                                                                                 / blank output
   start:.z.p;                                                                                   / set start time
 
   .log.o"query parameters:";
   .Q.s 0N!dict;                                                                                 / display formatted query parameters
 
-  data:.handle.input dict;
+  data:.ui.handleInput dict;                                                                    / get leaderboards
 
 /  data:0!.segComp.leaderboard.raw dict;                                                         / return raw leaderboard data
 

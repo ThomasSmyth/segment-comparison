@@ -1,5 +1,5 @@
 n,d,c,t,k,f
-leaderboards,partition,segmentId|resType|resId|res,JSJ*,segmentId|resType|resId,segmentId
+leaderboards,partition,segmentId|athlete|time,J*J,segmentId|athlete,segmentId
 activities,partition,id|name|date|commute|segs,J*DBB,id,id
 segments,splay,id|name,J*,id,id
 clubs,partition,id|name,J*,id,id

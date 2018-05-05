@@ -13,13 +13,12 @@
  };
 
 .http.get.basic:{[url;params]                                                                   / [request type; additional parameters] basic http request
-  cmd:.utl.sub("{} -H \"Authorization: Bearer {}\" {}";(url;.http.token[];.http.urlencode params));
+  cmd:.utl.sub("{} -H \"Authorization: Bearer {}\" {}";(.utl.sub url;.http.token[];.http.urlencode params));
   :.j.k first system .var.commandBase,cmd;
  };
 
 .http.get.simpleX:{[url;params]                                                                 / [request type;additional request parameters] basic connect function
-  `dt set url;`ex set params;
-  .log.o("retrieving {} data";url);
+  .log.o("retrieving {}";url);
   res:.http.get.basic[url;params];                                                              / request data from strava
   if[.var.sleepOnError&@[{`errors in key x};res;0b];                                            / sleep on error if specified
     if["rate limit"~raze res[`errors;`field];                                                   / check for rate limiting error
@@ -58,11 +57,6 @@
   :`id xkey@[;`id;"j"$]`id`name#/:.http.athlete.current[]`clubs;
  };
 
-.http.segments.starred:{[]                                                                      / [] return starred segments for current athlete
-  .log.o"returning starred segments for current athlete from strava";
-  :@[;`id;"j"$]`id`name`starred#/:.http.get.simple"segments/starred";                           / retrieve starred segments
- };
-
 .http.athlete.activities:{[id]                                                                  / [athlete id] retrieve activities for an athlete, NOTE only works for current athlete
   .log.o("returning activities for athlete {} from strava";id);
   act:.http.get.pgn"activities";
@@ -71,3 +65,15 @@
   .log.o("retrieved {} activities from strava";count act);
   :act;
  };
+
+.http.segments.starred:{[]                                                                      / [] return starred segments for current athlete
+  .log.o"returning starred segments for current athlete from strava";
+  :@[;`id;"j"$]`id`name`starred#/:.http.get.simple"segments/starred";                           / retrieve starred segments
+ };
+
+/ currently restricted to simple + followers
+.http.segments.leaderboard:{[segId]
+  res:.http.get.simpleX[("segments/{}/leaderboard";segId);enlist[`following]!enlist"true"];
+  :res;
+ };
+
