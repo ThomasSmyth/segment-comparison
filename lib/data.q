@@ -6,7 +6,7 @@
    ];
   if[not .var.cache;:()];                                                                       / exit early if caching unused
   cfg:.data.schemas tab;                                                                        / get config for current table
-  data:.data.w[f][id;tab;data];                                                                 / pull data from disk and append using method passed (f)
+  data:.data.w[f][id;tab;cfg[`k]xkey data];                                                     / pull data from disk and append using method passed (f)
   loc:.data.loc[cfg`d][id;tab];                                                                 / get location of data on disk
   :loc set .Q.en[.var.savedir]0!data;                                                           /save data to disk
  };
@@ -65,7 +65,7 @@
 .data.athlete.activities:{[id;start;end]                                                        / [athlete;start date;end date] return activities in date range for given athlete
   .log.o"retrieving activity list";
   if[0=count ca:.data.load[id;`activities];
-    act:.http.athlete.activities[id];
+    act:.http.athlete.activities id;
     .data.save[id;`activities;`new;act];
     ca:.data.load[id;`activities];
    ];

@@ -19,7 +19,7 @@
   .log.o"pivoting leaderboard";
   data:@[;`athlete;`$]0!.data.load[id;`leaderboards];                                           / get leaderboards
   ul:exec distinct athlete from data;
-  :exec ul#(athlete!time) by segmentId:segmentId from data;
+  :0!exec ul#(athlete!time)by segmentId:segmentId from data;
  };
 
 .ui.exectimeit:{[dict]                                                                          / execute function and time it
@@ -63,7 +63,6 @@
 
   if[dict`include_map;output,:.return.mapDetails data];                                         / create map from result subset
 
-  `oo set output;
   :output;
  };
 

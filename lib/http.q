@@ -61,7 +61,8 @@
   .log.o("returning activities for athlete {} from strava";id);
   act:.http.get.pgn"activities";
   act:`id`name`start_date`commute#/:act where not act@\:`manual;
-  act:select`long$id,name,"D"$10#'start_date,commute from act;
+  act:select`long$id,name,date:"D"$10#'start_date,commute from act;
+  act:update segs:0b from act;
   .log.o("retrieved {} activities from strava";count act);
   :act;
  };
