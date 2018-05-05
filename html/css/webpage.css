@@ -8,6 +8,12 @@
 .row:first-child{
   margin-top: 20px;
 }
+.footer {
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    text-align: center;
+}
 /* Error modal */
 .modal-title{
   color:red;
