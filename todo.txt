@@ -2,7 +2,11 @@
 
 // v0 //
 
-group all lib functions in init funcs to be called after all have been loaded
+* group all lib functions in init funcs to be called after all have been loaded
+
+* how to determine which segments fall under which activity without requesting from strava?
+  * maintain a table of activity|segment
+  * create a separate db mapping activities to segments
 
 // v1 //
 

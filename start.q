@@ -19,7 +19,7 @@
  };
 
 .init.start:{
-  .data.schemas:`n xkey .load.file.csv[.var.confdir;`schema.csv;"sS*S"];
+  .data.schemas:`n xkey .load.file.csv[.var.confdir;`schema.csv;"ssS*Ss"];
  };
 
 .init.init[];

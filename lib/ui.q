@@ -51,7 +51,7 @@
   :`plottype`polyline`markers`names`bounds!(`lineMarkers;lines;marks;aths;bounds);
  };
 
-dbstats:{([]field:("Date Range";"Meter Table Count");val:(string[.z.d]," to ",string .z.d;{reverse","sv 3 cut reverse string x}0))}
+.ui.dbstats:{([]field:("Date Range";"Meter Table Count");val:(string[.z.d]," to ",string .z.d;{reverse","sv 3 cut reverse string x}0))}
 
 
 .ui.format:{[name;data]                                                                         / [name;data] format dictionary to be encoded into json
@@ -62,7 +62,7 @@ dbstats:{([]field:("Date Range";"Meter Table Count");val:(string[.z.d]," to ",st
   if[`init in key dict;
     .log.o"new connection made";
     .http.athlete.current[];                                                                    / get athlete data
-    res:.ui.format[`init;dbstats[]];
+    res:.ui.format[`init;.ui.dbstats[]];
     // need some logic here to deal with no followers/clubs
     if[count cb:0!.http.athlete.clubs[];
       res[`extraname`extradata]:(`clubs;cb);
@@ -70,12 +70,15 @@ dbstats:{([]field:("Date Range";"Meter Table Count");val:(string[.z.d]," to ",st
     :res;
    ];
   if[count cl:`after`before`club_id`athlete_id`following`include_map`include_clubs except key dict;
-    .log.e"missing parameters ",", "sv string cl;
-  ];
+    .log.e("missing parameters {}";", "sv string cl);
+   ];
 
+  `inputD set dict;
+
+  dict[`athlete_id]:.http.athlete.current[]`id;
   dict:@[dict;`before`after;.z.d^"D"$];                                                         / parse passed date range
   if[(<). dict`before`after;:.log.e"before and after timestamps are invalid"];                  / validate date range
-  dict:@[dict;`club_id`athlete_id;"J"$];
+  dict:@[dict;`club_id;"J"$];
 
   dict:{@[x;y;:;0<count each x y]}[dict;`include_map`include_clubs`following`summary];
   if[0=count cl:.http.athlete.clubs[];dict[`following]:1b];

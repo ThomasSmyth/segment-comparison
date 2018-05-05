@@ -1,20 +1,29 @@
 / save and load cached data
 
-.data.save:{[tab;data]
+.data.save:{[id;tab;data]                                                                       / [athlete id;table;data] save data to disk, preserving keys
+  if[not tab in key[.data.schemas]`n;                                                           / exit early if no schema is defined
+    :.log.e("no schema defined for {}";tab);
+   ];
   if[not .var.cache;:()];                                                                       / exit early if caching unused
-  loc:.data.loc tab;
-  if[()~key loc;:loc set .db.zero tab];                                                         / save blank schema to disk
-  :.[upsert;(loc;data);{.log.o("upsert failed with error '{}'";x)}];                            / save data to disk
+  cfg:.data.schemas tab;                                                                        / get config for current table
+  data:.data.load[id;tab]upsert data;                                                           / pull existing data and overwrite duplicate keys
+  loc:.data.loc[cfg`d][id;tab];                                                                 / get location of data on disk
+  :loc set .Q.en[.var.savedir]0!data;                                                           /save data to disk
  };
 
-.data.load:{[tab]
+.data.load:{[id;tab]                                                                            / [athlete id;table]
+  if[not tab in key[.data.schemas]`n;                                                           / exit early if no schema is defined
+    :.log.e("no schema defined for {}";tab);
+   ];
   if[not .var.cache;:.data.zero tab];                                                           / return blank schema if caching is off
-  loc:.data.loc tab;
-  if[()~key loc;:.data.zero tab];
-  :get loc;                                                                                     / return data
+  cfg:.data.schemas tab;                                                                        / get config for current table
+  loc:.data.loc[cfg`d][id;tab];                                                                 / get location of data on disk
+  if[0=count key loc;:.data.zero tab];                                                          / return empty schema if no data exists
+  :cfg[`k]xkey select from get loc;                                                             / return data and apply keys
  };
 
-.data.loc:{.utl.p.symbol .var.savedir,x}                                                        / retrieve location on disk
+.data.loc.splay:{[id;tab]` sv .var.savedir,tab,`};                                              / get location of splay
+.data.loc.partition:{[id;tab]` sv .Q.par[.var.savedir;athId;tab],`};                            / get location of partition
 
 .data.zero:{[tab]
   if[not tab in key .data.schemas;:()];                                                         / exit early if no defined schema
@@ -45,22 +54,24 @@
   :st;
  };
 
-.data.athlete.activities:{[start;end]                                                           / return activities
+.data.athlete.activities:{[id;start;end]                                                        / [athlete;start date;end date] return activities in date range for given athlete
   .log.o"retrieving activity list";
-  if[0=count ca:.data.load`activities;
-    act:.http.athlete.activities[];
-    .data.save[`activities;act];
-    ca:.data.load`activities;
+  if[0=count ca:.data.load[id;`activities];
+    act:.http.athlete.activities[id];
+    .data.save[id;`activities;act];
+    ca:.data.load[id;`activities];
    ];
-  res:select from ca where start_date within(start;end);
+  res:select from ca where date within(start;end);
   .log.o("found {} activities in date range {} to {}";(count res;start;end));
   :res;
  };
 
-.data.segments.activity:{[id]
+.data.segments.activity:{[id;actId]                                                             / [athlete id;activity id]
+  res:.http.activity.detail actId;
+  :select id,name from res`segment_efforts;
  };
 
-.data.segments.activities:{[ids]
+.data.segments.activities:{[id;actIds]                                                          / [athlete id;activity id list]
   .log.o"retrieving segments for all activities";
   :ids;
  };

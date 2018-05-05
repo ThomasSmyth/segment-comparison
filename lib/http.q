@@ -63,8 +63,8 @@
   :@[;`id;"j"$]`id`name`starred#/:.http.get.simple"segments/starred";                           / retrieve starred segments
  };
 
-.http.athlete.activities:{
-  .log.o"returning activities for current athlete from strava";
+.http.athlete.activities:{[id]                                                                  / [athlete id] retrieve activities for an athlete, NOTE only works for current athlete
+  .log.o("returning activities for athlete {} from strava";id);
   act:.http.get.pgn"activities";
   act:`id`name`start_date`commute#/:act where not act@\:`manual;
   act:select`long$id,name,"D"$10#'start_date,commute from act;

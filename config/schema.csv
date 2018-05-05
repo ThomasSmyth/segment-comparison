@@ -1,9 +1,8 @@
-n,c,t,k
-leaderboards,segmentId|resType|resId|res,JSJ*,segmentId|resType|resId
-activities,id|name|start_date|commute,J*DB,id
-segments,id|name|starred,J*B,id
-clubs,id|name,J*,id
-athletes,id|name,J*,id
-athletes,id|name,J*,id
-streams.segments,id|data,J*,id
-streams.activities,id|data,J*,id
+n,d,c,t,k,f
+leaderboards,partition,segmentId|resType|resId|res,JSJ*,segmentId|resType|resId,segmentId
+activities,partition,id|name|date|commute,J*DB,id,id
+segments,splay,id|name,J*,id,id
+clubs,partition,id|name,J*,id,id
+athletes,splay,id|name,J*,id,id
+segStreams,splay,id|data,J*,id,id
+actStreams,partition,id|data,J*,id,id
