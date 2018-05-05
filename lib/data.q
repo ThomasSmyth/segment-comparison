@@ -1,15 +1,23 @@
 / save and load cached data
 
-.data.save:{[id;tab;data]                                                                       / [athlete id;table;data] save data to disk, preserving keys
+.data.save:{[id;tab;f;data]                                                                     / [athlete id;table;function;data] save data to disk, preserving keys
   if[not tab in key[.data.schemas]`n;                                                           / exit early if no schema is defined
     :.log.e("no schema defined for {}";tab);
    ];
   if[not .var.cache;:()];                                                                       / exit early if caching unused
   cfg:.data.schemas tab;                                                                        / get config for current table
-  data:.data.load[id;tab]upsert data;                                                           / pull existing data and overwrite duplicate keys
+  data:.data.w[f][id;tab;data];                                                                 / pull data from disk and append using method passed (f)
   loc:.data.loc[cfg`d][id;tab];                                                                 / get location of data on disk
   :loc set .Q.en[.var.savedir]0!data;                                                           /save data to disk
  };
+
+.data.w.new:{[id;tab;data]                                                                      / only add new data to disk
+  :data upsert .data.load[id;tab];                                                              / keep keys already on disk
+ };
+.data.w.matching:{[id;tab;data]                                                                 / update keys on disk
+  :.data.load[id;tab]upsert data;                                                               / pull current data from disk
+ };
+.data.w.all:{[id;tab;data]data};                                                                / replace all data on disk
 
 .data.load:{[id;tab]                                                                            / [athlete id;table]
   if[not tab in key[.data.schemas]`n;                                                           / exit early if no schema is defined
@@ -58,7 +66,7 @@
   .log.o"retrieving activity list";
   if[0=count ca:.data.load[id;`activities];
     act:.http.athlete.activities[id];
-    .data.save[id;`activities;act];
+    .data.save[id;`activities;`new;act];
     ca:.data.load[id;`activities];
    ];
   res:select from ca where date within(start;end);
@@ -66,12 +74,20 @@
   :res;
  };
 
-.data.segments.activity:{[id;actId]                                                             / [athlete id;activity id]
-  res:.http.activity.detail actId;
-  :select id,name from res`segment_efforts;
+.data.activity.get1Segment:{[id;actId]                                                          / [athlete id;activity id]
+  res:.http.activity.detail actId;                                                              / pull details for passed activity
+  res:select`long$id,name from res`segment_efforts;                                             / get required columnis
+  .data.save[id;`segments;`matching;res];                                                       / save segments to disk
+  a:@[.data.load[id;`activities]actId;`segs;:;1b];                                              / get info for current activity
+  .data.save[id;`activities;`matching;([]id:(),actId),\:a];                                     / mark as complete
  };
 
-.data.segments.activities:{[id;actIds]                                                          / [athlete id;activity id list]
+.data.activity.segments:{[id;actIds]                                                            / [athlete id;activity id list]
   .log.o"retrieving segments for all activities";
-  :ids;
+  actIds:exec id from .data.load[id;`activities]where id in actIds,not segs;                    / find non processed activities
+  .log.o("{} new activities passed";c:count actIds);
+  :.data.activity.get1Segment'[id;actIds];                                                      / get segments from remaining activities
+ };
+
+.data.segments.leaderboard:{[id]
  };

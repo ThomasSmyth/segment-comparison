@@ -1,13 +1,16 @@
 // main functions file
 
 / handles dictionary of parameters passed from webpage/.ui.exectimeit
-.leaderboard.raw:{[dict]
+.handle.input:{[dict]
   `:ldb set dict;
   .log.o"running query";
   empty:([]Segment:()),'flip enlist[`$string dict`athlete_id]!();                               / empty results table
   if[not max dict`following`include_clubs;:empty];                                              / exit early if no comparison filters selected
   act:.data.athlete.activities . dict`athlete_id`after`before;                                  / get list of activities for current athlete
-  :.data.segments.activities[id;key[act]`id];                                                   / get segments for selected activities
+  .data.activity.segments[id;key[act]`id];                                                      / get segments for selected activities
+  / get leaderboards
+  :();
+  .data.segments.leaderboards[id];
  };
 
 .segComp.leaderboard.raw:{[dict]                                                                / compare segments

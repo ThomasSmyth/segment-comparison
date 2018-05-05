@@ -1,6 +1,6 @@
 n,d,c,t,k,f
 leaderboards,partition,segmentId|resType|resId|res,JSJ*,segmentId|resType|resId,segmentId
-activities,partition,id|name|date|commute,J*DB,id,id
+activities,partition,id|name|date|commute|segs,J*DBB,id,id
 segments,splay,id|name,J*,id,id
 clubs,partition,id|name,J*,id,id
 athletes,splay,id|name,J*,id,id

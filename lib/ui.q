@@ -8,7 +8,7 @@
   .log.o"query parameters:";
   .Q.s 0N!dict;                                                                                 / display formatted query parameters
 
-  data:.leaderboard.raw dict;
+  data:.handle.input dict;
 
 /  data:0!.segComp.leaderboard.raw dict;                                                         / return raw leaderboard data
 
