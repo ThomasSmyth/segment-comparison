@@ -3,11 +3,11 @@
 
 / handles dictionary of parameters passed from webpage/.ui.exectimeit
 .ui.handleInput:{[dict]
-  `:ldb set dict;
   .log.o"running query";
   empty:([]Segment:()),'flip enlist[`$string dict`athlete_id]!();                               / empty results table
   if[not max dict`following`include_clubs;:empty];                                              / exit early if no comparison filters selected
   act:.data.athlete.activities . dict`athlete_id`after`before;                                  / get list of activities for current athlete
+  id:dict`athlete_id;
   .data.activity.segments[id;key[act]`id];                                                      / get segments for selected activities
   if[dict`include_map;
     .data.segments.streams[id];                                                                 / get segment streams
@@ -15,6 +15,12 @@
   .data.segments.leaderboards[id];
  };
 
+.leaderboard.raw:{[id]                                                                          / [athlete id]
+  .log.o"pivoting leaderboard";
+  data:@[;`athlete;`$]0!.data.load[id;`leaderboards];                                           / get leaderboards
+  ul:exec distinct athlete from data;
+  :exec ul#(athlete!time) by segmentId:segmentId from data;
+ };
 
 .ui.exectimeit:{[dict]                                                                          / execute function and time it
   output:()!();                                                                                 / blank output
@@ -23,10 +29,13 @@
   .log.o"query parameters:";
   .Q.s 0N!dict;                                                                                 / display formatted query parameters
 
-  data:.ui.handleInput dict;                                                                    / get leaderboards
+  `:ldb set dict;
+  .ui.handleInput dict;                                                                         / get leaderboards
+  data:.leaderboard.raw dict`athlete_id;
 
 /  data:0!.segComp.leaderboard.raw dict;                                                         / return raw leaderboard data
 
+/
   if[not(asc ids:"J"$string 2_cols[data])~asc .var.athleteList;
     if[0<count .http.athlete.clubs[];
       .log.o"creating data for athletes checklist";
@@ -48,12 +57,13 @@
     [export:.segComp.summary.raw data;                                                          / update export table
      .segComp.summary.html data];                                                               / return summary
     .segComp.leaderboard.html .segComp.leaderboard.highlight data];                             / return leaderboard
-
-  res:(`int$(.z.p-start)%1000000;count res;res);
-  output,:format[`table;(`time`rows`data)!res];                                                 / Send formatted table
+\
+  res:(`int$(.z.p-start)%1000000;count data;data);
+  output,:.ui.format[`table;(`time`rows`data)!res];                                             / Send formatted table
 
   if[dict`include_map;output,:.return.mapDetails data];                                         / create map from result subset
 
+  `oo set output;
   :output;
  };
 
@@ -112,7 +122,10 @@
   .log.o"handling websocket event";
   `id set x;
   neg[.z.w] -8!.j.j .ui.format[`processing;()];
-  neg[.z.w] -8!.j.j .ui.evaluate .j.k -9!x;
+  .log.o"processing request";
+  res:.ui.evaluate .j.k -9!x;
+  .log.o"sending result to front end";
+  neg[.z.w] -8!.j.j res;
  };
 .z.wo:{.log.o"websocket opened"};
 .z.wc:{.log.o"websocket closed"};

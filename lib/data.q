@@ -31,7 +31,7 @@
  };
 
 .data.loc.splay:{[id;tab]` sv .var.savedir,tab,`};                                              / get location of splay
-.data.loc.partition:{[id;tab]` sv .Q.par[.var.savedir;athId;tab],`};                            / get location of partition
+.data.loc.partition:{[id;tab]` sv .Q.par[.var.savedir;id;tab],`};                               / get location of partition
 
 .data.zero:{[tab]
   if[not tab in key .data.schemas;:()];                                                         / exit early if no defined schema
