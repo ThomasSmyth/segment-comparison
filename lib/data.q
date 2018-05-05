@@ -90,16 +90,28 @@
   :.data.activity.get1Segment'[id;actIds];                                                      / get segments from remaining activities
  };
 
-.data.segments.get1Leaderboard:{[id;segId]
+.data.segments.get1Leaderboard:{[id;segId]                                                      / [athlete id;segment id
   res:.http.segments.leaderboard segId;                                                         / get segment leaderboard
-  res:([]segmentId:(),segId)cross select athlete:athlete_name,time:`long$elapsed_time from res`entries; / get required columns
   :.data.save[id;`leaderboards;`matching;res];
  };
 
-.data.segments.leaderboards:{[id]
+.data.segments.leaderboards:{[id]                                                               / [athlete id]
   segs:exec id from .data.load[id;`segments];
   disk:exec distinct segmentId from .data.load[id;`leaderboards];
   segs:segs except disk;                                                                        / remove cached segments
   .log.o("{} new segments found";count segs);
   .data.segments.get1Leaderboard'[id;segs];                                                     / get segment leaderboards
+ };
+
+.data.segments.get1Stream:{[id;segId]                                                           / [athlete id;segment id]
+  res:.http.segments.steams segId;
+  .data.save[id;`segStreams;`matching;res];
+ };
+
+.data.segments.streams:{[id]                                                                    / [athlete id]
+  segs:exec distinct segmentId from .data.load[id;`leaderboards];                               / get segment ids
+  strm:distinct exec id from .data.load[id;`segStreams];                                        / get completed segment ids from disk
+  segs:segs except strm;                                                                        / remove completed segments
+  .log.o("{} new segment streams to retrieve";count segs);
+  .data.segments.get1Stream'[id;segs];                                                          / get streams
  };

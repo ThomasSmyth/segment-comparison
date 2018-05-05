@@ -72,8 +72,12 @@
  };
 
 / currently restricted to simple + followers
-.http.segments.leaderboard:{[segId]
-  res:.http.get.simpleX[("segments/{}/leaderboard";segId);enlist[`following]!enlist"true"];
-  :res;
+.http.segments.leaderboard:{[segId]                                                             / [segment id]
+  res:.http.get.simpleX[("segments/{}/leaderboard";segId);enlist[`following]!enlist`true];
+  :([]segmentId:(),segId)cross select athlete:athlete_name,time:`long$elapsed_time from res`entries; / get required columns
  };
 
+.http.segments.steams:{[segId]                                                                  / [segment id]
+  res:.http.get.simpleX[("segments/{}/streams";segId);`keys`key_by_type!`latlng`true];          / get stream
+  :([]id:(),segId)cross([]stream:enlist raze res[`latlng;`data]);
+ };

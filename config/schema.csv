@@ -4,5 +4,5 @@ activities,partition,id|name|date|commute|segs,J*DBB,id,id
 segments,splay,id|name,J*,id,id
 clubs,partition,id|name,J*,id,id
 athletes,splay,id|name,J*,id,id
-segStreams,splay,id|data,J*,id,id
-actStreams,partition,id|data,J*,id,id
+segStreams,splay,id|stream,J*,id,id
+actStreams,partition,id|stream,J*,id,id

@@ -9,8 +9,9 @@
   if[not max dict`following`include_clubs;:empty];                                              / exit early if no comparison filters selected
   act:.data.athlete.activities . dict`athlete_id`after`before;                                  / get list of activities for current athlete
   .data.activity.segments[id;key[act]`id];                                                      / get segments for selected activities
-  / get leaderboards
-  :();
+  if[dict`include_map;
+    .data.segments.streams[id];                                                                 / get segment streams
+   ];
   .data.segments.leaderboards[id];
  };
 
