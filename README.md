@@ -6,6 +6,9 @@ Strava tool to compare all segments between followers and clubs.
 
 ## Getting started
 
+Get an API token from Strava and place it in `config/token.txt`.
+
 Navigate to the install directory and run `. run.sh` which will launch the page
 at `localhost:5700/webpage/html`.
-There are currently issues accessing this outside of a VM.
+
+Note: there are currently issues accessing this outside of a VM.

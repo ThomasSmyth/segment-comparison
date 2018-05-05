@@ -15,13 +15,6 @@
   .data.segments.leaderboards[id];
  };
 
-.leaderboard.raw:{[id]                                                                          / [athlete id]
-  .log.o"pivoting leaderboard";
-  data:@[;`athlete;`$]0!.data.load[id;`leaderboards];                                           / get leaderboards
-  ul:exec distinct athlete from data;
-  :0!exec ul#(athlete!time)by segmentId:segmentId from data;
- };
-
 .ui.exectimeit:{[dict]                                                                          / execute function and time it
   output:()!();                                                                                 / blank output
   start:.z.p;                                                                                   / set start time
@@ -31,7 +24,7 @@
 
   `:ldb set dict;
   .ui.handleInput dict;                                                                         / get leaderboards
-  data:.leaderboard.raw dict`athlete_id;
+  data:.ldr.main dict;
 
 /  data:0!.segComp.leaderboard.raw dict;                                                         / return raw leaderboard data
 
@@ -119,7 +112,6 @@
 
 .z.ws:{                                                                                         / websocket handler
   .log.o"handling websocket event";
-  `id set x;
   neg[.z.w] -8!.j.j .ui.format[`processing;()];
   .log.o"processing request";
   res:.ui.evaluate .j.k -9!x;

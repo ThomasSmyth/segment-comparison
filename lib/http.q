@@ -75,7 +75,7 @@
 / currently restricted to simple + followers
 .http.segments.leaderboard:{[segId]                                                             / [segment id]
   res:.http.get.simpleX[("segments/{}/leaderboard";segId);enlist[`following]!enlist`true];
-  :([]segmentId:(),segId)cross select athlete:athlete_name,time:`long$elapsed_time from res`entries; / get required columns
+  :([]segmentId:(),segId)cross select athlete:athlete_name,time:"v"$elapsed_time from res`entries; / get required columns
  };
 
 .http.segments.steams:{[segId]                                                                  / [segment id]
