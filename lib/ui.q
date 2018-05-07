@@ -70,7 +70,7 @@
  };
 .z.wo:{
   .log.o"new connection made";
-  .http.athlete.current[];                                                                      / get athlete data
+  / TODO cache athlete data at this stage
   res:.ui.format[`init;.ui.dbstats[]];
   // need some logic here to deal with users with no followers
   neg[.z.w] -8!.j.j res;

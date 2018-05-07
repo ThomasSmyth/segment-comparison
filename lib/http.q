@@ -51,7 +51,7 @@
   :@[ad;`id;`long$];                                                                            / return athlete_id as type long
  };
 
-.http.athlete.clubs:{[]                                                                         / return list of users clubs
+.http.athlete.clubs:{[id]                                                                       / return list of users clubs
   .log.o"returning club data for current athlete from strava";
   :`id xkey@[;`id;"j"$]`id`name#/:.http.athlete.current[]`clubs;
  };

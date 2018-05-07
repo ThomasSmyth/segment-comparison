@@ -3,8 +3,9 @@
 // v2 //
 
 * return followers on .z.o
+* cache athlete data in .z.o
+* re-add follower filtering
 * group all lib functions in init funcs to be called after all have been loaded
-* store activity sport (running/cycling)
 
 // v3 //
 
