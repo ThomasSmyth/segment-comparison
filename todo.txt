@@ -1,44 +1,32 @@
 ### To Do List ###
 
-// v0 //
-
-* group all lib functions in init funcs to be called after all have been loaded
-
-* how to determine which segments fall under which activity without requesting from strava?
-  * maintain a table of activity|segment
-  * create a separate db mapping activities to segments
-
-// v1 //
-
-* store results to hdb, cache in memory when user connects
-    * activities
-    * segments
-    * streams
-* allow user to saved results
-* add link to segment on map
-
 // v2 //
 
-* colour segments on map
-* user coloured markers for beginnings
-* place segment and athlete filters in scrollable boxes
+* return followers on .z.o
+* group all lib functions in init funcs to be called after all have been loaded
+* store activity sport (running/cycling)
 
 // v3 //
 
+* if user is following no athletes then return error (lock submit button)
+* colour segments on map
+* user coloured markers for beginnings
+* place athlete filter in a scrollable box
+* filter for cycling/running segments based on activity
+* colour cycling/running segments differently
+
+// v4 //
+
 * create and host webpage on local server
 * create splash page to allow users to authenticate
-* if user is following no athletes then return error (lock submit button)
 
 // additional //
 
-* Add flag to segment comparison to only use starred segments
-* Add option to exclude commutes from activity list used in .return.segments
-* return time to webpage with preceding 0s dropped
+* Add option to exclude commutes from activity list
+* return times to webpage with minimum possible precision
 * webpage port for xls/csv export should be dynamically created
 * set default start/end date on webpage
 * replace mark with colour defined in tr tag (gold, silver, bronze), 2 methods:
-    * new js function that take second table with 1 2 3 for positions to colour and 0 from standard colour
-    * q function to string each table row and add tags with colours
 
 // map //
 

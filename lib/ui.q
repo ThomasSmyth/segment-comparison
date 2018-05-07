@@ -29,6 +29,7 @@
 
   if[dict`include_map;output,:.ldr.map dict];                                                   / create map from result subset
 
+  `:npo set output;
   :output;
  };
 
