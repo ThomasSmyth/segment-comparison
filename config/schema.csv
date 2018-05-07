@@ -1,6 +1,6 @@
 n,d,c,t,k,f,comments
 leaderboards,partition,segmentId|athlete|time,J*V,segmentId|athlete,segmentId,
-activities,partition,id|name|date|commute|complete|segments,J*DBB*,id,id,store activities + list of segments pulled
+activities,partition,id|name|date|sport|commute|complete|segments,J*D*BB*,id,id,store activities + list of segments pulled
 segments,splay,id|name,J*,id,id,segment name mappings
 athletes,splay,id|name,J*,id,id,athlete name mappings
 segStreams,splay,id|stream,J*,id,id,segment stream data

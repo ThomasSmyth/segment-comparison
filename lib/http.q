@@ -59,8 +59,8 @@
 .http.athlete.activities:{[id]                                                                  / [athlete id] retrieve activities for an athlete, NOTE only works for current athlete
   .log.o("returning activities for athlete {} from strava";id);
   act:.http.get.pgn"activities";
-  act:`id`name`start_date`commute#/:act where not act@\:`manual;                                / retrieve valid columns
-  act:select`long$id,name,date:"D"$10#'start_date,commute from act;                             / transform types
+  act:`id`name`start_date`type`commute#/:act where not act@\:`manual;                           / retrieve valid columns
+  act:update`long$id,date:"D"$10#'date from`id`name`date`sport`commute xcol act;                / rename columns, required due to column "type", and transform types
   act:update 0#'segments from update complete:0b,segments:0N from act;                          / add segment info
   .log.o("retrieved {} activities from strava";count act);
   :act;

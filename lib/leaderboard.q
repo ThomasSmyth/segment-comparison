@@ -1,7 +1,7 @@
 / return leaderboard tables
 
-.ldr.main:{[dict]
-  raw:.ldr.raw dict`current_athlete;                                                            / retrieve raw leaderboard
+.ldr.main:{[dict]                                                                               / [dict]
+  raw:.ldr.raw . dict`current_athlete`after`before;                                             / retrieve raw leaderboard for given date range
   data:0!.ldr.display[`default`summary dict`summary][dict`current_athlete;raw];                 / display data using chosen method
   :data;
  };
@@ -21,7 +21,7 @@
  };
 
 .ldr.map:{[dict]                                                                                / [dict] get streams and markers for all segments in date range
-  data:.ldr.raw dict`current_athlete;
+  data:.ldr.raw . dict`current_athlete`after`before;                                            / get raw leaderboard
   sm:.data.load[dict`current_athlete;`segments];                                                / segment map
   strms:update{2 cut raze x}'[stream]from .data.load[dict`current_athlete;`segStreams];
   strms:update mark:{first[y],x[z][`name],z}[sm]'[stream;id]from strms;                         / add marker for segment start
@@ -33,9 +33,9 @@
   :p;
  };
 
-.ldr.raw:{[id]                                                                                  / [athlete id] return raw leaderboards
+.ldr.raw:{[id;start;end]                                                                        / [athlete id;start;end] return raw leaderboards
   .log.o"returning raw leaderboard";
-  data:@[;`athlete;`$]0!.data.load[id;`leaderboards];                                           / get leaderboards
+  data:@[;`athlete;`$]0!.data.leaderboard.get[id;start;end];                                    / get leaderboards
   :select from data where 1<(count;i)fby segmentId;                                             / return segments with more then 1 entry on leaderboard
  };
 

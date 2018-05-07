@@ -9,7 +9,7 @@
   .data.activity.segments . params;                                                             / get segments for selected activities
   .data.segments.leaderboards . params;                                                         / get segment leaderboards
   if[dict`include_map;
-    .data.segments.streams dict`current_athlete;                                                / get segment streams
+    .data.segments.streams . params;                                                            / get segment streams
    ];
  };
 
@@ -17,8 +17,7 @@
   output:()!();                                                                                 / blank output
   start:.z.p;                                                                                   / set start time
 
-  .log.o"query parameters:";
-  .Q.s 0N!dict;                                                                                 / display formatted query parameters
+  .log.o("query parameters: {}";.Q.s1 0N!dict);                                                 / display formatted query parameters
 
   `:ldb set dict;
   .ui.handleInput dict;                                                                         / get leaderboards
@@ -26,10 +25,7 @@
   data:.ldr.main dict;
 
   output,:.ui.format[`table;(`time`rows`data)!(`int$(.z.p-start)%1000000;count data;data)];     / Send formatted table
-
   if[dict`include_map;output,:.ldr.map dict];                                                   / create map from result subset
-
-  `:npo set output;
   :output;
  };
 

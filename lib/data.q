@@ -94,7 +94,7 @@
   :.data.activity.get1Segment'[id;actIds];                                                      / get segments from non processed activities
  };
 
-.data.segments.get1Leaderboard:{[id;segId]                                                      / [athlete id;segment id
+.data.segments.get1Leaderboard:{[id;segId]                                                      / [athlete id;segment id] get leaderboard for a single segment
   res:.http.segments.leaderboard segId;                                                         / get segment leaderboard
   :.data.save[id;`leaderboards;`matching;res];
  };
@@ -107,13 +107,18 @@
   .data.segments.get1Leaderboard'[id;segs];                                                     / get segment leaderboards
  };
 
+.data.leaderboard.get:{[id;start;end]                                                           / [athlete id;start;end]
+  segs:distinct raze exec segments from .data.load[id;`activities]where date within(start;end); / find all segments in date range
+  :select from .data.load[id;`leaderboards]where segmentId in segs;                             / return leaderboards from date range
+ };
+
 .data.segments.get1Stream:{[id;segId]                                                           / [athlete id;segment id] retrieve stream data for a segment
   res:.http.segments.steams segId;
   .data.save[id;`segStreams;`matching;res];                                                     / save stream to disk
  };
 
-.data.segments.streams:{[id]                                                                    / [athlete id]
-  segs:exec distinct segmentId from .data.load[id;`leaderboards];                               / get segment ids
+.data.segments.streams:{[id;start;end]                                                          / [athlete id]
+  segs:exec distinct segmentId from .data.leaderboard.get[id;start;end];                        / get segment ids in date range
   strm:distinct exec id from .data.load[id;`segStreams];                                        / get completed segment ids from disk
   segs:segs except strm;                                                                        / remove completed segments
   .log.o("{} new segment streams to retrieve";count segs);
