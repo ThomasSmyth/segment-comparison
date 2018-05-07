@@ -186,6 +186,7 @@ ws.onmessage = function (event) {
       if(extraname === 'clubs'){
         $('#following').show();
         $('#include_clubs').show();
+/*
         $('#clubs-filter').html("").show();
         $('#clubs-filter').append('<div class="col-md-2">Clubs</div>');
         $('#clubs-filter').html("");
@@ -193,6 +194,7 @@ ws.onmessage = function (event) {
           $('#clubs-filter').append('<div class="checklist"><label><input type="checkbox" value="'+a.id+'">'+a.name+'</label></div>');
         });
         $('#clubs-filter').append('<div class="checklist"><label><input type="checkbox" value="all">All Clubs</label></div>');
+*/
       }
       if(extraname === 'athletes'){
         $('#athlete-filter').html("").show();
@@ -246,7 +248,7 @@ ws.onmessage = function (event) {
 
         // Show stats bar
         $('.stats').show();
-        $('#segName').hide();
+//        $('#segName').hide();
 
         // Enable export link
         $('#export').removeClass("disabled");

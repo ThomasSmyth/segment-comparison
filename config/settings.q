@@ -10,7 +10,7 @@
 .var.sleepOnError:1b;
 .var.sleepTime:60;
 
-.var.commandBase:"curl -sG https://www.strava.com/api/v3/";
+.var.urlRoot:"curl -sG https://www.strava.com/api/v3/";
 .var.athlete.current:();
 .var.athleteList:();
 
@@ -22,14 +22,10 @@
 .log.write:1b;
 
 .var.defaults:flip`vr`vl`fc!flip(
-  (`starred      ; 0b   ; ("false";"true")                                        );            / show starred segments
-  (`summary      ; 0b   ; ("false";"true")                                        );            / summarise results
-  (`following    ; 0b   ; ("false";"true")                                        );            / compare with those followed
-  (`include_map  ; 0b   ; ("false";"true")                                        );            / show map
-  (`include_clubs; 0b   ; ("false";"true")                                        );            / for club comparison
-  (`after        ; 0Nd  ; {string(-).`long$(`timestamp$x;1970.01.01D00:00)%1e9}   );            / start date
-  (`before       ; 0Nd  ; {string(-).`long$(`timestamp$1+x;1970.01.01D00:00)%1e9} );            / end date
-  (`club_id      ; (),0N; string                                                  );            / for club comparison
-  (`athlete_id   ; (),0N; string                                                  );            / filter athletes
-  (`segment_id   ; 0N   ; string                                                  )             / segment to compare on
+  (`summary        ; 0b   ; ("false";"true")                                        );          / summarise results
+  (`include_map    ; 0b   ; ("false";"true")                                        );          / show map
+  (`after          ; 0Nd  ; {string(-).`long$(`timestamp$x;1970.01.01D00:00)%1e9}   );          / start date
+  (`before         ; 0Nd  ; {string(-).`long$(`timestamp$1+x;1970.01.01D00:00)%1e9} );          / end date
+  (`athlete_id     ; (),0N; string                                                  );          / filter athletes
+  (`current_athlete; 0N   ; {::}                                                    )           / current athlete
  );

@@ -59,11 +59,6 @@
   :update .return.html.athleteURL each "J"$string Athlete, .return.html.segmentURL@/:/:Segments from res;
  };
 
-.return.clean:{[dict]                                                                           / return existing parameters in correct format
-  def:(!). .var.defaults`vr`vl;                                                                 / defaults value for parameters
-  :.Q.def[def]string key[def]#def,dict;                                                         / return valid optional parameters
- };
-
 .return.params.all:{[params;dict]                                                               / build url from specified altered parameters
   if[0=count dict; :""];                                                                        / if no parametrs return empty string
   def:(!/) .var.defaults`vr`vl;                                                                 / defaults value for parameters

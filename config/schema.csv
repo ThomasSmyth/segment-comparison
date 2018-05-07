@@ -1,8 +1,7 @@
-n,d,c,t,k,f
-leaderboards,partition,segmentId|athlete|time,J*V,segmentId|athlete,segmentId
-activities,partition,id|name|date|commute|segs,J*DBB,id,id
-segments,splay,id|name,J*,id,id
-clubs,partition,id|name,J*,id,id
-athletes,splay,id|name,J*,id,id
-segStreams,splay,id|stream,J*,id,id
-actStreams,partition,id|stream,J*,id,id
+n,d,c,t,k,f,comments
+leaderboards,partition,segmentId|athlete|time,J*V,segmentId|athlete,segmentId,
+activities,partition,id|name|date|commute|complete|segments,J*DBB*,id,id,store activities + list of segments pulled
+segments,splay,id|name,J*,id,id,segment name mappings
+athletes,splay,id|name,J*,id,id,athlete name mappings
+segStreams,splay,id|stream,J*,id,id,segment stream data
+actStreams,partition,id|stream,J*,id,id,activity stream data

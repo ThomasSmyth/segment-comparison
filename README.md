@@ -2,7 +2,7 @@
 
 _Tested with v3.4 2016.10.10_
 
-Strava tool to compare all segments between followers and clubs.
+Strava tool to compare all segments between followers for a given date range.
 
 ## Getting started
 

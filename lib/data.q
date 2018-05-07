@@ -64,10 +64,12 @@
 
 .data.athlete.activities:{[id;start;end]                                                        / [athlete;start date;end date] return activities in date range for given athlete
   .log.o"retrieving activity list";
-  if[0=count ca:.data.load[id;`activities];
-    act:.http.athlete.activities id;
-    .data.save[id;`activities;`new;act];
-    ca:.data.load[id;`activities];
+  if[0=count ca:.data.load[id;`activities];                                                     / if no activities cached then retrieve list
+    // TODO on second pass only check for most recent data
+    // if more exits get it else proceed as normal
+    act:.http.athlete.activities id;                                                            / request actvities for current user from Strava
+    .data.save[id;`activities;`new;act];                                                        / save activities for current user
+    ca:.data.load[id;`activities];                                                              / retrieve activities from disk
    ];
   res:select from ca where date within(start;end);
   .log.o("found {} activities in date range {} to {}";(count res;start;end));
@@ -80,14 +82,16 @@
   res:select`long$id,name from res[`segment_efforts][`segment] where not private,not hazardous; / get required columns
   .data.save[id;`segments;`matching;res];                                                       / save segments to disk
   a:@[.data.load[id;`activities]actId;`segs;:;1b];                                              / get info for current activity
+  a:@[.data.load[id;`activities]actId;`complete`segments;:;(1b;res`id)];                        / mark as complete in activities table
   .data.save[id;`activities;`matching;([]id:(),actId),\:a];                                     / mark as complete
  };
 
-.data.activity.segments:{[id;actIds]                                                            / [athlete id;activity id list]
-  .log.o"retrieving segments for all activities";
-  actIds:exec id from .data.load[id;`activities]where id in actIds,not segs;                    / find non processed activities
-  .log.o("{} new activities passed";c:count actIds);
-  :.data.activity.get1Segment'[id;actIds];                                                      / get segments from remaining activities
+.data.activity.segments:{[id;start;end]                                                         / [athlete id;start;end] retrieve segments from activities in date range
+  .log.o("retrieving segments for activities in range {} to {}";(start;end));
+
+  actIds:exec id from .data.load[id;`activities]where date within(start;end),not complete;      / find non processed activities
+  .log.o("{} new activities found";c:count actIds);
+  :.data.activity.get1Segment'[id;actIds];                                                      / get segments from non processed activities
  };
 
 .data.segments.get1Leaderboard:{[id;segId]                                                      / [athlete id;segment id
@@ -95,17 +99,17 @@
   :.data.save[id;`leaderboards;`matching;res];
  };
 
-.data.segments.leaderboards:{[id]                                                               / [athlete id]
-  segs:exec id from .data.load[id;`segments];
+.data.segments.leaderboards:{[id;start;end]                                                     / [athlete id;start date;end date] get leaderboards for segments in range
+  segs:distinct raze exec segments from .data.load[id;`activities]where date within(start;end); / get all segments in date range
   disk:exec distinct segmentId from .data.load[id;`leaderboards];
   segs:segs except disk;                                                                        / remove cached segments
   .log.o("{} new segments found";count segs);
   .data.segments.get1Leaderboard'[id;segs];                                                     / get segment leaderboards
  };
 
-.data.segments.get1Stream:{[id;segId]                                                           / [athlete id;segment id]
+.data.segments.get1Stream:{[id;segId]                                                           / [athlete id;segment id] retrieve stream data for a segment
   res:.http.segments.steams segId;
-  .data.save[id;`segStreams;`matching;res];
+  .data.save[id;`segStreams;`matching;res];                                                     / save stream to disk
  };
 
 .data.segments.streams:{[id]                                                                    / [athlete id]

@@ -1,8 +1,8 @@
 / return leaderboard tables
 
 .ldr.main:{[dict]
-  data:.ldr.raw dict`athlete_id;                                                                / retrieve raw leaderboard
-  data:.ldr.display[`default`summary dict`summary][dict`athlete_id;data];                       / display data using chosen method
+  data:.ldr.raw dict`current_athlete;                                                           / retrieve raw leaderboard
+  data:.ldr.display[`default`summary dict`summary][dict`current_athlete;data];                  / display data using chosen method
   :0!data;
  };
 

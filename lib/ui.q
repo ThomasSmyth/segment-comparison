@@ -2,20 +2,18 @@
 // Required to work with json
 
 / handles dictionary of parameters passed from webpage/.ui.exectimeit
-.ui.handleInput:{[dict]
+.ui.handleInput:{[dict]                                                                         / [dict] parse inputs and return raw leaderboard data
   .log.o"running query";
-  empty:([]Segment:()),'flip enlist[`$string dict`athlete_id]!();                               / empty results table
-  if[not max dict`following`include_clubs;:empty];                                              / exit early if no comparison filters selected
-  act:.data.athlete.activities . dict`athlete_id`after`before;                                  / get list of activities for current athlete
-  id:dict`athlete_id;
-  .data.activity.segments[id;key[act]`id];                                                      / get segments for selected activities
+  params:dict`current_athlete`after`before;
+  act:.data.athlete.activities . params;                                                        / get list of activities for current athlete
+  .data.activity.segments . params;                                                             / get segments for selected activities
+  .data.segments.leaderboards . params;                                                         / get segment leaderboards
   if[dict`include_map;
-    .data.segments.streams[id];                                                                 / get segment streams
+    .data.segments.streams dict`current_athlete;                                                / get segment streams
    ];
-  .data.segments.leaderboards[id];
  };
 
-.ui.exectimeit:{[dict]                                                                          / execute function and time it
+.ui.exectimeit:{[dict]                                                                          / [dict] execute function and time it
   output:()!();                                                                                 / blank output
   start:.z.p;                                                                                   / set start time
 
@@ -70,41 +68,39 @@
   :`plottype`polyline`markers`names`bounds!(`lineMarkers;lines;marks;aths;bounds);
  };
 
-.ui.dbstats:{([]field:("Date Range";"Meter Table Count");val:(string[.z.d]," to ",string .z.d;{reverse","sv 3 cut reverse string x}0))}
+.ui.dbstats:{([]field:("Date Range";"Meter Table Count");val:(.utl.sub("{} to {}";2#.z.d);{reverse","sv 3 cut reverse string x}0))};
 
 
 .ui.format:{[name;data]                                                                         / [name;data] format dictionary to be encoded into json
     :`name`data!(name;data);
   };
 
+.ui.defaults:{[dict]                                                                            / [dict] return existing parameters in correct format
+  dict[`current_athlete]:.http.athlete.current[]`id;                                            / add id for current athlete
+  dict:@[dict;`before`after;.z.d^"D"$];                                                         / parse passed date range
+  if[(<). dict`before`after;:.log.e"before and after timestamps are invalid"];                  / validate date range
+  dict:{@[x;y;:;0<count each x y]}[dict;`include_map`summary];
+  def:(!). .var.defaults`vr`vl;                                                                 / defaults value for parameters
+  :.Q.def[def]string key[def]#def,dict;                                                         / return valid optional parameters
+ };
+
 .ui.execdict:{[dict]                                                                            / [params] execute request based on passed dict of parameters
+  // move init to .z.o
   if[`init in key dict;
     .log.o"new connection made";
     .http.athlete.current[];                                                                    / get athlete data
     res:.ui.format[`init;.ui.dbstats[]];
-    // need some logic here to deal with no followers/clubs
-    if[count cb:0!.http.athlete.clubs[];
-      res[`extraname`extradata]:(`clubs;cb);
-     ];
+    // need some logic here to deal with users with no followers
     :res;
    ];
-  if[count cl:`after`before`club_id`athlete_id`following`include_map`include_clubs except key dict;
+  if[count cl:`after`before`summary`include_map except key dict;
     .log.e("missing parameters {}";", "sv string cl);
    ];
 
-  dict[`athlete_id]:.http.athlete.current[]`id;
-  dict:@[dict;`before`after;.z.d^"D"$];                                                         / parse passed date range
-  if[(<). dict`before`after;:.log.e"before and after timestamps are invalid"];                  / validate date range
-  dict:@[dict;`club_id;"J"$];
-
-  dict:{@[x;y;:;0<count each x y]}[dict;`include_map`include_clubs`following`summary];
-  if[0=count cl:.http.athlete.clubs[];dict[`following]:1b];
-  if[0=count dict`club_id;dict[`club_id]:exec id from cl];
-
   .log.o"executing query";                                                                      / execute query using parsed params
-  data:@[.ui.exectimeit;.return.clean dict;{.log.e"Didn't execute due to ",dict}];
+  data:@[.ui.exectimeit;.ui.defaults dict;{.log.e("Didn't execute due to {}";dict)}];
 
-  .log.o"returning results";
+  .log.o("returning {} results";count data);
   :data;
   };
 

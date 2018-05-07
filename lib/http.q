@@ -14,11 +14,11 @@
 
 .http.get.basic:{[url;params]                                                                   / [request type; additional parameters] basic http request
   cmd:.utl.sub("{} -H \"Authorization: Bearer {}\" {}";(.utl.sub url;.http.token[];.http.urlencode params));
-  :.j.k first system .var.commandBase,cmd;
+  :.j.k first system .var.urlRoot,cmd;
  };
 
 .http.get.simpleX:{[url;params]                                                                 / [request type;additional request parameters] basic connect function
-  .log.o("retrieving {}";url);
+  .log.o("retrieving {} {}";(.utl.sub url;$[`page in key params;.utl.sub("page={}";params`page);`]));
   res:.http.get.basic[url;params];                                                              / request data from strava
   if[.var.sleepOnError&@[{`errors in key x};res;0b];                                            / sleep on error if specified
     if["rate limit"~raze res[`errors;`field];                                                   / check for rate limiting error
@@ -60,9 +60,9 @@
 .http.athlete.activities:{[id]                                                                  / [athlete id] retrieve activities for an athlete, NOTE only works for current athlete
   .log.o("returning activities for athlete {} from strava";id);
   act:.http.get.pgn"activities";
-  act:`id`name`start_date`commute#/:act where not act@\:`manual;
-  act:select`long$id,name,date:"D"$10#'start_date,commute from act;
-  act:update segs:0b from act;
+  act:`id`name`start_date`commute#/:act where not act@\:`manual;                                / retrieve valid columns
+  act:select`long$id,name,date:"D"$10#'start_date,commute from act;                             / transform types
+  act:update 0#'segments from update complete:0b,segments:0N from act;                          / add segment info
   .log.o("retrieved {} activities from strava";count act);
   :act;
  };
