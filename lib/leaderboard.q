@@ -22,9 +22,9 @@
 
 .ldr.map:{[dict]                                                                                / [dict] get streams and markers for all segments in date range
   data:.ldr.raw . dict`current_athlete`after`before;                                            / get raw leaderboard
-  sm:.data.load[dict`current_athlete;`segments];                                                / segment map
+  sm:update name:.html.a.segment'[id;name]from .data.load[dict`current_athlete;`segments];      / segment id mapping
   strms:update{2 cut raze x}'[stream]from .data.load[dict`current_athlete;`segStreams];
-  strms:update mark:{first[y],x[z][`name],z}[sm]'[stream;id]from strms;                         / add marker for segment start
+  strms:update mark:{first[y],enlist[x[z]`name],z}[sm]'[stream;id]from strms;                   / add marker for segment start
   bounds:(min;max)@\:raze exec stream from strms;                                               / get map boundaries
   segs:exec segmentId by athlete from data where time=(min;time)fby segmentId;
   p:`plottype`names`bounds!(`lineMarkers;aths:key segs;bounds);                                 / form result dictionary

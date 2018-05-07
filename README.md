@@ -9,6 +9,6 @@ Strava tool to compare all segments between followers for a given date range.
 Get an API token from Strava and place it in `config/token.txt`.
 
 Navigate to the install directory and run `. run.sh` which will launch the page
-at `localhost:5700/webpage/html`.
+at `localhost:5700/compare.html`.
 
 Note: there are currently issues accessing this outside of a VM.

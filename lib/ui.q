@@ -19,7 +19,6 @@
 
   .log.o("query parameters: {}";.Q.s1 0N!dict);                                                 / display formatted query parameters
 
-  `:ldb set dict;
   .ui.handleInput dict;                                                                         / get leaderboards
   / replace with handler for leaderboards and maps
   data:.ldr.main dict;
