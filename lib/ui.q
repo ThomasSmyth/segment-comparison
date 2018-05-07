@@ -86,13 +86,6 @@
 
 .ui.execdict:{[dict]                                                                            / [params] execute request based on passed dict of parameters
   // move init to .z.o
-  if[`init in key dict;
-    .log.o"new connection made";
-    .http.athlete.current[];                                                                    / get athlete data
-    res:.ui.format[`init;.ui.dbstats[]];
-    // need some logic here to deal with users with no followers
-    :res;
-   ];
   if[count cl:`after`before`summary`include_map except key dict;
     .log.e("missing parameters {}";", "sv string cl);
    ];
@@ -100,7 +93,7 @@
   .log.o"executing query";                                                                      / execute query using parsed params
   data:@[.ui.exectimeit;.ui.defaults dict;{.log.e("Didn't execute due to {}";dict)}];
 
-  .log.o("returning {} results";count data);
+  .log.o("returning {} results";count data[`data;`data]);
   :data;
   };
 
@@ -114,5 +107,11 @@
   .log.o"sending result to front end";
   neg[.z.w] -8!.j.j res;
  };
-.z.wo:{.log.o"websocket opened"};
+.z.wo:{
+  .log.o"new connection made";
+  .http.athlete.current[];                                                                      / get athlete data
+  res:.ui.format[`init;.ui.dbstats[]];
+  // need some logic here to deal with users with no followers
+  neg[.z.w] -8!.j.j res;
+ };
 .z.wc:{.log.o"websocket closed"};

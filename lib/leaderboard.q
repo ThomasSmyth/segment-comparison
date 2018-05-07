@@ -14,7 +14,7 @@
  };
 
 .ldr.display.summary:{[id;data]                                                                 / [athlete id;data] display best time counts
-  .log.o"producing sleaderboard summary";
+  .log.o"producing leaderboard summary";
   data:select from data where time=(min;time)fby segmentId;                                     / get best times by segment
   data:select total:count i,segments:name by athlete from .ldr.html.segments[id;data];          / return summary
   :`total xdesc update", "sv/:segments from data;                                               / comma separate values

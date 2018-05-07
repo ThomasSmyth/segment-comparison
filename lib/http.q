@@ -46,7 +46,6 @@
  };
 
 .http.athlete.current:{[]
-  .log.o"retrieving data for current athlete from strava";
   ad:.http.get.simple"athlete";
   ad[`name]:`$" "sv ad`firstname`lastname;                                                      / add fullname to data
   :@[ad;`id;`long$];                                                                            / return athlete_id as type long

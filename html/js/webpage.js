@@ -156,7 +156,7 @@ var ws = new WebSocket("ws://localhost:5700");
 ws.binaryType = 'arraybuffer'; // Required by c.js
 // WebSocket event handlers
 ws.onopen = function () {
-  ws.send(serialize(JSON.stringify({init:1})));
+//  ws.send(serialize(JSON.stringify({init:1})));
   $('#connecting').hide();
 };
 ws.onclose = function () {
