@@ -1,9 +1,9 @@
 / return leaderboard tables
 
 .ldr.main:{[dict]
-  data:.ldr.raw dict`current_athlete;                                                           / retrieve raw leaderboard
-  data:.ldr.display[`default`summary dict`summary][dict`current_athlete;data];                  / display data using chosen method
-  :0!data;
+  raw:.ldr.raw dict`current_athlete;                                                            / retrieve raw leaderboard
+  data:0!.ldr.display[`default`summary dict`summary][dict`current_athlete;raw];                 / display data using chosen method
+  :data;
  };
 
 .ldr.display.default:{[id;data]                                                                 / [athlete id;data] display best times
@@ -18,6 +18,19 @@
   data:select from data where time=(min;time)fby segmentId;                                     / get best times by segment
   data:select total:count i,segments:name by athlete from .ldr.html.segments[id;data];          / return summary
   :`total xdesc update", "sv/:segments from data;                                               / comma separate values
+ };
+
+.ldr.map:{[dict]                                                                                / [dict] get streams and markers for all segments in date range
+  data:.ldr.raw dict`current_athlete;
+  sm:.data.load[dict`current_athlete;`segments];                                                / segment map
+  strms:update{2 cut raze x}'[stream]from .data.load[dict`current_athlete;`segStreams];
+  strms:update mark:{(first y;x[z]`name;z)}[sm]'[stream;id]from strms;                          / add marker for segment start
+  bounds:(min;max)@\:raze exec stream from strms;                                               / get map boundaries
+  segs:exec segmentId by athlete from data where time=(min;time)fby segmentId;
+  p:`plottype`names`bounds!(`lineMarkers;aths:key segs;bounds);                                 / form result dictionary
+  p[`polyline]:(exec id!stream from strms)v:value segs;
+  p[`markers]:(exec id!mark from strms)v;
+  :p;
  };
 
 .ldr.raw:{[id]                                                                                  / [athlete id] return raw leaderboards
