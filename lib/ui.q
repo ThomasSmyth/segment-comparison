@@ -23,8 +23,11 @@
   / replace with handler for leaderboards and maps
   data:.ldr.main dict;
 
+  output,:`extraname`extradata!(`athletes;{flip`id`name!(x;x)}1_data`athlete);                  / get athletes for filter
+
   output,:.ui.format[`table;(`time`rows`data)!(`int$(.z.p-start)%1000000;count data;data)];     / Send formatted table
   if[dict`include_map;output,:.ldr.map dict];                                                   / create map from result subset
+  `:npo set output;
   :output;
  };
 
