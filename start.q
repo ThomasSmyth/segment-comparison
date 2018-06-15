@@ -2,7 +2,7 @@
 
 .init.init:{
   shome:hsym`$home:getenv`SVAHOME;
-  {system"l ",1_string` sv x,`lib,y}[shome]'[`utl.q`log.q`load.q];                              / load log and load libraries
+  {system"l ",1_string` sv x,`lib,y}[shome]'[`utl.q`log.q`load.q];                              / load utl, log and load libraries
   system"l ",1_string` sv shome,`config`settings.q;                                             / load settings
   .load.dir.q shome,`lib;                                                                       / load all libraries
   .log.o"initialising environment";

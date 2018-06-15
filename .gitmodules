@@ -1,0 +1,3 @@
+[submodule "qlib"]
+	path = qlib
+	url = https://github.com/vibronicshark55/qlib.git
