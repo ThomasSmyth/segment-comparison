@@ -1,1 +1,1 @@
-/home/tsmyth/git/segment-comparison/qlib/lib/log.q
+../qlib/lib/log.q

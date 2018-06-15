@@ -1,1 +1,1 @@
-/home/tsmyth/git/segment-comparison/qlib/lib/utl.q
+../qlib/lib/utl.q
