@@ -5,6 +5,7 @@
 .ui.handleInput:{[dict]                                                                         / [dict] parse inputs and return raw leaderboard data
   .log.o"running query";
   params:dict`current_athlete`after`before;
+  `params set params;
   act:.data.athlete.activities . params;                                                        / get list of activities for current athlete
   .data.activity.segments . params;                                                             / get segments for selected activities
   .data.segments.leaderboards . params;                                                         / get segment leaderboards

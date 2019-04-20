@@ -45,15 +45,15 @@
   :.http.get.simple .utl.sub("activities/{}";id);
  };
 
+.http.activity.getSegments:{[id]                                                                / [activity id] get all segments for an activity
+  res:.http.activity.detail id;
+  :select`long$id,name from res[`segment_efforts][`segment]where not private,not hazardous;
+ };
+
 .http.athlete.current:{[]
   ad:.http.get.simple"athlete";
   ad[`name]:`$" "sv ad`firstname`lastname;                                                      / add fullname to data
   :@[ad;`id;`long$];                                                                            / return athlete_id as type long
- };
-
-.http.athlete.clubs:{[id]                                                                       / return list of users clubs
-  .log.o"returning club data for current athlete from strava";
-  :`id xkey@[;`id;"j"$]`id`name#/:.http.athlete.current[]`clubs;
  };
 
 .http.athlete.activities:{[id]                                                                  / [athlete id] retrieve activities for an athlete, NOTE only works for current athlete

@@ -52,16 +52,13 @@ function getInputs() {
       following     = [],
       include_map   = [],
       summary       = [],
-      include_clubs = [],
 
   // Add values from grouping,region & custtype filter to their respective array
   $('#summary .checklist input:checked').each(function(a,b){summary.push($(b).val());});
   $('#following .checklist input:checked').each(function(a,b){following.push($(b).val());});
-  $('#include_clubs .checklist input:checked').each(function(a,b){include_clubs.push($(b).val());});
   $('#include_map .checklist input:checked').each(function(a,b){include_map.push($(b).val());});
 
   // Add checkbox values to appropriate array depending on whether "All" option is checked
-  clubvals = checkboxVals('#clubs-filter');
   athletevals = checkboxVals('#athlete-filter');
 
   return {
@@ -71,7 +68,6 @@ function getInputs() {
     athlete_id: athletevals,
     summary: summary,
     following: following,
-    include_clubs: include_clubs,
     include_map: include_map,
   }
 }
@@ -183,19 +179,6 @@ ws.onmessage = function (event) {
     $('#map_placeholder').hide();
 
     if(edata.hasOwnProperty('extradata')){
-      if(extraname === 'clubs'){
-        $('#following').show();
-        $('#include_clubs').show();
-/*
-        $('#clubs-filter').html("").show();
-        $('#clubs-filter').append('<div class="col-md-2">Clubs</div>');
-        $('#clubs-filter').html("");
-        extradata.forEach(function(a){
-          $('#clubs-filter').append('<div class="checklist"><label><input type="checkbox" value="'+a.id+'">'+a.name+'</label></div>');
-        });
-        $('#clubs-filter').append('<div class="checklist"><label><input type="checkbox" value="all">All Clubs</label></div>');
-*/
-      }
       if(extraname === 'athletes'){
         $('#athlete-filter').html("").show();
         $('#athlete-filter').append('<div class="col-md-2">Athletes</div>');

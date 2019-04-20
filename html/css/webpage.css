@@ -52,14 +52,6 @@ input[type="checkbox"]{
   overflow: auto;
 }
 
-/* Club checkboxes */
-#clubs-filter {
-  background-color: yellow;
-  width: 250px;
-  height: 300px;
-  overflow: auto;
-}
-
 #processing {
   width: 100%;
   clear:left;

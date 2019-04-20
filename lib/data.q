@@ -47,15 +47,6 @@
   :ad;
  };
 
-.data.athlete.clubs:{[]                                                                         / return list of users clubs
-  if[count cl:.data.load`clubs;
-    .log.o"returning cached clubs for current athlete";
-    :cl;
-   ];
-  .data.save[`clubs]cl:.http.athlete.clubs[];                                                   / pull data from strava and save to disk
-  :cl;
- };
-
 .data.segments.starred:{[]                                                                      / [] return starred segments for current athlete
   if[0<count sd:select from .data.load[`segments]where starred;:sd];                            / returned cached segments if available
   .data.save[`segments]st:.http.segments.starred[];                                             / retrieve starred segments from strava
@@ -76,10 +67,9 @@
   :res;
  };
 
-.data.activity.get1Segment:{[id;actId]                                                          / [athlete id;activity id]
+.data.activity.getSegments1Activity:{[id;actId]                                                 / [athlete id;activity id] get all segments from 1 activity
   .log.o("gettings segments for activity {}";actId);
-  res:.http.activity.detail actId;                                                              / pull details for passed activity
-  res:select`long$id,name from res[`segment_efforts][`segment] where not private,not hazardous; / get required columns
+  res:.http.activity.getSegments actId;                                                         / return segments from an activity
   .data.save[id;`segments;`matching;res];                                                       / save segments to disk
   a:@[.data.load[id;`activities]actId;`segs;:;1b];                                              / get info for current activity
   a:@[.data.load[id;`activities]actId;`complete`segments;:;(1b;res`id)];                        / mark as complete in activities table
@@ -91,7 +81,7 @@
 
   actIds:exec id from .data.load[id;`activities]where date within(start;end),not complete;      / find non processed activities
   .log.o("{} new activities found";c:count actIds);
-  :.data.activity.get1Segment'[id;actIds];                                                      / get segments from non processed activities
+  :.data.activity.getSegments1Activity'[id;actIds];                                             / get segments from non processed activities
  };
 
 .data.segments.get1Leaderboard:{[id;segId]                                                      / [athlete id;segment id] get leaderboard for a single segment
