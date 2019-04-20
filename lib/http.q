@@ -23,8 +23,8 @@
   if[.var.sleepOnError&@[{`errors in key x};res;0b];                                            / sleep on error if specified
     if["rate limit"~raze res[`errors;`field];                                                   / check for rate limiting error
        .log.o("rate limit reached, sleeping for {}";.var.sleepTime);
-       system .utl.sub("sleep {}";var.sleepTime);                                               / sleep until no longer rate limited
-       res:.z.s[url;params];
+       system .utl.sub("sleep {}";.var.sleepTime);                                              / sleep until no longer rate limited
+       res:.z.s[url;params];                                                                    / repeat function with same parameters after sleep
      ];
    ];
   :res;
@@ -47,11 +47,12 @@
 
 .http.activity.getSegments:{[id]                                                                / [activity id] get all segments for an activity
   res:.http.activity.detail id;
-  :select`long$id,name from res[`segment_efforts][`segment]where not private,not hazardous;
+  if[0=count res`segment_efforts;:([]id:`long$();name:())];                                     / return blank table if no segments found
+  :select`long$id,name from res[`segment_efforts][`segment]where not private,not hazardous;     / filter segment list and return required columns only
  };
 
-.http.athlete.current:{[]
-  ad:.http.get.simple"athlete";
+.http.athlete.current:{[]                                                                       / get details of current athlete
+  ad:.http.get.simple"athlete";                                                                 / http request for current athlete
   ad[`name]:`$" "sv ad`firstname`lastname;                                                      / add fullname to data
   :@[ad;`id;`long$];                                                                            / return athlete_id as type long
  };
@@ -73,7 +74,7 @@
 
 / currently restricted to simple + followers
 .http.segments.leaderboard:{[segId]                                                             / [segment id]
-  res:.http.get.simpleX[("segments/{}/leaderboard";segId);enlist[`following]!enlist`true];
+  res:.http.get.simpleX[("segments/{}/leaderboard";segId);enlist[`following]!enlist`true];      / http rquest for segment leaderboard
   :([]segmentId:(),segId)cross select athlete:athlete_name,time:"v"$elapsed_time from res`entries; / get required columns
  };
 

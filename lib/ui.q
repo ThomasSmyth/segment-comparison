@@ -50,16 +50,17 @@
 
 .ui.execdict:{[dict]                                                                            / [params] execute request based on passed dict of parameters
   // move init to .z.o
+  `dt set dict;
   if[count cl:`after`before`summary`include_map except key dict;
     .log.e("missing parameters {}";", "sv string cl);
-   ];
+  ];
 
   .log.o"executing query";                                                                      / execute query using parsed params
-  data:@[.ui.exectimeit;.ui.defaults dict;{.log.e("Didn't execute due to {}";dict)}];
+  data:@[.ui.exectimeit;.ui.defaults dict;{.log.e("Didn't execute due to {}";x)}];
 
   .log.o("returning {} results";count data[`data;`data]);
   :data;
-  };
+ };
 
 .ui.evaluate:{@[.ui.execdict;x;{enlist[`error]!enlist x}]}                                      / evaluate incoming data from websocket, outputting errors to front end
 
