@@ -5,8 +5,12 @@
 
 .http.hu:.h.hug .Q.an,"-.~";                                                                    / URI escaping for non-safe chars, RFC-3986
 
+.http.unixTS:{(-).`long$("p"$x;1970.01.01D00:00)%1e9};                                          / [date] convert date to unix timestamp
+
 .http.urlencode:{[d]                                                                            / [dict of params]
   if[0=count d;:""];                                                                            / return empty string if no params are passed
+  if[`before in key d;d[`before]+:1];                                                           / bump end date by 1 day for inclusive range
+  d:@[d;`before`after;.http.unixTS];                                                            / convert dates to unix timestamps
   v:enlist each .http.hu each{$[10=type x;;string]x}'[v:value d];                               / string any values that aren't stringed,escape any chars that need it
   k:enlist each$[all 10=type'[k];;string]k:key d;                                               / if keys aren't strings, string them
   :raze" -d ",/:"="sv'k,'v;                                                                     / return urlencoded form of dictionary

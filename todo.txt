@@ -33,3 +33,4 @@
 
 * clear elements instead of redrawing map
 * custom marker for each athlete (store photo in tempdir)
+* use different colours for user + all others

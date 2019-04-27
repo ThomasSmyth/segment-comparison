@@ -1,9 +1,7 @@
 / return leaderboard tables
 
-.ldr.main:{[dict]                                                                               / [dict]
-  raw:.ldr.raw . dict`current_athlete`after`before;                                             / retrieve raw leaderboard for given date range
-  data:0!.ldr.display[`default`summary dict`summary][dict`current_athlete;raw];                 / display data using chosen method
-  :data;
+.ldr.main:{[raw;dict]                                                                           / [raw data;dict] format leaderboard for front end
+  :0!.ldr.display[`default`summary dict`summary][dict`current_athlete;raw];                     / display data using chosen method
  };
 
 .ldr.display.default:{[id;data]                                                                 / [athlete id;data] display best times
@@ -20,8 +18,7 @@
   :`total xdesc update", "sv/:segments from data;                                               / comma separate values
  };
 
-.ldr.map:{[dict]                                                                                / [dict] get streams and markers for all segments in date range
-  data:.ldr.raw . dict`current_athlete`after`before;                                            / get raw leaderboard
+.ldr.map:{[data;dict]                                                                           / [raw data;dict] get streams and markers for all segments in date range
   sm:update name:.html.a.segment'[id;name]from .data.load[dict`current_athlete;`segments];      / segment id mapping
   strms:update{2 cut raze x}'[stream]from .data.load[dict`current_athlete;`segStreams];
   strms:update mark:{first[y],enlist[x[z]`name],z}[sm]'[stream;id]from strms;                   / add marker for segment start
@@ -33,9 +30,14 @@
   :p;
  };
 
-.ldr.raw:{[id;start;end]                                                                        / [athlete id;start;end] return raw leaderboards
+.ldr.raw:{[id;start;end;al]                                                                     / [athlete id;start;end;athlete list] return raw leaderboards
   .log.o"returning raw leaderboard";
   data:@[;`athlete;`$]0!.data.leaderboard.get[id;start;end];                                    / get leaderboards
+  :select from data where 1<(count;i)fby segmentId;                                             / return segments with more then 1 entry on leaderboard
+ };
+
+.ldr.filterRaw:{[data;al]
+  if[count al;data:select from data where athlete in al];                                       / filter athletes
   :select from data where 1<(count;i)fby segmentId;                                             / return segments with more then 1 entry on leaderboard
  };
 

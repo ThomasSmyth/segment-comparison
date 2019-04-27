@@ -12,19 +12,12 @@
 .var.sleepTime:60;                                                                              / how long to sleep if ratelimited by Strava API
 
 .var.urlRoot:"curl -sG https://www.strava.com/api/v3/";
-.var.athlete.current:();
-.var.athleteList:();
+.var.athlete.current:0Ni;                                                                       / ID of current user
 
-.cache.segByAct:()!();
+// Cached data (may need retrieve from disk instead)
+.cache.segByAct:()!();                                                                          / store all segments by activity
+.cache.followers:([id:`long$()]name:());                                                        / store follower ids
 
+// Logging
 .log.logfile:.utl.p.symbol .var.logdir,`$.utl.sub("log_{}";"_"^.Q.n .Q.n?16#string .z.p);       / log file
 .log.write:1b;
-
-.var.defaults:flip`vr`vl`fc!flip(
-  (`summary        ; 0b   ; ("false";"true")                                        );          / summarise results
-  (`include_map    ; 0b   ; ("false";"true")                                        );          / show map
-  (`after          ; 0Nd  ; {string(-).`long$(`timestamp$x;1970.01.01D00:00)%1e9}   );          / start date
-  (`before         ; 0Nd  ; {string(-).`long$(`timestamp$1+x;1970.01.01D00:00)%1e9} );          / end date
-  (`athlete_id     ; (),0N; string                                                  );          / filter athletes
-  (`current_athlete; 0N   ; {::}                                                    )           / current athlete
- );

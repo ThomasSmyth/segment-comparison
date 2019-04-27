@@ -48,14 +48,11 @@ function getInputs() {
   var startdate     = $('#startdate input').val(),
       enddate       = $('#enddate input').val(),
       athlete_Id    = $('#athleteId').val()
-      clubvals      = [],
-      following     = [],
       include_map   = [],
       summary       = [],
 
   // Add values from grouping,region & custtype filter to their respective array
   $('#summary .checklist input:checked').each(function(a,b){summary.push($(b).val());});
-  $('#following .checklist input:checked').each(function(a,b){following.push($(b).val());});
   $('#include_map .checklist input:checked').each(function(a,b){include_map.push($(b).val());});
 
   // Add checkbox values to appropriate array depending on whether "All" option is checked
@@ -64,10 +61,8 @@ function getInputs() {
   return {
     after: startdate,
     before: enddate,
-    club_id: clubvals,
     athlete_id: athletevals,
     summary: summary,
-    following: following,
     include_map: include_map,
   }
 }
@@ -184,9 +179,9 @@ ws.onmessage = function (event) {
         $('#athlete-filter').append('<div class="col-md-2">Athletes</div>');
         $('#athlete-filter').html("");
         extradata.forEach(function(a){
-          $('#athlete-filter').append('<div class="checklist"><label><input type="checkbox" value="'+a.id+'">'+a.name+'</label></div>');
+          $('#athlete-filter').append('<div class="checklist"><label><input class="cl33" type="checkbox" value="'+a.id+'">'+a.name+'</label></div>');
         });
-        $('#athlete-filter').append('<div class="checklist"><label><input type="checkbox" value="all">All Athletes</label></div>');
+        $('#athlete-filter').append('<div class="checklist"><label><input class="cl33" type="checkbox" value="all">All Athletes</label></div>');
       }
     }
 

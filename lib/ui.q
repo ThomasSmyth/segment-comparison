@@ -6,7 +6,7 @@
   .log.o"running query";
   params:dict`current_athlete`after`before;
   `params set params;
-  act:.data.athlete.activities . params;                                                        / get list of activities for current athlete
+  .data.athlete.activities . params;                                                            / get list of activities for current athlete
   .data.activity.segments . params;                                                             / get segments for selected activities
   .data.segments.leaderboards . params;                                                         / get segment leaderboards
   if[dict`include_map;
@@ -20,14 +20,18 @@
 
   .log.o("query parameters: {}";.Q.s1 0N!dict);                                                 / display formatted query parameters
 
+  `rawinp set dict;
   .ui.handleInput dict;                                                                         / get leaderboards
   / replace with handler for leaderboards and maps
-  data:.ldr.main dict;
+  raw:.ldr.raw . dict`current_athlete`after`before`athlete_list;
+  al:asc distinct[raw`athlete]except dict`athlete_name;                                         / list of athletes for filter
+  raw:.ldr.filterRaw[raw;dict`athlete_list];
+  data:.ldr.main[raw;dict];
 
-  output,:`extraname`extradata!(`athletes;{flip`id`name!(x;x)}1_data`athlete);                  / get athletes for filter
+  output,:`extraname`extradata!(`athletes;{flip`id`name!(x;x)}al);                              / get athletes for filter
 
   output,:.ui.format[`table;(`time`rows`data)!(`int$(.z.p-start)%1000000;count data;data)];     / Send formatted table
-  if[dict`include_map;output,:.ldr.map dict];                                                   / create map from result subset
+  if[dict`include_map;output,:.ldr.map[raw;dict]];                                              / create map from result subset
   `:npo set output;
   :output;
  };
@@ -40,12 +44,14 @@
   };
 
 .ui.defaults:{[dict]                                                                            / [dict] return existing parameters in correct format
-  dict[`current_athlete]:.http.athlete.current[]`id;                                            / add id for current athlete
+  kl:`summary`include_map`before`after`athlete_name`athlete_list`current_athlete;               / allowed keys
+  dict[`current_athlete`athlete_name]:.http.athlete.current[]`id`name;                          / add id for current athlete
   dict:@[dict;`before`after;.z.d^"D"$];                                                         / parse passed date range
   if[(<). dict`before`after;:.log.e"before and after timestamps are invalid"];                  / validate date range
-  dict:{@[x;y;:;0<count each x y]}[dict;`include_map`summary];
-  def:(!). .var.defaults`vr`vl;                                                                 / defaults value for parameters
-  :.Q.def[def]string key[def]#def,dict;                                                         / return valid optional parameters
+  dict:@[dict;`include_map`summary;0<count@];                                                   / check for boolean keys
+  dict[`athlete_name]:` sv dict[`athlete_name],`;
+  dict[`athlete_list]:$[count dict`athlete_id;dict[`athlete_name],`$dict`athlete_id;()];        / list of valid athletes to return
+  :kl#dict;                                                                                     / return required keys
  };
 
 .ui.execdict:{[dict]                                                                            / [params] execute request based on passed dict of parameters
