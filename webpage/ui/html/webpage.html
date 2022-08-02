@@ -21,52 +21,11 @@
     <div class="container">
       <div class="row">
         <div class="col-md-12"><h2>Strava Segment Comparison Tool</h2></div>
-        <div class="col-md-12"><h4>Filter By</h4></div>
       </div>      
-      <div class="row">
-        <div class="col-md-3">
-          <h4>Start Date</h4>
-          <div class="input-append date" id="startdate" data-date="-1d" data-date-format="yyyy.mm.dd">
-            <input class="span2" size="16" type="text" value="">
-            <span class="add-on glyphicon glyphicon-calendar"></span>
-          </div>
-        </div>
-        <div class="col-md-3">
-          <h4>End Date</h4>
-          <div class="input-append date" id="enddate" data-date="+0d" data-date-format="yyyy.mm.dd">
-            <input class="span2" size="16" type="text" value="">
-            <span class="add-on glyphicon glyphicon-calendar"></span>
-          </div>
-        </div>        
-      </div>     
       <div class="row">
         <div class="col-md-1 col-md-offset-10"><a href="http://localhost:5700/export.csv?export" class="btn btn-primary btn-md disabled" id="export" alt="Save CSV file of most recent query">Export</a></div> 
         <div class="col-md-1 "><button type="button" class="btn btn-primary btn-md" id="submit" alt="Submit query" disabled>Submit</button></div> 
       </div>
-      <div class="checkz" id="segName" style="display:none;">
-      </div>      
-      <div class="checkz" id="include_map" style="display:none;">
-        <div class="checklist"><label><input type="checkbox" value="include_map">Include Map</label></div>
-      </div>      
-      <div class="checkz" id="summary" style="display:none;">
-        <div class="checklist"><label><input type="checkbox" value="summary">Summarise Results</label></div>
-      </div>      
-      <div class="checkz" id="following" style="display:none;">
-        <div class="checklist"><label><input type="checkbox" value="following">Include Following</label></div>
-      </div>      
-      <div class="checkz" id="include_clubs" style="display:none;">
-        <div class="checklist"><label><input type="checkbox" value="include_clubs">Include Clubs</label></div>
-      </div>      
-      <div class="col-md-3 multi-select-checkbox" id="clubs-filter" style="display:none;">
-      </div>      
-      <div class="col-md-3 multi-select-checkbox" id="athlete-filter" style="display:none;">
-      </div>      
-      <div class="row stats">
-        <div class="col-md-2">Table stats</div> 
-        <div class="col-md-10">
-          <ul id="tblstats"></ul>   
-        </div> 
-      </div>      
       <div class="row"> 
         <div class="col-md-12" id="connecting"><h4 style="text-align:center;">Connecting...</h4></div>
         <div id="processing" style="display:none;"><h4 style="text-align:center;">Processing Query...</h4></div>
