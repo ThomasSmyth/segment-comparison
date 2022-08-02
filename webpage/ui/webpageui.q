@@ -10,24 +10,6 @@ exectimeit:{[dict]                                                              
 
   data:0!.segComp.leaderboard.raw dict;                                                         / return raw leaderboard data
 
-  `export set data;
-
-  if[not (asc ids:"J"$string 2_cols[data])~asc .var.athleteList;
-    if[0<count .return.clubs;
-      .log.out"Creating data for athletes checklist";
-      value `.var.athleteList set ids;
-      output,:`extraname`extradata!(`athletes;0!select from .cache.athletes where id in ids);
-    ];
-  ];
-
-  id:dict`athlete_id;
-
-  if[(0<count id)&(any id in ids);
-    cb:`$string id;
-    cn:`Segment,`$string (.return.athleteData[][`id]),cb;
-    cond:enlist (~:),enlist $[1=count cb; (^:),cb; (&),(^:),/:cb];
-    export::data:?[data;cond;0b;cn!cn]];
-
   res:$[dict`summary;                                                                           / check if summary has been specified
     [export::.segComp.summary.raw data;                                                         / update export table
      .segComp.summary.html data];                                                               / return summary
@@ -36,7 +18,7 @@ exectimeit:{[dict]                                                              
   res:(`int$(.z.p - start)%1000000; count res; res);
   output,:format[`table;(`time`rows`data)!res];                                                 / Send formatted table
 
-  if[dict`include_map; output,:.return.mapDetails data];                                        / create map from result subset
+  output,:.return.mapDetails[];                                                                 / create map from result subset
 
   `od set data;
   `oo set output;
@@ -44,8 +26,8 @@ exectimeit:{[dict]                                                              
  };
 
 / TODO return URL for map marker
-.return.mapDetails:{[data]
-  aths:.return.athleteName each "J"$ string 1_cols data;
+.return.mapDetails:{[]
+  aths:enlist .return.athleteData[]`fullname;
   .log.out"retrieving segment streams";
   lines:enlist .return.stream.segment each ids:exec id from .return.segments.starred[];
   marks:{(first each x),'(enlist each .return.segmentName each y),'(y)}'[lines;enlist ids];
@@ -70,11 +52,6 @@ execdict:{                                                                      
       .var.athleteList:();                                                                      / clear athleteList for new connections
       .return.athleteData[];                                                                    / get athlete data
       res:format[`init;dbstats[]];
-      // need some logic here to deal with no followers/clubs
-/      if[count cb:0!.return.clubs[];
-/        res[`extraname]:`clubs;
-/        res[`extradata]:cb;
-/      ];
       `res1 set res;
       :res;
     ];
@@ -91,13 +68,10 @@ execdict:{                                                                      
   x[`include_clubs]:"include_clubs" in enlist x`include_clubs;
   x[`following]:"following" in enlist x`following;
   x[`summary]:"summary" in enlist x`summary;
-  / TODO list all athlete clubs from API?
-/  if[0=count .return.clubs[]; x[`following]:1b];
-/  if[0=count x`club_id; x[`club_id]:exec id from .return.clubs[]];
   x:.return.clean x;                                                                            / return parameters in correct format
   r:.return.athleteData[];
   x[`athlete_id]:r`id;
-  `.cache.athletes upsert(r`id;`$" "sv r`firstname`lastname);
+  `.cache.athletes upsert r`id`fullname;
 
   `clean_dict set x;
 
