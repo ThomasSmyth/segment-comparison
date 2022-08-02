@@ -38,14 +38,17 @@ exectimeit:{[dict]                                                              
 
   if[dict`include_map; output,:.return.mapDetails data];                                        / create map from result subset
 
+  `od set data;
+  `oo set output;
   :output;
  };
 
+/ TODO return URL for map marker
 .return.mapDetails:{[data]
   aths:.return.athleteName each "J"$ string 1_cols data;
   .log.out"retrieving segment streams";
-  lines:{.return.stream.segment each x} each ids:exec Segments from .segComp.summary.raw data;
-  marks:{(first each x),'(enlist each .return.segmentName each y),'(y)}'[lines;ids];
+  lines:enlist .return.stream.segment each ids:exec id from .return.segments.starred[];
+  marks:{(first each x),'(enlist each .return.segmentName each y),'(y)}'[lines;enlist ids];
   bounds:(min;max)@\: raze raze lines;
   :`plottype`polyline`markers`names`bounds!(`lineMarkers;lines;marks;aths;bounds);
  };
@@ -62,15 +65,16 @@ execdict:{                                                                      
 
   if[not all `after`before`club_id`athlete_id`following`include_map`include_clubs in key x;
     if[`init in key x;
-      .log.out "new connection made";
+      / use .z.wo instead of init?
+      .log.out "New connection made";
       .var.athleteList:();                                                                      / clear athleteList for new connections
       .return.athleteData[];                                                                    / get athlete data
       res:format[`init;dbstats[]];
       // need some logic here to deal with no followers/clubs
-      if[count cb:0!.return.clubs[];
-        res[`extraname]:`clubs;
-        res[`extradata]:cb;
-      ];
+/      if[count cb:0!.return.clubs[];
+/        res[`extraname]:`clubs;
+/        res[`extradata]:cb;
+/      ];
       `res1 set res;
       :res;
     ];
@@ -82,17 +86,22 @@ execdict:{                                                                      
   x:@[x;`club_id`athlete_id;"J"$];
   `valid_dict set x;
 
-  x[`include_map]:"include_map" in enlist x`include_map;
+/  x[`include_map]:"include_map" in enlist x`include_map;
+  x[`include_map]:1b;
   x[`include_clubs]:"include_clubs" in enlist x`include_clubs;
   x[`following]:"following" in enlist x`following;
   x[`summary]:"summary" in enlist x`summary;
-  if[0=count .return.clubs[]; x[`following]:1b];
-  if[0=count x`club_id; x[`club_id]:exec id from .return.clubs[]];
+  / TODO list all athlete clubs from API?
+/  if[0=count .return.clubs[]; x[`following]:1b];
+/  if[0=count x`club_id; x[`club_id]:exec id from .return.clubs[]];
   x:.return.clean x;                                                                            / return parameters in correct format
+  r:.return.athleteData[];
+  x[`athlete_id]:r`id;
+  `.cache.athletes upsert(r`id;`$" "sv r`firstname`lastname);
 
   `clean_dict set x;
 
-  .log.out "Running query";                                                                     / run function using params
+  .log.out "Runningquery";                                                                     / run function using params
   data:@[exectimeit; x; {.log.error"Didn't execute due to ",x}];
 
   `processed set data;
@@ -102,7 +111,15 @@ execdict:{                                                                      
 
 evaluate:{@[execdict;x;{(enlist `error)!(enlist x)}]}                                           / evaluate incoming data from websocket, outputting erros to front end
 
+.z.wo:{
+  .log.out"Websocket opened from ","."sv string"i"$0x0 vs .z.a;
+ };
+.z.wc:{
+  .log.out"Websocket closed"
+ };
+
 .z.ws:{                                                                                         / websocket handler
+  .log.out"ws query";
   `wsquery set .j.k -9!x;
   neg[.z.w] -8!.j.j `name`data!(`processing;());
   neg[.z.w] -8!.j.j[evaluate[.j.k -9!x]];

@@ -80,7 +80,7 @@
   if[0=count .cache.activities;
     act:.connect.pagination["activities";""];
     data:{select `long$id, name, "D"$10#start_date, commute from x} each act where not act@\:`manual;
-    .log.out"retrieved ",string[count data]," activities from strava";
+    .log.out"retrieved ",string[count data]," activities from Strava API";
     `.cache.activities upsert data;
     .disk.saveCache[`activities] .cache.activities;
   ];
@@ -91,6 +91,15 @@
 
 .return.activityDetail:{[id]
   :.connect.simple["activities/",string id;""];
+ };
+
+/ return all starred segments for current athlete and cache
+.return.segments.starred:{
+  if[count .cache.segments;:.cache.segments];
+  starred:.connect.pagination["segments/starred";""];
+  / upsert to cache
+  `.cache.segments upsert s:@[`id`name`starred#/:starred;`id;`long$];
+  :.cache.segments;
  };
 
 .return.segments.activity:{[n]
@@ -152,7 +161,7 @@
     .log.out"Returning cached club data";
     :.cache.clubs;
   ];
-  .log.out"Returning club data from strava.com";
+  .log.out"Returning club data from Strava API";
   `.cache.clubs upsert rs:select `long$id, name from .return.athleteData[][`clubs];
   .disk.saveCache[`clubs] .cache.clubs;
   :`id xkey rs;
@@ -160,7 +169,7 @@
 
 .return.athleteData:{[]
   if[0<count .var.athleteData; :.var.athleteData];                                              / return cached result if it exists
-  .log.out"Retrieving Athlete Data from Strava.com";
+  .log.out"Retrieving Athlete Data from Strava API";
   ad:.connect.simple["athlete";""];
   ad[`fullname]:`$" " sv ad[`firstname`lastname];                                               / add fullname to data
   ad:@[ad;`id;`long$];                                                                          / return athlete_id as type long
@@ -169,8 +178,8 @@
  };
 
 .return.stream.segment:{[segId]
-//  .log.out"Retrieving stream for segment: ",string[segId];
-  if[0<count res:raze exec data from .cache.streams.segments where id = segId; :res];
+  .log.out"Retrieving stream for segment: ",string[segId];
+  if[0<count res:raze exec data from .cache.streams.segments where id=segId;:res];
   stream:first .connect.simple["segments/",string[segId],"/streams/latlng";""];
   data:stream`data;
   `.cache.streams.segments upsert (segId;data);

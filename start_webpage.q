@@ -6,7 +6,9 @@ if[()~key hsym `$getenv[`SVAHOME],"/settings/token.txt";
  ];
 
 .startup.loadFile:{[v;f]                                                                        / load file
-  :@[system;"l ",getenv[v],"/",f;{y; -1"Failed to load ",x;exit 1}f];
+  fn:getenv[v],"/",f;
+  -1 "Loading ",fn;
+  :@[system;"l ",fn;{y; -1"Failed to load ",x;exit 1}f];
  };
 
 .startup.loadFile[`SVAHOME] "/settings/variables.q";                                            / load variables
