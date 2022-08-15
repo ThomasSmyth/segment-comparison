@@ -180,7 +180,6 @@ ws.onmessage = function (event) {
 
     // Enable submit button 
     $('#submit').attr("disabled",false);
-    $('#map_placeholder').hide();
    
     if(edata.hasOwnProperty('extradata')){
       if(extraname === 'clubs'){
@@ -207,9 +206,6 @@ ws.onmessage = function (event) {
  
     // Map handling functionality
     if(edata.hasOwnProperty('plottype')){
-
-      $('#map_placeholder').show();
-      $('#map_placeholder').html("").append('<div id="map"></div>');
 
       if(plottype === 'polyline'){
         plotLines(polyline);

@@ -7,22 +7,25 @@ exectimeit:{[dict]                                                              
 
   .log.out"Attempting to map starred segments";
 
-  res:([]Segment:();ABC:());
-
-  res:(`int$(.z.p - start)%1000000; count res; res);
+  starred:.return.segmentsToPlot[];
+  res:(`int$(.z.p - start)%1000000; count starred; starred);
   output,:format[`table;(`time`rows`data)!res];                                                 / Send formatted table
 
-  output,:.return.mapDetails[];                                                                 / create map from result subset
+  output,:.return.mapDetails exec id from starred;                                              / create map from result subset
 
   `oo set output;
   :output;
  };
 
-.return.mapDetails:{[]
+.return.segmentsToPlot:{[]
+  starred:.return.segments.starred[];
+/  ids:(exec id from starred) except .return.athlete.koms[]`id;
+  :starred;
+ };
+
+.return.mapDetails:{[ids]
   aths:enlist .return.athlete.data[]`fullname;
   .log.out"retrieving segment streams";
-  starred:exec id from .return.segments.starred[];
-  ids:starred except .return.athlete.koms[]`id;
   lines:enlist .return.stream.segment each ids;
   marks:{(first each x),'(enlist each .return.html.segmentURL each y),'(y)}'[lines;enlist ids];
   bounds:(min;max)@\: raze raze lines;
@@ -30,7 +33,6 @@ exectimeit:{[dict]                                                              
  };
 
 dbstats:{([]field:("Date Range";"Meter Table Count");val:(((string .z.d)," to ",string .z.d);{reverse "," sv 3 cut reverse string x}[0]))}
-
 
 format:{[name;data]                                                                             / Format dictionary to be encoded into json
     (`name`data)!(name;data)
