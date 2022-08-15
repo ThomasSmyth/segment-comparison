@@ -1,4 +1,4 @@
-// Strava Segment Comparison Tool
+// Strava Starred Segment Mapper
 
 // Helper functions 
 // Format json data into HTML table
@@ -122,7 +122,7 @@ function plotMarkers(athlete, markArray){
   marksLayerGroup = L.layerGroup();
 
   markArray.forEach(function(mark){
-    marksLayerGroup.addLayer(L.marker([mark[0],mark[1]]).bindPopup(mark[2])).addTo(map);
+    marksLayerGroup.addLayer(L.circleMarker([mark[0],mark[1]],{color:'green',radius:4,fillOpacity:1}).bindPopup(mark[2])).addTo(map);
   });
     
   layerControl.addOverlay(marksLayerGroup, athlete.concat(" markers"));
@@ -142,10 +142,10 @@ function plotMarkerLines(athletes, bounds, markArray, lineArray){
 
   for (var i = 0; i < markArray.length; i++ ) 
   {
-    // add markers to map
-    plotMarkers(athletes[i], markArray[i]);
     // add lines to map 
     plotLines(athletes[i], lineArray[i]);
+    // add markers to map
+    plotMarkers(athletes[i], markArray[i]);
   }
 
 }
