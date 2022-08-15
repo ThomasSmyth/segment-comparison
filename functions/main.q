@@ -5,7 +5,7 @@
   if[count .cache.segments;:.cache.segments];
   starred:.connect.pagination["segments/starred";""];
   / upsert to cache
-  `.cache.segments upsert s:@[`id`name`starred#/:starred;`id;`long$];
+  `.cache.segments upsert @[`id`name`starred#/:starred;`id;`long$];
   :.cache.segments;
  };
 
@@ -19,9 +19,7 @@
   :.h.ha["http://www.strava.com/segments/",string id] .return.segmentName[id];
  };
 
-.return.athleteName:{[id] first value .cache.athletes id};
-
-.return.athleteData:{[]
+.return.athlete.data:{[]
   if[0<count .var.athleteData; :.var.athleteData];                                              / return cached result if it exists
   .log.out"Retrieving Athlete Data from Strava API";
   ad:.connect.simple["athlete";""];
@@ -31,6 +29,12 @@
   :ad;
  };
 
+.return.athlete.koms:{[]
+  id:.return.athlete.data[]`id;
+  kom:.connect.pagination["athletes/",string[id],"/koms";""];
+  :@[`id`name`starred#/:kom@\:`segment;`id;`long$];
+ };
+
 .return.stream.segment:{[segId]
   .log.out"Retrieving stream for segment: ",string[segId];
   if[0<count res:raze exec data from .cache.streams.segments where id=segId;:res];
@@ -38,14 +42,5 @@
   data:stream`data;
   `.cache.streams.segments upsert (segId;data);
   .disk.saveCache[`seg_streams] .cache.streams.segments;
-  :data;
- };
-
-.return.stream.activity:{[actId]
-  if[0<count res:raze exec data from .cache.streams.activities where id = actId; :res`data];
-  aa:first .connect.simple["activities/",string[actId],"/streams/latlng";""];
-  data:aa`data;
-  `.cache.streams.activities upsert (actId;data);
-  .disk.saveCache[`act_streams] .cache.streams.activities;
   :data;
  };

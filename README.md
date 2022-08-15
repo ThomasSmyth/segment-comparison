@@ -1,2 +1,2 @@
-# segment_comparison
-Strava tool to compare all segments between followers and clubs
+# Starred segment mapper for Strava
+Strava tool to map all starred segments.

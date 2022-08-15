@@ -19,9 +19,11 @@ exectimeit:{[dict]                                                              
  };
 
 .return.mapDetails:{[]
-  aths:enlist .return.athleteData[]`fullname;
+  aths:enlist .return.athlete.data[]`fullname;
   .log.out"retrieving segment streams";
-  lines:enlist .return.stream.segment each ids:exec id from .return.segments.starred[];
+  starred:exec id from .return.segments.starred[];
+  ids:starred except .return.athlete.koms[]`id;
+  lines:enlist .return.stream.segment each ids;
   marks:{(first each x),'(enlist each .return.html.segmentURL each y),'(y)}'[lines;enlist ids];
   bounds:(min;max)@\: raze raze lines;
   :`plottype`polyline`markers`names`bounds!(`lineMarkers;lines;marks;aths;bounds);
@@ -38,10 +40,9 @@ execdict:{                                                                      
   `inputs set x;
 
   if[`init in key x;
-    / use .z.wo instead of init?
+    / use .z.wo instead of init? and use for Oauth page
     .log.out "New connection made";
-    .var.athleteList:();                                                                      / clear athleteList for new connections
-    .return.athleteData[];                                                                    / get athlete data
+    .return.athlete.data[];                                                                     / get athlete data
     res:format[`init;dbstats[]];
     `res1 set res;
 /     :res;

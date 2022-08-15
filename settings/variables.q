@@ -14,16 +14,9 @@
 .var.accessToken:@[{first read0 x};` sv .var.homedir,`settings`token.txt;{x;log.error"no token file"}];
 .var.commandBase:"curl -sG https://www.strava.com/api/v3/";
 .var.athleteData:();
-.var.athleteList:();
 
-.cache.leaderboards:([segmentId:`long$(); resType:`$(); resId:`long$()] res:());
-.cache.activities:([id:`long$()] name:(); start_date:`date$(); commute:`boolean$());
-.cache.segByAct:()!();
 .cache.segments:([id:`long$()] name:(); starred:`boolean$());
-.cache.clubs:([id:`long$()] name:());
-.cache.athletes:([id:`long$()] name:());
 .cache.streams.segments:([id:`long$()] data:());
-.cache.streams.activities:([id:`long$()] data:());
 
 .var.defaults:flip `vr`vl`fc!flip (
   (`starred      ; 0b   ; ("false";"true")                                        );            / show starred segments

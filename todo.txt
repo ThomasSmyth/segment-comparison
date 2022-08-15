@@ -2,37 +2,35 @@
 
 // v1 //
 
-* store results to hdb, cache in memory when user connects
-    * activities
-    * segments
-    * streams
-* allow user to saved results
-* add link to segment on map
+- [ ] store results to partitioned hdb?
+    - [ ] list of starred segments
+    - [ ] segment streams
+- [ ] consider caching in memory when user connects
+- [ ] map should always be present?
+- [ ] add smaller start markers (green)
+- [ ] add end markers for segments (red)
+- [ ] add table of starred segments below map
+- [ ] store additional segment info such as length, grade, etc
+- [ ] add better error trapping for failed pagination requests
 
 // v2 //
 
-* colour segments on map
-* user coloured markers for beginnings
-* place segment and athlete filters in scrollable boxes
+- [ ] Have table be scrollable
+- [ ] Mousing over segment in table highlights segment on map (different colour or bold)
+- [ ] Add filters to show segments by length, grade, etc 
+- [ ] Add search bar to filter segments
+- [ ] Add better error handling, potentially having connection functions return a dictionary `pass`data!(1b;())
 
 // v3 //
 
-* create and host webpage on local server
-* create splash page to allow users to authenticate
-* if user is following no athletes then return error (lock submit button)
+- [ ] create and host webpage on local server
+- [ ] create splash page to allow users to authenticate via oauth
 
 // additional //
 
-* Add flag to segment comparison to only use starred segments
-* Add option to exclude commutes from activity list used in .return.segments
-* return time to webpage with preceding 0s dropped
-* webpage port for xls/csv export should be dynamically created
-* set default start/end date on webpage
-* replace mark with colour defined in tr tag (gold, silver, bronze), 2 methods:
-    * new js function that take second table with 1 2 3 for positions to colour and 0 from standard colour
-    * q function to string each table row and add tags with colours
+- [ ] return time to webpage with preceding 0s dropped
+- [ ] allow line colour to be picked by user
 
 // map //
 
-* clear elements instead of redrawing map
-* custom marker for each athlete (store photo in tempdir)
+- [ ] clear elements instead of redrawing map
