@@ -4,8 +4,11 @@
 .return.segments.starred:{
   if[count .cache.segments;:.cache.segments];
   starred:.connect.pagination["segments/starred";""];
+  / get required fields
+  data:`id`name`distance`average_grade`maximum_grade`elevation_high`elevation_low`climb_category#/:starred;
+  data:@[data;`id;`long$];
   / upsert to cache
-  `.cache.segments upsert @[`id`name`starred#/:starred;`id;`long$];
+  `.cache.segments upsert data;
   :.cache.segments;
  };
 

@@ -9,22 +9,26 @@
 - [ ] map should always be present?
 - [ ] add smaller start markers (green)
 - [ ] add end markers for segments (red)
-- [ ] add table of starred segments below map
-- [ ] store additional segment info such as length, grade, etc
-- [ ] add better error trapping for failed pagination requests
+- [X] add table of starred segments below map
+- [X] Add links to segments from table
+- [X] store additional segment info such as length, grade, etc
+- [X] failed pagination requests should throw an error
+- [ ] Set distance based on athletes preferred units
 
 // v2 //
 
-- [ ] Have table be scrollable
+- [X] Have table be scrollable
 - [ ] Mousing over segment in table highlights segment on map (different colour or bold)
 - [ ] Add filters to show segments by length, grade, etc 
 - [ ] Add search bar to filter segments
 - [ ] Add better error handling, potentially having connection functions return a dictionary `pass`data!(1b;())
+- [ ] add better error trapping for failed pagination requests
 
 // v3 //
 
 - [ ] create and host webpage on local server
 - [ ] create splash page to allow users to authenticate via oauth
+- [ ] cache starred segments on connect, remove on disconnect? Or store permanently and allow user to sync every so often
 
 // additional //
 

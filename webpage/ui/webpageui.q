@@ -11,7 +11,7 @@ exectimeit:{[dict]                                                              
   res:(`int$(.z.p - start)%1000000; count starred; starred);
   output,:format[`table;(`time`rows`data)!res];                                                 / Send formatted table
 
-  output,:.return.mapDetails exec id from starred;                                              / create map from result subset
+  output,:.return.mapDetails[starred];                                                          / create map from result subset
 
   `oo set output;
   :output;
@@ -20,12 +20,14 @@ exectimeit:{[dict]                                                              
 .return.segmentsToPlot:{[]
   starred:.return.segments.starred[];
 /  ids:(exec id from starred) except .return.athlete.koms[]`id;
+  starred:update name:.return.html.segmentURL'[id] from starred;
   :starred;
  };
 
-.return.mapDetails:{[ids]
+.return.mapDetails:{[segments]
   aths:enlist .return.athlete.data[]`fullname;
   .log.out"retrieving segment streams";
+  ids:exec id from segments;
   lines:enlist .return.stream.segment each ids;
   marks:{(first each x),'(enlist each .return.html.segmentURL each y),'(y)}'[lines;enlist ids];
   bounds:(min;max)@\: raze raze lines;

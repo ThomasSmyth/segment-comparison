@@ -15,18 +15,12 @@
 .var.commandBase:"curl -sG https://www.strava.com/api/v3/";
 .var.athleteData:();
 
-.cache.segments:([id:`long$()] name:(); starred:`boolean$());
+.cache.segments:([id:`long$()] name:(); distance:(); average_grade:(); maximum_grade:(); elevation_high:(); elevation_low:(); climb_category:(); starred:`boolean$());
 .cache.streams.segments:([id:`long$()] data:());
 
 .var.defaults:flip `vr`vl`fc!flip (
   (`starred      ; 0b   ; ("false";"true")                                        );            / show starred segments
   (`summary      ; 0b   ; ("false";"true")                                        );            / summarise results
-  (`following    ; 0b   ; ("false";"true")                                        );            / compare with those followed
-  (`include_map  ; 0b   ; ("false";"true")                                        );            / show map
-  (`include_clubs; 0b   ; ("false";"true")                                        );            / for club comparison
-  (`after        ; 0Nd  ; {string (-/)`long$(`timestamp$x;1970.01.01D00:00)%1e9}  );            / start date
-  (`before       ; 0Nd  ; {string (-/)`long$(`timestamp$1+x;1970.01.01D00:00)%1e9});            / end date
-  (`club_id      ; (),0N; string                                                  );            / for club comparison
   (`athlete_id   ; (),0N; string                                                  );            / filter athletes
   (`segment_id   ; 0N   ; string                                                  )             / segment to compare on
  );
