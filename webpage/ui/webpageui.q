@@ -28,9 +28,10 @@ exectimeit:{[dict]                                                              
   .log.out"retrieving segment streams";
   ids:exec id from segments;
   lines:enlist .return.stream.segment each ids;
-  marks:{[line;id]first'[line],'enlist'[.return.html.segmentURL each id]}'[lines;enlist ids];
-  bounds:(min;max)@\: raze raze lines;
-  :`plottype`polyline`markers`bounds!(`lineMarkers;lines;marks;bounds);
+  names:enlist .return.html.segmentURL each ids;
+  marks:first''[lines];
+  bounds:(min;max)@\:raze raze lines;
+  :`plottype`polyline`markers`segmentnames`bounds!(`lineMarkers;lines;marks;names;bounds);
  };
 
 dbstats:{([]field:("Date Range";"Meter Table Count");val:(((string .z.d)," to ",string .z.d);{reverse "," sv 3 cut reverse string x}[0]))}

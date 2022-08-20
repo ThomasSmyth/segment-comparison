@@ -130,19 +130,24 @@ function plotLines(layerName, lineArray){
 
 }
 
-function plotMarkers(layerName, markArray){
+function plotMarkers(layerName, segmentNameArray, markArray, colour){
   // loop over each marker and add to map
   marksLayerGroup = L.layerGroup();
 
-  markArray.forEach(function(mark){
-    marksLayerGroup.addLayer(L.circleMarker([mark[0],mark[1]],{color:'green',radius:4,fillOpacity:1}).bindPopup(mark[2])).addTo(map);
-  });
+//  markArray.forEach(function(mark){
+//    marksLayerGroup.addLayer(L.circleMarker([mark[0],mark[1]],{color:'green',radius:4,fillOpacity:1}).bindPopup(segmentNameArray[0])).addTo(map);
+//  });
+  for (var i = 0; i < segmentNameArray.length; i++ ) 
+  {
+    mark = markArray[i];
+    marksLayerGroup.addLayer(L.circleMarker([mark[0],mark[1]],{color:colour,radius:4,fillOpacity:1}).bindPopup(segmentNameArray[i])).addTo(map);
+  }
     
   layerControl.addOverlay(marksLayerGroup, layerName + " Markers");
 
 }
 
-function plotMarkerLines(bounds, markArray, lineArray){
+function plotMarkerLines(bounds, segmentNameArray, markArray, lineArray){
   // add map to webpage
   showMap();
 
@@ -153,12 +158,15 @@ function plotMarkerLines(bounds, markArray, lineArray){
   // add layer control to map
   layerControl = L.control.layers().addTo(map);
 
-  for (var i = 0; i < markArray.length; i++ ) 
+  for (var i = 0; i < segmentNameArray.length; i++ ) 
   {
     // add lines to map 
     plotLines("starred", lineArray[i]);
     // add markers to map
-    plotMarkers("starred", markArray[i]);
+    var startMarks = lineArray[i].map(function(value,index) { return value[0]; });
+    var endMarks = lineArray[i].map(function(value,index) { return value.reverse()[0]; });
+    plotMarkers("starred", segmentNameArray[i], startMarks, 'green');
+    plotMarkers("starred", segmentNameArray[i], endMarks, 'red');
   }
 
 }
@@ -188,6 +196,7 @@ ws.onmessage = function (event) {
         plottype = edata.plottype,
         polyline = edata.polyline,
         markers = edata.markers,
+        segmentnames = edata.segmentnames,
         athletes = edata.names,
         bounds = edata.bounds;
 
@@ -221,7 +230,7 @@ ws.onmessage = function (event) {
     if(edata.hasOwnProperty('plottype')){
 
       if(plottype === 'lineMarkers'){
-        plotMarkerLines(bounds, markers, polyline);
+        plotMarkerLines(bounds, segmentnames, markers, polyline);
       }
 
     }

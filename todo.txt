@@ -8,7 +8,7 @@
 - [ ] consider caching in memory when user connects
 - [ ] map should always be present?
 - [X] add smaller start markers (green)
-- [ ] add end markers for segments (red)
+- [X] add end markers for segments (red)
 - [X] add table of starred segments below map
 - [X] Add links to segments from table
 - [X] store additional segment info such as length, grade, etc
