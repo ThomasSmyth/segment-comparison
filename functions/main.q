@@ -1,8 +1,8 @@
 // main functions file
 
 / return all starred segments for current athlete and cache
-.return.segments.starred:{
-  if[count .cache.segments;:.cache.segments];
+.return.segments.starred:{[refresh]
+  if[count[.cache.segments]and not refresh;:.cache.segments];
   starred:.connect.pagination["segments/starred";""];
   / get required fields
   data:`id`name`distance`average_grade`maximum_grade`elevation_high`elevation_low`climb_category#/:starred;

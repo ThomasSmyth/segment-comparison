@@ -4,3 +4,6 @@ if [ -z $SVAHOME ]; then
 fi
 export SVAHDB=${SVAHOME}/hdb            # hdb directory
 export SVAWEB=${SVAHOME}/webpage        # location of webpage code
+
+# 32 bit lib
+export LD_LIBRARY_PATH=LD_LIBRARY_PATH:/usr/lib32/

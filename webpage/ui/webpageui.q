@@ -18,20 +18,19 @@ exectimeit:{[dict]                                                              
  };
 
 .return.segmentsToPlot:{[]
-  starred:.return.segments.starred[];
+  starred:.return.segments.starred[0b];
 /  ids:(exec id from starred) except .return.athlete.koms[]`id;
   starred:update name:.return.html.segmentURL'[id] from starred;
   :starred;
  };
 
 .return.mapDetails:{[segments]
-  aths:enlist .return.athlete.data[]`fullname;
   .log.out"retrieving segment streams";
   ids:exec id from segments;
   lines:enlist .return.stream.segment each ids;
-  marks:{(first each x),'(enlist each .return.html.segmentURL each y),'(y)}'[lines;enlist ids];
+  marks:{[line;id]first'[line],'enlist'[.return.html.segmentURL each id]}'[lines;enlist ids];
   bounds:(min;max)@\: raze raze lines;
-  :`plottype`polyline`markers`names`bounds!(`lineMarkers;lines;marks;aths;bounds);
+  :`plottype`polyline`markers`bounds!(`lineMarkers;lines;marks;bounds);
  };
 
 dbstats:{([]field:("Date Range";"Meter Table Count");val:(((string .z.d)," to ",string .z.d);{reverse "," sv 3 cut reverse string x}[0]))}

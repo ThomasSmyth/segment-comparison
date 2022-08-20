@@ -15,7 +15,7 @@
 .var.commandBase:"curl -sG https://www.strava.com/api/v3/";
 .var.athleteData:();
 
-.cache.segments:([id:`long$()] name:(); distance:(); average_grade:(); maximum_grade:(); elevation_high:(); elevation_low:(); climb_category:(); starred:`boolean$());
+.cache.segments:([id:`long$()] name:(); distance:(); average_grade:(); maximum_grade:(); elevation_high:(); elevation_low:(); climb_category:());
 .cache.streams.segments:([id:`long$()] data:());
 
 .var.defaults:flip `vr`vl`fc!flip (

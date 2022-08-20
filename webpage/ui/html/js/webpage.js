@@ -107,17 +107,30 @@ function get_random_colour() {
   return colour;
 }
 
-function plotLines(athlete, lineArray){
+function plotLines(layerName, lineArray){
 
   polylineLayerGroup = L.layerGroup();
 
-  polylineLayerGroup.addLayer(L.polyline(lineArray,{color:'blue',opacity:1})).addTo(map);
+  line = L.polyline(lineArray,{color:'blue',opacity:1})
 
-  layerControl.addOverlay(polylineLayerGroup, athlete.concat(" segments"));
+// TODO sort mouseover logic for line
+//  line.on('mouseover', function() {
+//    var layer = e.target;
+//
+//    layer.setStyle({
+//        color: 'red',
+//        opacity: 1,
+//        weight: 7
+//    });
+//  })
+
+  polylineLayerGroup.addLayer(line).addTo(map);
+
+  layerControl.addOverlay(polylineLayerGroup, layerName + " Segments");
 
 }
 
-function plotMarkers(athlete, markArray){
+function plotMarkers(layerName, markArray){
   // loop over each marker and add to map
   marksLayerGroup = L.layerGroup();
 
@@ -125,11 +138,11 @@ function plotMarkers(athlete, markArray){
     marksLayerGroup.addLayer(L.circleMarker([mark[0],mark[1]],{color:'green',radius:4,fillOpacity:1}).bindPopup(mark[2])).addTo(map);
   });
     
-  layerControl.addOverlay(marksLayerGroup, athlete.concat(" markers"));
+  layerControl.addOverlay(marksLayerGroup, layerName + " Markers");
 
 }
 
-function plotMarkerLines(athletes, bounds, markArray, lineArray){
+function plotMarkerLines(bounds, markArray, lineArray){
   // add map to webpage
   showMap();
 
@@ -143,9 +156,9 @@ function plotMarkerLines(athletes, bounds, markArray, lineArray){
   for (var i = 0; i < markArray.length; i++ ) 
   {
     // add lines to map 
-    plotLines(athletes[i], lineArray[i]);
+    plotLines("starred", lineArray[i]);
     // add markers to map
-    plotMarkers(athletes[i], markArray[i]);
+    plotMarkers("starred", markArray[i]);
   }
 
 }
@@ -207,12 +220,8 @@ ws.onmessage = function (event) {
     // Map handling functionality
     if(edata.hasOwnProperty('plottype')){
 
-      if(plottype === 'polyline'){
-        plotLines(polyline);
-      } else if(plottype === 'markers'){
-        plotMarkers(markers);
-      } else if(plottype === 'lineMarkers'){
-        plotMarkerLines(athletes, bounds, markers, polyline);
+      if(plottype === 'lineMarkers'){
+        plotMarkerLines(bounds, markers, polyline);
       }
 
     }
@@ -272,11 +281,6 @@ ws.error = function (error) {
 
 // jQuery used for UI
 $(function() {
-
-  // Add calendar for start,end date
-  $('#startdate').datepicker();
-  $('#enddate').datepicker(
-  );
 
   // Filter options
   // This is a UI design pattern for when there is a list of multiple options for when atleast one option is required.
